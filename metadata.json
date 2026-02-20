@@ -1,0 +1,7 @@
+{
+  "name": "Stage Storia©: Kids' Audiobook Adventures MVP",
+  "description": "Storia is a calm, AI-powered storytelling app designed to help children 2-5 wind down, self-regulate, and explore stories from around the world.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
