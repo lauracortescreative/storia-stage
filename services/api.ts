@@ -4,7 +4,9 @@
  * JWT token is stored in localStorage as 'storia_jwt'
  */
 
-const BASE_URL = 'http://localhost:3001/api';
+// In production (Netlify), the frontend and function share one origin,
+// so we use a relative /api path. In local dev, we point to the Express server.
+const BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001/api' : '/api');
 
 // ─── Token helpers ────────────────────────────────────────────────────────────
 

@@ -299,8 +299,8 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     pw_plus_feat4: "Cultural localization",
     pw_plus_feat5: "Auto-play & repeat mode",
     pw_keep_exploring: "Keep exploring for now",
-    pw_limit_title: "You've reached this month's new stories",
-    pw_limit_body: "You can keep listening to your saved stories as much as you like. If tonight needs something new, you can add a few more.",
+    pw_limit_title: "You've used all your free stories",
+    pw_limit_body: "You've explored all 5 of your free stories. You can replay your saved favorites any time, or unlock more with Storia Plus.",
     pw_limit_replay: "Replay a favorite",
     pw_limit_reset: "Next stories reset in",
     pw_topup_title: "Extra stories for long nights",
@@ -680,7 +680,7 @@ const App: React.FC = () => {
     }
 
     const canGenerate = (userStats.plan === 'plus' && userStats.monthlyUsed < userStats.monthlyLimit) ||
-      (userStats.plan === 'free' && userStats.monthlyUsed < 5) ||
+      (userStats.plan === 'free' && userStats.totalGenerated < 5) ||
       (userStats.bundlesRemaining > 0);
 
     if (!canGenerate) {
