@@ -460,6 +460,45 @@ app.post('/api/subscribe/checkout', authenticateToken, async (req, res) => {
     }
 });
 
+// POST /api/subscribe/topup — one-time bundle purchase
+app.post('/api/subscribe/topup', authenticateToken, async (req, res) => {
+    try {
+        const { count } = req.body; // 5 | 15 | 30
+        const BUNDLE_PRICES = { 5: 299, 15: 699, 30: 1199 }; // cents
+        const priceInCents = BUNDLE_PRICES[count];
+        if (!priceInCents) return res.status(400).json({ error: 'Invalid bundle size. Choose 5, 15, or 30.' });
+
+        const stripe = getStripe();
+        const origin = req.headers.origin || (process.env.URL ? `https://${process.env.URL}` : 'http://localhost:3000');
+
+        const session = await stripe.checkout.sessions.create({
+            mode: 'payment',
+            payment_method_types: ['card'],
+            line_items: [{
+                price_data: {
+                    currency: 'eur',
+                    unit_amount: priceInCents,
+                    product_data: {
+                        name: `Storia — ${count} Story Bundle`,
+                        description: `${count} extra AI-generated bedtime stories added to your account.`,
+                    },
+                },
+                quantity: 1,
+            }],
+            success_url: `${origin}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${origin}/`,
+            client_reference_id: req.user.id,
+            customer_email: req.user.email,
+            metadata: { user_id: req.user.id, type: 'topup', bundle_count: String(count) },
+        });
+
+        res.json({ url: session.url });
+    } catch (err) {
+        console.error('Topup checkout error:', err.message);
+        res.status(500).json({ error: err.message || 'Failed to create topup session' });
+    }
+});
+
 // POST /api/webhooks/stripe — handle Stripe events
 // Must receive raw body for signature verification
 app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
@@ -482,16 +521,30 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
         if (userId) {
             try {
                 const sb = getSupabase();
-                const { error } = await sb.from('user_stats').update({
-                    plan: 'plus',
-                    monthly_limit: 20,
-                }).eq('user_id', userId);
 
-                if (error) throw error;
-                console.log(`✅ User ${userId} upgraded to Plus via Stripe webhook`);
+                if (session.metadata?.type === 'topup') {
+                    // Bundle top-up: increment bundles_remaining
+                    const bundleCount = parseInt(session.metadata.bundle_count || '0', 10);
+                    const { data: current, error: fetchErr } = await sb
+                        .from('user_stats').select('bundles_remaining').eq('user_id', userId).single();
+                    if (fetchErr) throw fetchErr;
+                    const { error } = await sb.from('user_stats').update({
+                        bundles_remaining: (current.bundles_remaining || 0) + bundleCount,
+                    }).eq('user_id', userId);
+                    if (error) throw error;
+                    console.log(`✅ User ${userId} topped up with ${bundleCount} stories`);
+                } else {
+                    // Subscription upgrade
+                    const { error } = await sb.from('user_stats').update({
+                        plan: 'plus',
+                        monthly_limit: 20,
+                    }).eq('user_id', userId);
+                    if (error) throw error;
+                    console.log(`✅ User ${userId} upgraded to Plus via Stripe webhook`);
+                }
             } catch (err) {
-                console.error('Supabase plan upgrade error:', err.message);
-                return res.status(500).json({ error: 'Failed to upgrade plan' });
+                console.error('Supabase update error:', err.message);
+                return res.status(500).json({ error: 'Failed to process payment' });
             }
         }
     }

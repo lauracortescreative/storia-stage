@@ -125,6 +125,14 @@ export async function apiCreateCheckoutSession(plan: 'monthly' | 'yearly'): Prom
     });
 }
 
+export async function apiCreateTopupSession(count: number): Promise<{ url: string }> {
+    return apiFetch<{ url: string }>('/subscribe/topup', {
+        method: 'POST',
+        body: JSON.stringify({ count })
+    });
+}
+
+
 // ─── Public Library ───────────────────────────────────────────────────────────
 
 export async function apiGetPublicStories(): Promise<StoryResult[]> {

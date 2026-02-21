@@ -25,7 +25,7 @@ import {
   apiRegister, apiLogin, apiDeleteAccount, apiUpdateEmail,
   apiGetStories, apiSaveStory,
   apiGetStats, apiUpdateStats,
-  apiCreateCheckoutSession,
+  apiCreateCheckoutSession, apiCreateTopupSession,
   getToken, clearToken
 } from './services/api';
 
@@ -492,11 +492,7 @@ const App: React.FC = () => {
   const [subscribeError, setSubscribeError] = useState<string | null>(null);
 
   const handleSubscribe = async (plan: 'monthly' | 'yearly') => {
-    // Must be logged in to subscribe
-    if (!isLoggedIn) {
-      setView('auth');
-      return;
-    }
+    if (!isLoggedIn) { setView('auth'); return; }
     setSubscribeLoading(true);
     setSubscribeError(null);
     try {
@@ -504,6 +500,20 @@ const App: React.FC = () => {
       window.location.href = url;
     } catch (err: any) {
       console.error('Stripe checkout error:', err);
+      setSubscribeError(err.message || 'Could not start checkout. Please try again.');
+      setSubscribeLoading(false);
+    }
+  };
+
+  const handleAddStories = async (count: number) => {
+    if (!isLoggedIn) { setView('auth'); return; }
+    setSubscribeLoading(true);
+    setSubscribeError(null);
+    try {
+      const { url } = await apiCreateTopupSession(count);
+      window.location.href = url;
+    } catch (err: any) {
+      console.error('Topup checkout error:', err);
       setSubscribeError(err.message || 'Could not start checkout. Please try again.');
       setSubscribeLoading(false);
     }
@@ -693,6 +703,10 @@ const App: React.FC = () => {
       return;
     }
 
+    const usingBundle = userStats.bundlesRemaining > 0 &&
+      !((userStats.plan === 'plus' && userStats.monthlyUsed < userStats.monthlyLimit) ||
+        (userStats.plan === 'free' && userStats.totalGenerated < 5));
+
     const canGenerate = (userStats.plan === 'plus' && userStats.monthlyUsed < userStats.monthlyLimit) ||
       (userStats.plan === 'free' && userStats.totalGenerated < 5) ||
       (userStats.bundlesRemaining > 0);
@@ -713,6 +727,13 @@ const App: React.FC = () => {
       const service = new StoryService();
       const storyData = await service.generateStoryStructure(config);
       if (currentGenId !== generationIdRef.current) return;
+
+      // Decrement bundle if that's what allowed this generation
+      if (usingBundle && isLoggedIn) {
+        const newBundle = Math.max(0, userStats.bundlesRemaining - 1);
+        setUserStats(prev => ({ ...prev, bundlesRemaining: newBundle }));
+        apiUpdateStats({ bundlesRemaining: newBundle }).catch(console.error);
+      }
 
       // --- SAVE PERSONALIZATION ---
       const personalizationKeys: (keyof StoryConfig)[] = [
@@ -953,7 +974,7 @@ const App: React.FC = () => {
             translations={t}
             userStats={userStats}
             onSubscribe={handleSubscribe}
-            onAddStories={(count) => { updateStats({ bundlesRemaining: userStats.bundlesRemaining + count }); setView('app'); }}
+            onAddStories={handleAddStories}
             onContinue={() => setView('app')}
             onBack={() => setView('app')}
             onReplay={() => setView('library')}
