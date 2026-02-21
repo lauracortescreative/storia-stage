@@ -399,25 +399,24 @@ app.post('/api/gemini/translate', async (req, res) => {
     try {
         const { chunks, targetLang } = req.body;
         const ai = getAI();
-        const results = await Promise.all(chunks.map(async (chunkObj) => {
-            return withRetry(async () => {
-                const response = await ai.models.generateContent({
-                    model: 'gemini-2.5-flash',
-                    contents: `Translate this JSON into ${targetLang}. Use a warm children's app tone. Maintain exact keys. Return ONLY JSON. JSON: ${JSON.stringify(chunkObj)}`,
-                    config: { responseMimeType: 'application/json', thinkingConfig: { thinkingBudget: 0 } },
-                });
-                const rawText = response.text.trim();
-                const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-                return jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+        // Merge all chunks into one object and translate in a single API call
+        const allKeys = chunks.reduce((acc, chunk) => ({ ...acc, ...chunk }), {});
+        const result = await withRetry(async () => {
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.0-flash-lite',
+                contents: `Translate the values in this JSON object into ${targetLang}. Use a warm, friendly children's app tone. Keep all JSON keys exactly the same. Return ONLY valid JSON, no markdown. JSON: ${JSON.stringify(allKeys)}`,
+                config: { responseMimeType: 'application/json' },
             });
-        }));
-        let combined = {};
-        results.forEach(part => { combined = { ...combined, ...part }; });
-        res.json(combined);
+            const rawText = response.text.trim();
+            const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+            return jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+        });
+        res.json(result);
     } catch (err) {
         res.status(500).json({ error: err.message || 'Translation failed' });
     }
 });
+
 
 
 // ─── Stripe subscribe routes ──────────────────────────────────────────────────

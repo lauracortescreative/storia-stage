@@ -8,6 +8,7 @@ import RefinementPage from './components/RefinementPage';
 import StoryPlayer from './components/StoryPlayer';
 import LandingPage from './components/LandingPage';
 import SettingsPage from './components/SettingsPage';
+import SubscribeSuccessPage from './components/SubscribeSuccessPage';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
 import AboutPage from './components/AboutPage';
 import Paywall from './components/Paywall';
@@ -24,6 +25,7 @@ import {
   apiRegister, apiLogin, apiDeleteAccount, apiUpdateEmail,
   apiGetStories, apiSaveStory,
   apiGetStats, apiUpdateStats,
+  apiCreateCheckoutSession,
   getToken, clearToken
 } from './services/api';
 
@@ -355,7 +357,9 @@ const DEFAULT_STATS: UserStats = {
 
 const App: React.FC = () => {
   const [showDisclaimer, setShowDisclaimer] = useState(true);
-  const [view, setView] = useState<'landing' | 'app' | 'seed' | 'refinement' | 'setup' | 'settings' | 'privacy' | 'about' | 'paywall' | 'library' | 'public_library' | 'coloring_book' | 'auth' | 'account'>('landing');
+  const [view, setView] = useState<'landing' | 'app' | 'seed' | 'refinement' | 'setup' | 'settings' | 'privacy' | 'about' | 'paywall' | 'library' | 'public_library' | 'coloring_book' | 'auth' | 'account' | 'subscribe_success'>(
+    window.location.pathname === '/subscribe/success' ? 'subscribe_success' : 'landing'
+  );
   const [paywallScreen, setPaywallScreen] = useState<'intro' | 'plus' | 'limit' | 'topup'>('intro');
   const [hasKey, setHasKey] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -442,7 +446,7 @@ const App: React.FC = () => {
       try {
         const englishStrings = ALL_TRANSLATIONS['English'];
         const keys = Object.keys(englishStrings);
-        const chunkSize = 35;
+        const chunkSize = 200;
         const chunks: any[] = [];
         for (let i = 0; i < keys.length; i += chunkSize) {
           const chunkObj: any = {};
@@ -482,6 +486,27 @@ const App: React.FC = () => {
       }
       return next;
     });
+  };
+
+  const [subscribeLoading, setSubscribeLoading] = useState(false);
+  const [subscribeError, setSubscribeError] = useState<string | null>(null);
+
+  const handleSubscribe = async (plan: 'monthly' | 'yearly') => {
+    // Must be logged in to subscribe
+    if (!isLoggedIn) {
+      setView('auth');
+      return;
+    }
+    setSubscribeLoading(true);
+    setSubscribeError(null);
+    try {
+      const { url } = await apiCreateCheckoutSession(plan);
+      window.location.href = url;
+    } catch (err: any) {
+      console.error('Stripe checkout error:', err);
+      setSubscribeError(err.message || 'Could not start checkout. Please try again.');
+      setSubscribeLoading(false);
+    }
   };
 
   const [authError, setAuthError] = useState<string | null>(null);
@@ -929,14 +954,50 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
-        {view === 'settings' && <SettingsPage userStats={userStats} translations={t} onBack={() => setView('app')} />}
+        {view === 'settings' && <SettingsPage userStats={userStats} translations={t} token={getToken()} onBack={() => setView('app')} />}
         {view === 'privacy' && <PrivacyPolicyPage translations={t} onBack={() => setView('app')} />}
         {view === 'about' && <AboutPage translations={t} onBack={() => setView('app')} />}
-        {view === 'paywall' && <Paywall screen={paywallScreen} translations={t} userStats={userStats} onSubscribe={() => { updateStats({ plan: 'plus', monthlyLimit: 20 }); setView('app'); }} onAddStories={(count) => { updateStats({ bundlesRemaining: userStats.bundlesRemaining + count }); setView('app'); }} onContinue={() => setView('app')} onBack={() => setView('app')} onReplay={() => setView('library')} />}
+        {view === 'paywall' && (
+          <Paywall
+            screen={paywallScreen}
+            translations={t}
+            userStats={userStats}
+            onSubscribe={handleSubscribe}
+            onAddStories={(count) => { updateStats({ bundlesRemaining: userStats.bundlesRemaining + count }); setView('app'); }}
+            onContinue={() => setView('app')}
+            onBack={() => setView('app')}
+            onReplay={() => setView('library')}
+          />
+        )}
+        {subscribeError && view === 'paywall' && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-red-950 border border-red-700 text-red-300 text-sm font-bold px-6 py-3 rounded-2xl shadow-2xl">
+            {subscribeError}
+          </div>
+        )}
+        {subscribeLoading && (
+          <div className="fixed inset-0 z-[600] bg-black/80 flex items-center justify-center">
+            <div className="text-white text-center space-y-4">
+              <p className="text-2xl font-black animate-pulse">Redirecting to checkout…</p>
+              <p className="text-zinc-500 text-xs font-black uppercase tracking-widest">Powered by Stripe</p>
+            </div>
+          </div>
+        )}
         {view === 'account' && <AccountPage translations={t} email={userEmail} onUpdateEmail={handleUpdateEmail} onDeleteAccount={handleDeleteAccount} onBack={() => setView('app')} />}
         {view === 'library' && <LibraryPage translations={t} sessionStories={sessionStories} savedStories={savedStories} isLoggedIn={isLoggedIn} onSelectStory={(s) => { setStory(s); setView('app'); }} onSaveStory={saveToAccount} onBack={() => setView('app')} onAuth={() => setView('auth')} />}
         {view === 'public_library' && <PublicLibraryPage translations={t} onSelectStory={(s) => { setStory(s); setView('app'); }} onGoToColoring={() => setView('coloring_book')} onBack={() => setView('landing')} />}
         {view === 'coloring_book' && <ColoringBookPage translations={t} onBack={() => setView('landing')} />}
+        {view === 'subscribe_success' && (
+          <SubscribeSuccessPage
+            translations={t}
+            onContinue={() => { window.history.replaceState({}, '', '/'); setView('app'); }}
+            onRefreshStats={async () => {
+              try {
+                const fresh = await apiGetStats();
+                if (fresh) setUserStats(prev => ({ ...prev, ...fresh }));
+              } catch { }
+            }}
+          />
+        )}
 
         {story && (
           <div className="py-12 px-4">
