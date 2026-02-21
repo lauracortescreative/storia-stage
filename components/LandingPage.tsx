@@ -434,8 +434,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
                           <button
                             onClick={(e) => handlePlaySample(story, e)}
                             className={`group/playbtn px-8 py-4 md:px-10 md:py-5 rounded-[2.5rem] font-black uppercase tracking-[0.2em] text-sm md:text-lg transition-all flex items-center gap-4 border-[3px] shadow-[0_20px_40px_rgba(0,0,0,0.5)] active:scale-95 shrink-0 ${playingAudioId === story.id
-                                ? 'bg-white text-black border-white hover:bg-zinc-100'
-                                : 'bg-white/10 text-white border-white/40 hover:bg-white/20'
+                              ? 'bg-white text-black border-white hover:bg-zinc-100'
+                              : 'bg-white/10 text-white border-white/40 hover:bg-white/20'
                               } ${loadingAudioId === story.id ? 'opacity-50 cursor-wait' : ''}`}
                           >
                             {loadingAudioId === story.id ? (
@@ -551,13 +551,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
         </section>
 
         {/* Feature List Section */}
-        <section className="w-full max-w-7xl px-6 py-32 space-y-24">
+        <section className="w-full max-w-4xl px-6 py-20 space-y-12">
           <div className="text-center space-y-6">
             <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter">{t.landing_features_title}</h2>
             <div className="w-32 h-2 bg-indigo-500 mx-auto rounded-full"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-5">
             {[
               { icon: "🎙️", title: t.landing_feat_voice_title, desc: t.landing_feat_voice_desc },
               { icon: "🌍", title: t.landing_feat_culture_title, desc: t.landing_feat_culture_desc },
@@ -572,16 +572,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
               { icon: "🛡️", title: t.landing_feat_moderation_title, desc: t.landing_feat_moderation_desc },
               { icon: "🖍️", title: t.landing_feat_pdf_title, desc: t.landing_feat_pdf_desc },
             ].map((feat, i) => (
-              <div key={i} className="p-10 bg-white/5 backdrop-blur-2xl rounded-[3rem] border border-white/10 space-y-6 hover:bg-white/10 transition-all hover:-translate-y-3 group shadow-2xl">
-                <div className="text-5xl group-hover:scale-110 transition-transform">{feat.icon}</div>
-                <div className="space-y-3">
-                  <h4 className="text-2xl font-black text-white tracking-tight">{feat.title}</h4>
-                  <p className="text-indigo-100/60 text-base leading-relaxed font-semibold">{feat.desc}</p>
+              <div key={i} className="flex items-start gap-4 py-4 border-b border-white/5">
+                <span className="text-2xl shrink-0 mt-0.5">{feat.icon}</span>
+                <div>
+                  <h4 className="text-white font-black text-sm tracking-tight">{feat.title}</h4>
+                  <p className="text-indigo-100/50 text-xs leading-relaxed font-medium mt-0.5">{feat.desc}</p>
                 </div>
               </div>
             ))}
           </div>
         </section>
+
 
         {/* Footer CTA */}
         <section className="w-full py-40 flex flex-col items-center justify-center px-4 bg-gradient-to-t from-black to-transparent">
