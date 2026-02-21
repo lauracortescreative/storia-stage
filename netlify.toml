@@ -4,19 +4,15 @@
   functions = "netlify/functions"
 
 [functions]
-  # Bundle each function individually so ESM imports work correctly
   node_bundler = "esbuild"
-  # Include the server directory in the bundle
   included_files = ["server/**"]
 
-# ── API proxy — all /api/* requests go to the serverless function ──────────────
+# ── API proxy — proxy ALL /api/* requests to the serverless function ──────────
+# We use a wildcard without :splat so the full path is preserved in event.path
+# The function handler restores the /api prefix stripped by the proxy.
 [[redirects]]
   from   = "/api/*"
-  to     = "/.netlify/functions/api/:splat"
+  to     = "/.netlify/functions/api"
   status = 200
 
-# ── SPA fallback — all other routes serve index.html (client-side routing) ────
-[[redirects]]
-  from   = "/*"
-  to     = "/index.html"
-  status = 200
+# ── SPA fallback ─────────────────────────────────────────�
