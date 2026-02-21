@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI } from "@google/genai";
+
 import { StoryConfig, StoryResult, Episode, VisualScene, Region, UITranslations, UserStats } from './types';
 import Form, { RAW_REGION_DATA, SUPPORTED_LANGUAGES } from './components/Form';
 import StorySeedPage from './components/StorySeedPage';
@@ -440,37 +440,26 @@ const App: React.FC = () => {
     const translateMagic = async () => {
       const tid = ++translationIdRef.current;
       try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const englishStrings = ALL_TRANSLATIONS['English'];
-
         const keys = Object.keys(englishStrings);
         const chunkSize = 35;
-        const chunks = [];
+        const chunks: any[] = [];
         for (let i = 0; i < keys.length; i += chunkSize) {
-          const chunkKeys = keys.slice(i, i + chunkSize);
           const chunkObj: any = {};
-          chunkKeys.forEach(k => chunkObj[k] = (englishStrings as any)[k]);
+          keys.slice(i, i + chunkSize).forEach(k => chunkObj[k] = (englishStrings as any)[k]);
           chunks.push(chunkObj);
         }
 
-        const results = await Promise.all(chunks.map(async (chunkObj) => {
-          const response = await ai.models.generateContent({
-            model: 'gemini-3-flash-preview',
-            contents: `Translate this JSON into ${currentLang}. Use a warm children's app tone. Maintain exact keys. Return ONLY JSON. JSON: ${JSON.stringify(chunkObj)}`,
-            config: {
-              responseMimeType: 'application/json',
-              thinkingConfig: { thinkingBudget: 0 }
-            }
-          });
-          const rawText = response.text.trim();
-          const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-          return jsonMatch ? JSON.parse(jsonMatch[0]) : {};
-        }));
+        const BASE = import.meta.env.DEV ? 'http://localhost:3001' : '';
+        const res = await fetch(`${BASE}/api/gemini/translate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chunks, targetLang: currentLang }),
+        });
+        if (!res.ok) throw new Error('Translation request failed');
+        const combinedResult = await res.json() as Partial<UITranslations>;
 
         if (tid !== translationIdRef.current) return;
-
-        let combinedResult: Partial<UITranslations> = {};
-        results.forEach(part => combinedResult = { ...combinedResult, ...part });
 
         if (Object.keys(combinedResult).length > 5) {
           localStorage.setItem(`storia_trans_${currentLang}`, JSON.stringify(combinedResult));
