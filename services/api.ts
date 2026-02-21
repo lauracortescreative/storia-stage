@@ -116,6 +116,15 @@ export async function apiUpdateStats(stats: Partial<UserStats>): Promise<void> {
     });
 }
 
+// ─── Stripe / Subscriptions ───────────────────────────────────────────────────
+
+export async function apiCreateCheckoutSession(plan: 'monthly' | 'yearly'): Promise<{ url: string }> {
+    return apiFetch<{ url: string }>('/subscribe/checkout', {
+        method: 'POST',
+        body: JSON.stringify({ plan })
+    });
+}
+
 // ─── Public Library ───────────────────────────────────────────────────────────
 
 export async function apiGetPublicStories(): Promise<StoryResult[]> {
