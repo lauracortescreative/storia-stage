@@ -464,9 +464,9 @@ app.post('/api/subscribe/checkout', authenticateToken, async (req, res) => {
 app.post('/api/subscribe/topup', authenticateToken, async (req, res) => {
     try {
         const { count } = req.body; // 5 | 15 | 30
-        const BUNDLE_PRICES = { 5: 299, 15: 699, 30: 1199 }; // cents
+        const BUNDLE_PRICES = { 10: 699 }; // cents — 10 stories for €6.99
         const priceInCents = BUNDLE_PRICES[count];
-        if (!priceInCents) return res.status(400).json({ error: 'Invalid bundle size. Choose 5, 15, or 30.' });
+        if (!priceInCents) return res.status(400).json({ error: 'Invalid bundle size.' });
 
         const stripe = getStripe();
         const origin = req.headers.origin || (process.env.URL ? `https://${process.env.URL}` : 'http://localhost:3000');

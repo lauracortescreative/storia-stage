@@ -134,30 +134,28 @@ const Paywall: React.FC<PaywallProps> = ({
   // SCREEN 4: TOP-UP SELECTION
   if (screen === 'topup') {
     const bundles = [
-      { count: 5, price: '€2.99', title: t.pw_bundle_5_title, desc: t.pw_bundle_5_desc },
-      { count: 15, price: '€6.99', title: t.pw_bundle_15_title, desc: t.pw_bundle_15_desc, popular: true },
-      { count: 30, price: '€11.99', title: t.pw_bundle_30_title, desc: t.pw_bundle_30_desc }
+      { count: 10, price: '€6.99', title: t.pw_bundle_15_title || '10 Stories', desc: t.pw_bundle_15_desc || 'One-time top-up', popular: true },
     ];
 
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 animate-in slide-in-from-bottom duration-500">
-        <div className="max-w-2xl w-full space-y-12">
+        <div className="max-w-sm w-full space-y-12">
           <div className="text-center space-y-4">
             <h2 className="text-5xl font-black text-white tracking-tighter">{t.pw_topup_title}</h2>
             <p className="text-zinc-400 font-medium px-8">{t.pw_topup_subtitle}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
             {bundles.map((b, i) => (
               <div
                 key={i}
                 onClick={() => onAddStories(b.count)}
-                className={`p-8 rounded-[2.5rem] bg-zinc-900 border-2 transition-all cursor-pointer hover:scale-105 flex flex-col items-center text-center space-y-3 relative overflow-hidden group ${b.popular ? 'border-indigo-500/50 shadow-[0_0_30px_rgba(79,70,229,0.1)]' : 'border-zinc-800'}`}
+                className="p-10 rounded-[2.5rem] bg-zinc-900 border-2 border-indigo-500/50 shadow-[0_0_40px_rgba(79,70,229,0.15)] transition-all cursor-pointer hover:scale-105 flex flex-col items-center text-center space-y-4 relative overflow-hidden"
               >
-                {b.popular && <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500"></div>}
-                <span className="text-white font-black text-xl">{b.title}</span>
-                <p className="text-3xl font-black text-indigo-400">{b.price}</p>
-                <p className="text-zinc-500 text-[10px] font-black uppercase leading-tight">{b.desc}</p>
+                <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500" />
+                <span className="text-white font-black text-2xl">{b.title}</span>
+                <p className="text-5xl font-black text-indigo-400">{b.price}</p>
+                <p className="text-zinc-500 text-[10px] font-black uppercase leading-tight tracking-widest">{b.desc}</p>
               </div>
             ))}
           </div>
