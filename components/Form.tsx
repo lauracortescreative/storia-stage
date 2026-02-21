@@ -86,7 +86,7 @@ const Form: React.FC<FormProps> = ({ onSubmit, onJoinMembership, onBack, transla
     voiceStyle: 'clear',
     pace: 'medium',
     rhymeMode: 'regular',
-    storyLength: 5, 
+    storyLength: 5,
     soundscape: 'none',
     parentVoiceEnabled: false,
     ...initialData
@@ -118,7 +118,7 @@ const Form: React.FC<FormProps> = ({ onSubmit, onJoinMembership, onBack, transla
         const blob = new Blob(chunksRef.current, { type: 'audio/wav' });
         analyzeVoice(blob);
       };
-      
+
       setRecordingProgress(0);
       const startTime = Date.now();
       recordingIntervalRef.current = window.setInterval(() => {
@@ -130,7 +130,7 @@ const Form: React.FC<FormProps> = ({ onSubmit, onJoinMembership, onBack, transla
 
       recorder.start();
       setIsRecording(true);
-      setVoiceProfile(null); 
+      setVoiceProfile(null);
     } catch (err) {
       console.error("Mic access failed", err);
     }
@@ -151,12 +151,12 @@ const Form: React.FC<FormProps> = ({ onSubmit, onJoinMembership, onBack, transla
   const analyzeVoice = async (blob: Blob) => {
     setVoiceAnalysisLoading(true);
     setAnalysisProgress(0);
-    
+
     analysisIntervalRef.current = window.setInterval(() => {
       setAnalysisProgress(prev => {
         if (prev >= 95) {
-           if (analysisIntervalRef.current) clearInterval(analysisIntervalRef.current);
-           return 95;
+          if (analysisIntervalRef.current) clearInterval(analysisIntervalRef.current);
+          return 95;
         }
         return prev + 0.8;
       });
@@ -220,7 +220,7 @@ const Form: React.FC<FormProps> = ({ onSubmit, onJoinMembership, onBack, transla
     <div className="max-w-2xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
       <div className="text-center space-y-4">
         <div className="inline-block px-4 py-1.5 bg-indigo-600/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20 mb-2">
-           {t.step_1_label}
+          {t.step_1_label}
         </div>
         <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter">{t.pers_header}</h2>
         <p className="text-zinc-400 font-medium max-w-lg mx-auto leading-relaxed">{t.pers_subtitle}</p>
@@ -233,12 +233,12 @@ const Form: React.FC<FormProps> = ({ onSubmit, onJoinMembership, onBack, transla
             <div className="space-y-3">
               <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">{t.label_child_name}</label>
               <div className="relative">
-                <input 
-                  name="childName" 
-                  value={config.childName} 
-                  onChange={handleChange} 
-                  placeholder={t.placeholder_child_name} 
-                  className={`w-full px-6 py-4 rounded-2xl bg-zinc-800 border-2 text-white placeholder-zinc-500 focus:outline-none transition-all font-bold text-sm shadow-inner ${safetyIssues.childName ? 'border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]' : 'border-zinc-700 focus:border-indigo-500'}`} 
+                <input
+                  name="childName"
+                  value={config.childName}
+                  onChange={handleChange}
+                  placeholder={t.placeholder_child_name}
+                  className={`w-full px-6 py-4 rounded-2xl bg-zinc-800 border-2 text-white placeholder-zinc-500 focus:outline-none transition-all font-bold text-sm shadow-inner ${safetyIssues.childName ? 'border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]' : 'border-zinc-700 focus:border-indigo-500'}`}
                 />
                 {safetyIssues.childName && (
                   <p className="text-amber-500 text-[10px] font-black uppercase tracking-widest mt-1 ml-1 animate-pulse">
@@ -252,12 +252,12 @@ const Form: React.FC<FormProps> = ({ onSubmit, onJoinMembership, onBack, transla
             <div className="space-y-3">
               <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">{t.label_friend_names}</label>
               <div className="relative">
-                <input 
-                  name="friendNames" 
-                  value={config.friendNames} 
-                  onChange={handleChange} 
-                  placeholder={t.placeholder_friend_names} 
-                  className={`w-full px-6 py-4 rounded-2xl bg-zinc-800 border-2 text-white placeholder-zinc-500 focus:outline-none transition-all font-bold text-sm shadow-inner ${safetyIssues.friendNames ? 'border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]' : 'border-zinc-700 focus:border-indigo-500'}`} 
+                <input
+                  name="friendNames"
+                  value={config.friendNames}
+                  onChange={handleChange}
+                  placeholder={t.placeholder_friend_names}
+                  className={`w-full px-6 py-4 rounded-2xl bg-zinc-800 border-2 text-white placeholder-zinc-500 focus:outline-none transition-all font-bold text-sm shadow-inner ${safetyIssues.friendNames ? 'border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]' : 'border-zinc-700 focus:border-indigo-500'}`}
                 />
                 {safetyIssues.friendNames && (
                   <p className="text-amber-500 text-[10px] font-black uppercase tracking-widest mt-1 ml-1 animate-pulse">
@@ -307,7 +307,7 @@ const Form: React.FC<FormProps> = ({ onSubmit, onJoinMembership, onBack, transla
                 )}
               </div>
             </div>
-            
+
             {/* Length */}
             <div className="space-y-3">
               <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">{t.label_length}</label>
@@ -328,10 +328,10 @@ const Form: React.FC<FormProps> = ({ onSubmit, onJoinMembership, onBack, transla
               <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">{t.label_soundscape}</label>
               <div className="flex flex-wrap gap-2 p-1 bg-zinc-800 rounded-2xl border-2 border-zinc-700">
                 {(['none', 'rain', 'forest', 'ocean', 'wind'] as const).map(s => (
-                  <button 
+                  <button
                     key={s}
-                    type="button" 
-                    onClick={() => setConfig(prev => ({ ...prev, soundscape: s }))} 
+                    type="button"
+                    onClick={() => setConfig(prev => ({ ...prev, soundscape: s }))}
                     className={`flex-1 min-w-[80px] py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${config.soundscape === s ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
                   >
                     {s === 'none' ? t.opt_silent : (t[`sound_${s}`] as string) || s}
@@ -353,11 +353,11 @@ const Form: React.FC<FormProps> = ({ onSubmit, onJoinMembership, onBack, transla
               </div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input 
-                type="checkbox" 
-                name="parentVoiceEnabled" 
-                checked={config.parentVoiceEnabled} 
-                onChange={handleChange} 
+              <input
+                type="checkbox"
+                name="parentVoiceEnabled"
+                checked={config.parentVoiceEnabled}
+                onChange={handleChange}
                 className="sr-only peer"
               />
               <div className="w-14 h-8 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-600"></div>
@@ -395,15 +395,21 @@ const Form: React.FC<FormProps> = ({ onSubmit, onJoinMembership, onBack, transla
           )}
         </div>
 
+        {/* Early-bird offer notice */}
+        <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-bold">
+          <span className="text-base shrink-0">🎁</span>
+          <span>Early access offer: <strong>5 free stories/month</strong> until August 1st — after that, 2 free stories/month.</span>
+        </div>
+
         <div className="flex flex-col gap-4">
-          <button 
+          <button
             type="submit"
             disabled={hasSafetyIssues}
             className="w-full py-7 bg-white text-black font-black text-2xl rounded-[2.5rem] hover:bg-zinc-200 transition-all shadow-[0_20px_50px_rgba(255,255,255,0.1)] active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
           >
             {t.pw_continue || "Continue"} →
           </button>
-          <button 
+          <button
             type="button"
             onClick={onBack}
             className="w-full py-4 text-zinc-500 hover:text-white font-bold transition-colors"

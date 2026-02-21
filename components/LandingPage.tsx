@@ -20,10 +20,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
   const [loadingAudioId, setLoadingAudioId] = useState<number | null>(null);
   const [playingAudioId, setPlayingAudioId] = useState<number | null>(null);
   const [audioBuffers, setAudioBuffers] = useState<Record<number, AudioBuffer>>({});
-  
+
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const testimonialTimerRef = useRef<number | null>(null);
-  
+
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
 
   const featuredStories = [
@@ -105,7 +105,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
     if (audioSourceRef.current) {
       try {
         audioSourceRef.current.stop();
-      } catch (e) {}
+      } catch (e) { }
       audioSourceRef.current = null;
     }
     setPlayingAudioId(null);
@@ -160,7 +160,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
 
   const handlePlaySample = async (story: typeof featuredStories[0], e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    
+
     if (playingAudioId === story.id) {
       stopAudio();
       return;
@@ -222,7 +222,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
         <div className="absolute top-[20%] right-[10%] w-[40%] h-[40%] bg-blue-400/20 rounded-full blur-[100px] animate-pulse"></div>
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-40 mix-blend-screen"></div>
         {[...Array(20)].map((_, i) => (
-          <div 
+          <div
             key={i}
             className="absolute rounded-full bg-white animate-twinkle"
             style={{
@@ -243,36 +243,36 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
           Storia<sup className="text-[0.5em] ml-1">©</sup>
         </div>
         <div className="flex items-center gap-3 md:gap-6">
-          <a 
-            href="https://www.instagram.com/storia.land/" 
-            target="_blank" 
+          <a
+            href="https://www.instagram.com/storia.land/"
+            target="_blank"
             rel="noopener noreferrer"
             className="hidden xs:flex p-2.5 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white"
             title="Follow us on Instagram"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.999 0h.001zm-.512 1.442c.859-.04 1.154-.047 3.333-.047 2.179 0 2.474.007 3.333.047.794.037 1.226.171 1.513.282.38.147.652.322.936.606.284.284.459.556.606.936.111.287.245.72.282 1.513.04.859.047 1.154.047 3.333 0 2.179-.007 2.474-.047 3.333-.037.794-.171 1.226-.282 1.513a2.389 2.389 0 0 1-.606.936 2.39 2.39 0 0 1-.936.606c-.287.111-.72.245-1.513.282-.859.04-1.154.047-3.333.047-2.179 0-2.474-.007-3.333-.047-.794-.037-1.226-.171-1.513-.282a2.389 2.389 0 0 1-.936-.606 2.389 2.389 0 0 1-.606-.936c-.111-.287-.245-.72-.282-1.513-.04-.859-.047-1.154-.047-3.333 0-2.179.007-2.474.047-3.333.037-.794.171-1.226.282-1.513.147-.38.322-.652.606-.936.284-.284.556-.459.936-.606.287-.111.72-.245 1.513-.282zM8 3.891a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334zm4.328-1.576a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92z"/>
+              <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.999 0h.001zm-.512 1.442c.859-.04 1.154-.047 3.333-.047 2.179 0 2.474.007 3.333.047.794.037 1.226.171 1.513.282.38.147.652.322.936.606.284.284.459.556.606.936.111.287.245.72.282 1.513.04.859.047 1.154.047 3.333 0 2.179-.007 2.474-.047 3.333-.037.794-.171 1.226-.282 1.513a2.389 2.389 0 0 1-.606.936 2.39 2.39 0 0 1-.936.606c-.287.111-.72.245-1.513.282-.859.04-1.154.047-3.333.047-2.179 0-2.474-.007-3.333-.047-.794-.037-1.226-.171-1.513-.282a2.389 2.389 0 0 1-.936-.606 2.389 2.389 0 0 1-.606-.936c-.111-.287-.245-.72-.282-1.513-.04-.859-.047-1.154-.047-3.333 0-2.179.007-2.474.047-3.333.037-.794.171-1.226.282-1.513.147-.38.322-.652.606-.936.284-.284.556-.459.936-.606.287-.111.72-.245 1.513-.282zM8 3.891a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334zm4.328-1.576a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92z" />
             </svg>
           </a>
-          <button 
+          <button
             onClick={onStart}
             className="px-4 md:px-6 py-2.5 rounded-full bg-white text-black hover:bg-zinc-200 transition-all shadow-lg text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center gap-2"
           >
             ✨ {t.landing_button}
           </button>
-          <button 
+          <button
             onClick={onExplorePublic}
             className="hidden sm:flex px-6 py-2.5 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2"
           >
             📚 {t.public_library_link}
           </button>
-          <button 
+          <button
             onClick={onGoToColoring}
             className="hidden lg:flex px-6 py-2.5 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2"
           >
             🖍️ Coloring Lab
           </button>
-          <button 
+          <button
             onClick={onJoinMembership}
             className="group relative px-6 py-2.5 rounded-full bg-indigo-600/20 hover:bg-indigo-600 transition-all border border-indigo-500/40 text-indigo-400 hover:text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs flex items-center gap-2"
           >
@@ -306,6 +306,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
             </p>
           </div>
 
+          {/* Early-bird free tier notice */}
+          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
+            <span className="text-base">🎁</span>
+            <span>Early access: <strong>5 free stories/month</strong> until August 1st — then 2. Enjoy while it lasts!</span>
+          </div>
+
           <div className="flex flex-col md:flex-row items-center justify-center gap-6">
             <button
               onClick={onStart}
@@ -313,7 +319,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
               <span className="relative flex items-center gap-4">
-                {t.landing_button} 
+                {t.landing_button}
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 md:h-10 md:w-10 group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -336,23 +342,23 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
           </div>
 
           <div className="flex justify-center">
-             <button 
-               disabled={isGenerating}
-               onClick={handleRevealMagic}
-               className={`px-12 py-5 rounded-full font-black uppercase tracking-widest text-sm transition-all flex items-center gap-4 border-2 ${isGenerating ? 'bg-zinc-800 border-zinc-700 text-zinc-500 cursor-wait' : 'bg-indigo-600/20 border-indigo-500/40 text-indigo-400 hover:bg-indigo-600 hover:text-white hover:shadow-[0_0_40px_rgba(79,70,229,0.5)] active:scale-95'}`}
-             >
-               {isGenerating ? (
-                 <>
-                   <div className="w-5 h-5 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin"></div>
-                   Painting Magic...
-                 </>
-               ) : (
-                 <>
-                   <span className="text-lg">✨</span>
-                   Reveal Modern Technology Visuals
-                 </>
-               )}
-             </button>
+            <button
+              disabled={isGenerating}
+              onClick={handleRevealMagic}
+              className={`px-12 py-5 rounded-full font-black uppercase tracking-widest text-sm transition-all flex items-center gap-4 border-2 ${isGenerating ? 'bg-zinc-800 border-zinc-700 text-zinc-500 cursor-wait' : 'bg-indigo-600/20 border-indigo-500/40 text-indigo-400 hover:bg-indigo-600 hover:text-white hover:shadow-[0_0_40px_rgba(79,70,229,0.5)] active:scale-95'}`}
+            >
+              {isGenerating ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin"></div>
+                  Painting Magic...
+                </>
+              ) : (
+                <>
+                  <span className="text-lg">✨</span>
+                  Reveal Modern Technology Visuals
+                </>
+              )}
+            </button>
           </div>
 
           <div className="relative h-[780px] lg:h-[840px] flex items-center justify-center overflow-hidden">
@@ -361,14 +367,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
               const isPrev = (activeSlide - 1 + featuredStories.length) % featuredStories.length === index;
               const isNext = (activeSlide + 1) % featuredStories.length === index;
               const revealedUrl = revealedImages[story.id];
-              
+
               let positionClass = "opacity-0 translate-x-full scale-50 pointer-events-none";
               if (isActive) positionClass = "opacity-100 translate-x-0 scale-100 z-30 cursor-default";
               if (isPrev) positionClass = "opacity-30 -translate-x-[75%] md:-translate-x-[90%] scale-75 z-20 cursor-pointer hover:opacity-50 transition-all rounded-[4rem] border-4 border-white/5";
               if (isNext) positionClass = "opacity-30 translate-x-[75%] md:translate-x-[90%] scale-75 z-20 cursor-pointer hover:opacity-50 transition-all rounded-[4rem] border-4 border-white/5";
 
               return (
-                <div 
+                <div
                   key={story.id}
                   onClick={() => {
                     if (!isActive) {
@@ -399,16 +405,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
                               {loadingAudioId === story.id ? (
                                 <div className="w-8 h-8 md:w-12 md:h-12 border-4 border-black/20 border-t-black rounded-full animate-spin"></div>
                               ) : playingAudioId === story.id ? (
-                                <svg className="w-8 h-8 md:w-12 md:h-12" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                                <svg className="w-8 h-8 md:w-12 md:h-12" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
                               ) : (
-                                <svg className="w-8 h-8 md:w-12 md:h-12 ml-1 md:ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                <svg className="w-8 h-8 md:w-12 md:h-12 ml-1 md:ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                               )}
                             </div>
                           </div>
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="flex-1 flex flex-col h-full min-w-0">
                       <div className="space-y-2 md:space-y-4 mb-4 md:mb-6">
                         <div className="flex items-center justify-center md:justify-start gap-4">
@@ -418,34 +424,33 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
                           {story.title}
                         </h3>
                       </div>
-                      
+
                       <p className="text-white/95 text-base md:text-xl lg:text-2xl leading-relaxed font-bold mb-8 md:mb-12">
                         {story.desc}
                       </p>
 
                       <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10 mt-auto">
                         {isActive && (
-                          <button 
+                          <button
                             onClick={(e) => handlePlaySample(story, e)}
-                            className={`group/playbtn px-8 py-4 md:px-10 md:py-5 rounded-[2.5rem] font-black uppercase tracking-[0.2em] text-sm md:text-lg transition-all flex items-center gap-4 border-[3px] shadow-[0_20px_40px_rgba(0,0,0,0.5)] active:scale-95 shrink-0 ${
-                              playingAudioId === story.id 
-                                ? 'bg-white text-black border-white hover:bg-zinc-100' 
+                            className={`group/playbtn px-8 py-4 md:px-10 md:py-5 rounded-[2.5rem] font-black uppercase tracking-[0.2em] text-sm md:text-lg transition-all flex items-center gap-4 border-[3px] shadow-[0_20px_40px_rgba(0,0,0,0.5)] active:scale-95 shrink-0 ${playingAudioId === story.id
+                                ? 'bg-white text-black border-white hover:bg-zinc-100'
                                 : 'bg-white/10 text-white border-white/40 hover:bg-white/20'
-                            } ${loadingAudioId === story.id ? 'opacity-50 cursor-wait' : ''}`}
+                              } ${loadingAudioId === story.id ? 'opacity-50 cursor-wait' : ''}`}
                           >
                             {loadingAudioId === story.id ? (
                               <div className="w-6 h-6 border-[3px] border-white/30 border-t-white rounded-full animate-spin"></div>
                             ) : playingAudioId === story.id ? (
-                              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
                             ) : (
-                              <svg className="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                              <svg className="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                             )}
                             <span className="relative">
                               {loadingAudioId === story.id ? "Loading..." : playingAudioId === story.id ? "Stop Sample" : "Play Sample"}
                             </span>
                           </button>
                         )}
-                        
+
                         <div className="flex flex-wrap gap-2 md:gap-4 justify-center md:justify-start">
                           {story.tags.map(tag => (
                             <span key={tag} className="px-4 py-2 md:px-5 md:py-2.5 rounded-full bg-white/15 border border-white/15 text-[10px] md:text-xs font-black text-white uppercase tracking-[0.2em]">{tag}</span>
@@ -461,8 +466,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
 
           <div className="flex justify-center gap-4 md:gap-6 mt-4">
             {featuredStories.map((_, i) => (
-              <button 
-                key={i} 
+              <button
+                key={i}
                 onClick={() => {
                   stopAudio();
                   setActiveSlide(i);
@@ -482,36 +487,36 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
             </div>
 
             <div className="relative h-[380px] md:h-[320px] flex items-center justify-center">
-               {testimonials.map((test, idx) => {
-                 const isActive = activeTestimonial === idx;
-                 return (
-                   <div 
-                    key={test.id} 
+              {testimonials.map((test, idx) => {
+                const isActive = activeTestimonial === idx;
+                return (
+                  <div
+                    key={test.id}
                     className={`absolute inset-x-0 transition-all duration-1000 transform flex flex-col items-center text-center space-y-8 px-4 ${isActive ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none'}`}
-                   >
-                     <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center text-4xl shadow-inner border border-white/5">
-                       {test.icon}
-                     </div>
-                     <blockquote className="max-w-3xl text-xl md:text-3xl font-black text-white italic leading-tight tracking-tight font-serif">
-                       "{test.quote}"
-                     </blockquote>
-                     <div className="space-y-1">
-                       <p className="text-white font-black uppercase tracking-widest text-sm">{test.names}</p>
-                       <p className="text-indigo-400 font-bold text-xs uppercase tracking-widest">{test.location}</p>
-                     </div>
-                   </div>
-                 );
-               })}
+                  >
+                    <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center text-4xl shadow-inner border border-white/5">
+                      {test.icon}
+                    </div>
+                    <blockquote className="max-w-3xl text-xl md:text-3xl font-black text-white italic leading-tight tracking-tight font-serif">
+                      "{test.quote}"
+                    </blockquote>
+                    <div className="space-y-1">
+                      <p className="text-white font-black uppercase tracking-widest text-sm">{test.names}</p>
+                      <p className="text-indigo-400 font-bold text-xs uppercase tracking-widest">{test.location}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="flex justify-center gap-3">
-               {testimonials.map((_, i) => (
-                 <button 
-                  key={i} 
+              {testimonials.map((_, i) => (
+                <button
+                  key={i}
                   onClick={() => setActiveTestimonial(i)}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${activeTestimonial === i ? 'bg-indigo-500 scale-125' : 'bg-zinc-800'}`}
-                 />
-               ))}
+                />
+              ))}
             </div>
           </div>
         </section>
@@ -522,10 +527,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
             <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter">{t.landing_how_title}</h2>
             <div className="w-32 h-2 bg-indigo-500 mx-auto rounded-full"></div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16 relative">
             <div className="hidden md:block absolute top-24 left-1/2 -translate-x-1/2 w-[70%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-            
+
             {[
               { num: "01", title: t.landing_how_step1_title, desc: t.landing_how_step1_desc, icon: "🌱" },
               { num: "02", title: t.landing_how_step2_title, desc: t.landing_how_step2_desc, icon: "⚡" },
