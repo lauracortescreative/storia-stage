@@ -273,7 +273,7 @@ app.post('/api/gemini/story', async (req, res) => {
     `;
         const result = await withRetry(async () => {
             const response = await ai.models.generateContent({
-                model: 'gemini-3-pro-preview', contents: promptText,
+                model: 'gemini-2.5-pro-preview', contents: promptText,
                 config: {
                     responseMimeType: 'application/json',
                     responseSchema: {
@@ -402,7 +402,7 @@ app.post('/api/gemini/translate', async (req, res) => {
         const results = await Promise.all(chunks.map(async (chunkObj) => {
             return withRetry(async () => {
                 const response = await ai.models.generateContent({
-                    model: 'gemini-3-flash-preview',
+                    model: 'gemini-2.5-flash',
                     contents: `Translate this JSON into ${targetLang}. Use a warm children's app tone. Maintain exact keys. Return ONLY JSON. JSON: ${JSON.stringify(chunkObj)}`,
                     config: { responseMimeType: 'application/json', thinkingConfig: { thinkingBudget: 0 } },
                 });
@@ -419,7 +419,108 @@ app.post('/api/gemini/translate', async (req, res) => {
     }
 });
 
+
+// ─── Stripe subscribe routes ──────────────────────────────────────────────────
+import Stripe from 'stripe';
+
+function getStripe() {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) throw new Error('STRIPE_SECRET_KEY is not configured.');
+    return new Stripe(key, { apiVersion: '2024-11-20' });
+}
+
+// POST /api/subscribe/checkout — create a Stripe Checkout Session
+app.post('/api/subscribe/checkout', authenticateToken, async (req, res) => {
+    try {
+        const { plan = 'monthly' } = req.body; // 'monthly' or 'yearly'
+        const stripe = getStripe();
+
+        const priceId = plan === 'yearly'
+            ? process.env.STRIPE_YEARLY_PRICE_ID
+            : process.env.STRIPE_MONTHLY_PRICE_ID;
+
+        if (!priceId) return res.status(500).json({ error: `Stripe price ID for ${plan} plan not configured.` });
+
+        const origin = req.headers.origin || (process.env.NETLIFY_URL ? `https://${process.env.URL}` : 'http://localhost:3000');
+
+        const session = await stripe.checkout.sessions.create({
+            mode: 'subscription',
+            payment_method_types: ['card'],
+            line_items: [{ price: priceId, quantity: 1 }],
+            success_url: `${origin}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${origin}/`,
+            client_reference_id: req.user.id,   // used in webhook to identify user
+            customer_email: req.user.email,
+            metadata: { user_id: req.user.id },
+        });
+
+        res.json({ url: session.url });
+    } catch (err) {
+        console.error('Stripe checkout error:', err.message);
+        res.status(500).json({ error: err.message || 'Failed to create checkout session' });
+    }
+});
+
+// POST /api/webhooks/stripe — handle Stripe events
+// Must receive raw body for signature verification
+app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    let event;
+    try {
+        const stripe = getStripe();
+        event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    } catch (err) {
+        console.error('Stripe webhook signature error:', err.message);
+        return res.status(400).json({ error: `Webhook signature invalid: ${err.message}` });
+    }
+
+    if (event.type === 'checkout.session.completed') {
+        const session = event.data.object;
+        const userId = session.client_reference_id || session.metadata?.user_id;
+
+        if (userId) {
+            try {
+                const sb = getSupabase();
+                const { error } = await sb.from('user_stats').update({
+                    plan: 'plus',
+                    monthly_limit: 20,
+                }).eq('user_id', userId);
+
+                if (error) throw error;
+                console.log(`✅ User ${userId} upgraded to Plus via Stripe webhook`);
+            } catch (err) {
+                console.error('Supabase plan upgrade error:', err.message);
+                return res.status(500).json({ error: 'Failed to upgrade plan' });
+            }
+        }
+    }
+
+    if (event.type === 'customer.subscription.deleted') {
+        // Downgrade back to free if they cancel
+        const subscription = event.data.object;
+        const customerId = subscription.customer;
+
+        try {
+            const stripe = getStripe();
+            const customer = await stripe.customers.retrieve(customerId);
+            const userId = customer.metadata?.user_id;
+            if (userId) {
+                const sb = getSupabase();
+                await sb.from('user_stats').update({ plan: 'free', monthly_limit: 5 }).eq('user_id', userId);
+                console.log(`User ${userId} downgraded to free (subscription cancelled)`);
+            }
+        } catch (err) {
+            console.error('Downgrade error:', err.message);
+        }
+    }
+
+    res.json({ received: true });
+});
+
 // ─── Error handler ────────────────────────────────────────────────────────────
+
 app.use((err, _req, res, _next) => {
     console.error('Unhandled error:', err);
     res.status(500).json({ error: 'Internal server error' });
