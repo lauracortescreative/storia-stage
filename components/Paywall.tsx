@@ -7,7 +7,7 @@ interface PaywallProps {
   translations: UITranslations;
   userStats: UserStats;
   onContinue: () => void;
-  onSubscribe: () => void;
+  onSubscribe: (plan: 'monthly' | 'yearly') => void;
   onAddStories: (count: number) => void;
   onBack: () => void;
   onReplay: () => void;
@@ -58,57 +58,46 @@ const Paywall: React.FC<PaywallProps> = ({
     );
   }
 
-  // SCREEN 2: MEMBERSHIP INTRO
+  // SCREEN 2: MEMBERSHIP / STRIPE PRICING TABLE
   if (screen === 'plus') {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 animate-in zoom-in duration-500">
-        <div className="max-w-2xl w-full bg-zinc-900 rounded-[3rem] p-10 md:p-16 border border-zinc-800 shadow-2xl space-y-12 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-
-          <div className="space-y-6">
-            <div className="text-6xl mb-4">💎</div>
+        <div className="max-w-3xl w-full space-y-10 text-center">
+          <div className="space-y-4">
+            <div className="text-6xl">💎</div>
             <h2 className="text-4xl font-black text-white tracking-tighter">{t.pw_plus_title}</h2>
-            <p className="text-zinc-400 font-medium leading-relaxed">{t.pw_plus_body}</p>
+            <p className="text-zinc-400 font-medium leading-relaxed max-w-lg mx-auto">{t.pw_plus_body}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+          <div className="flex flex-wrap justify-center gap-4 text-sm">
             {[t.pw_plus_feat1, t.pw_plus_feat2, t.pw_plus_feat3, t.pw_plus_feat4, t.pw_plus_feat5].map((f, i) => (
-              <div key={i} className="flex items-center gap-3 text-zinc-300 text-sm font-bold">
-                <span className="text-indigo-500">✦</span> {f}
+              <div key={i} className="flex items-center gap-2 text-zinc-300 font-bold bg-zinc-900 border border-zinc-800 rounded-full px-4 py-2">
+                <span className="text-indigo-400">✦</span> {f}
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div onClick={onSubscribe} className="p-8 rounded-[2rem] bg-zinc-800 border-2 border-zinc-700 hover:border-indigo-500 transition-all cursor-pointer text-left group">
-              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 block">{t.paywall_monthly_title}</span>
-              <p className="text-3xl font-black text-white">{t.paywall_monthly_price}</p>
-              <p className="text-zinc-500 text-[10px] font-bold mt-1">/ month</p>
-            </div>
-            <div onClick={onSubscribe} className="p-8 rounded-[2rem] bg-indigo-600 border-2 border-white/20 hover:scale-105 transition-all cursor-pointer text-left relative">
-              <span className="absolute -top-3 left-6 bg-white text-indigo-600 text-[9px] font-black px-3 py-1 rounded-full uppercase">{t.paywall_yearly_discount}</span>
-              <span className="text-white/60 font-black uppercase tracking-widest text-[10px] mb-2 block">{t.paywall_yearly_title}</span>
-              <p className="text-3xl font-black text-white">{t.paywall_yearly_price}</p>
-              <p className="text-white/40 text-[10px] font-bold mt-1">/ year</p>
-            </div>
-          </div>
+          {/* Stripe Pricing Table — rendered as a native web component */}
+          <div dangerouslySetInnerHTML={{
+            __html: `
+            <stripe-pricing-table
+              pricing-table-id="prctbl_1T3KYr4GwzKI4QvMH6nyKb3L"
+              publishable-key="pk_live_51Sx4pa4GwzKI4QvMf86GNCpx3ed8udyo6t6tZ5jq6kxIvJ8HVuNZifZxVOCq1USimVHr8TkfbzLBg6Z164iKaoEQ0008QOPnLu">
+            </stripe-pricing-table>
+          ` }} />
 
-          <div className="space-y-4">
-            <button onClick={onSubscribe} className="w-full py-6 bg-white text-black font-black text-xl rounded-[2.5rem] hover:bg-zinc-200 transition-all shadow-xl">
-              {t.paywall_button}
-            </button>
-            <button onClick={onContinue} className="text-zinc-500 hover:text-white font-bold text-sm tracking-wide">
-              {t.pw_keep_exploring}
-            </button>
-          </div>
+          <button onClick={onContinue} className="text-zinc-500 hover:text-white font-bold text-sm tracking-wide transition-colors">
+            {t.pw_keep_exploring}
+          </button>
 
-          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 border-t border-zinc-800 pt-6">
+          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">
             {t.pw_trust_tagline}
           </p>
         </div>
       </div>
     );
   }
+
 
   // SCREEN 3: MONTHLY LIMIT REACHED
   if (screen === 'limit') {
