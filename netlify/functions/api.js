@@ -273,7 +273,7 @@ app.post('/api/gemini/story', async (req, res) => {
     `;
         const result = await withRetry(async () => {
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-pro-preview', contents: promptText,
+                model: 'gemini-2.0-flash', contents: promptText,
                 config: {
                     responseMimeType: 'application/json',
                     responseSchema: {
