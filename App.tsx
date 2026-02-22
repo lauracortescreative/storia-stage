@@ -625,7 +625,9 @@ const App: React.FC = () => {
   };
 
   const detectLocation = async () => {
-    const manualLang = localStorage.getItem('storia_current_lang');
+    // Only skip auto-detection if the user has EXPLICITLY chosen a language
+    // (not the default 'English' that gets auto-saved on every first load)
+    const userExplicitLang = localStorage.getItem('storia_lang_user_explicit');
     const browserLang = navigator.language || (navigator as any).userLanguage;
     let initialLangDetected = 'English';
 
@@ -651,7 +653,7 @@ const App: React.FC = () => {
         if (match && match[1] && COUNTRY_MAP[match[1]]) {
           const code = match[1];
           region = COUNTRY_MAP[code];
-          if (!manualLang) {
+          if (!userExplicitLang) {
             if (code === 'PT') initialLangDetected = 'Portuguese (Portugal)';
             else if (code === 'BR') initialLangDetected = 'Portuguese (Brazil)';
             else if (code === 'FR') initialLangDetected = 'French';
@@ -664,7 +666,7 @@ const App: React.FC = () => {
       if (tz.includes('Europe/Lisbon')) region = 'portugal';
       else if (tz.includes('America/Sao_Paulo')) region = 'brazil';
       else if (tz.includes('Europe/Paris')) region = 'france';
-      if (!manualLang) {
+      if (!userExplicitLang) {
         if (region === 'portugal') initialLangDetected = 'Portuguese (Portugal)';
         else if (region === 'brazil') initialLangDetected = 'Portuguese (Brazil)';
         else if (region === 'france') initialLangDetected = 'French';
@@ -672,7 +674,7 @@ const App: React.FC = () => {
     }
 
     setDetectedRegion(region);
-    if (!manualLang) {
+    if (!userExplicitLang) {
       setCurrentLang(initialLangDetected);
     }
   };
@@ -1043,7 +1045,8 @@ const App: React.FC = () => {
       <footer className="bg-zinc-950 border-t border-zinc-900 py-10 px-6">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="flex flex-col gap-1"><p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{t.footer_region}</p><div className="relative"><select value={currentLang} onChange={(e) => setCurrentLang(e.target.value)} className="bg-zinc-900 text-white text-xs font-bold py-3 pl-4 pr-10 rounded-xl border border-zinc-800 appearance-none cursor-pointer focus:outline-none focus:border-indigo-500">{SUPPORTED_LANGUAGES.map(lang => (<option key={lang} value={lang}>{lang}</option>))}</select><div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-600"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg></div></div></div>
+            <div className="flex flex-col gap-1"><p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{t.footer_region}</p><div className="relative"><select value={currentLang} onChange={(e) => { localStorage.setItem('storia_lang_user_explicit', '1'); setCurrentLang(e.target.value); }} className="bg-zinc-900 text-white text-xs font-bold py-3 pl-4 pr-10 rounded-xl border border-zinc-800 appearance-none cursor-pointer focus:outline-none focus:border-indigo-500">{SUPPORTED_LANGUAGES.map(lang => (<option key={lang} value={lang}>{lang}</option>))}</select><div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-600"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg></div></div></div>
+
             <button onClick={() => setView('public_library')} className="text-zinc-400 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>{t.public_library_link}</button>
             <button onClick={() => setView('about')} className="text-zinc-400 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>{t.about_link}</button>
             <a
