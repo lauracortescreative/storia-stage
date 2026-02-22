@@ -82,7 +82,7 @@ export interface UITranslations {
   landing_feat_pdf_desc: string;
   landing_cta_title: string;
   landing_cta_subtitle: string;
-  
+
   // Refinement Page
   refine_title: string;
   refine_subtitle: string;
@@ -352,6 +352,16 @@ export interface UITranslations {
   paywall_yearly_price: string;
   paywall_yearly_discount: string;
   paywall_button: string;
+
+  // Tester Disclaimer
+  tester_badge: string;
+  tester_title: string;
+  tester_desc: string;
+  tester_follow_title: string;
+  tester_follow_desc: string;
+  tester_instagram_cta: string;
+  tester_feedback_cta: string;
+  tester_cta: string;
 }
 
 /**

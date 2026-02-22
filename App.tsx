@@ -330,6 +330,14 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     paywall_yearly_price: "$59.99",
     paywall_yearly_discount: "2 months free",
     paywall_button: "Start Storia Plus",
+    tester_badge: "Tester Preview",
+    tester_title: "Welcome to Storia",
+    tester_desc: "This is an early tester link for the Storia platform. We are hard at work bringing full magic to every household.",
+    tester_follow_title: "Follow the Journey ✨",
+    tester_follow_desc: "Follow us on Instagram for updates, news, and behind-the-scenes magic.",
+    tester_instagram_cta: "Follow us @storia.land",
+    tester_feedback_cta: "Please fill our Feedback Form",
+    tester_cta: "Enter the Magic ✨",
   }
 };
 
@@ -435,8 +443,8 @@ const App: React.FC = () => {
     const cached = localStorage.getItem(`storia_trans_${currentLang}`);
     if (cached) {
       const parsed = JSON.parse(cached);
-      // Only use cache if it has a full translation (≥150 keys) — clears stale broken caches
-      if (Object.keys(parsed).length >= 150) {
+      // Only use cache if it has a full translation (≥158 keys incl tester_*) — clears stale caches
+      if (Object.keys(parsed).length >= 158) {
         setDynamicT(prev => ({ ...prev, [currentLang]: parsed }));
         return;
       }
