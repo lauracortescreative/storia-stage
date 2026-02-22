@@ -435,11 +435,15 @@ const App: React.FC = () => {
     const cached = localStorage.getItem(`storia_trans_${currentLang}`);
     if (cached) {
       const parsed = JSON.parse(cached);
-      if (Object.keys(parsed).length > 50) {
+      // Only use cache if it has a full translation (≥150 keys) — clears stale broken caches
+      if (Object.keys(parsed).length >= 150) {
         setDynamicT(prev => ({ ...prev, [currentLang]: parsed }));
         return;
       }
+      // Remove the partial/bad cache so we fetch a fresh full translation
+      localStorage.removeItem(`storia_trans_${currentLang}`);
     }
+
 
     const translateMagic = async () => {
       const tid = ++translationIdRef.current;

@@ -405,23 +405,38 @@ app.post('/api/gemini/translate', async (req, res) => {
     try {
         const { chunks, targetLang } = req.body;
         const ai = getAI();
-        // Merge all chunks into one object and translate in a single API call
+
+        // Merge all incoming chunks into one flat object
         const allKeys = chunks.reduce((acc, chunk) => ({ ...acc, ...chunk }), {});
-        const result = await withRetry(async () => {
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.0-flash-lite',
-                contents: `Translate the values in this JSON object into ${targetLang}. Use a warm, friendly children's app tone. Keep all JSON keys exactly the same. Return ONLY valid JSON, no markdown. JSON: ${JSON.stringify(allKeys)}`,
-                config: { responseMimeType: 'application/json' },
+        const entries = Object.entries(allKeys);
+
+        // Split into two halves and translate in parallel to avoid output token limits
+        const half = Math.ceil(entries.length / 2);
+        const halves = [entries.slice(0, half), entries.slice(half)];
+
+        const translateHalf = (pairs) => {
+            const obj = Object.fromEntries(pairs);
+            return withRetry(async () => {
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.0-flash',
+                    contents: `Translate the values in this JSON object into ${targetLang}. Use a warm, friendly children's app tone. Keep all JSON keys exactly the same. Return ONLY valid JSON, no markdown.\nJSON: ${JSON.stringify(obj)}`,
+                    config: { responseMimeType: 'application/json' },
+                });
+                const raw = (response.text || '').trim();
+                const match = raw.match(/\{[\s\S]*\}/);
+                return match ? JSON.parse(match[0]) : {};
             });
-            const rawText = response.text.trim();
-            const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-            return jsonMatch ? JSON.parse(jsonMatch[0]) : {};
-        });
+        };
+
+        const [first, second] = await Promise.all(halves.map(translateHalf));
+        const result = { ...first, ...second };
         res.json(result);
     } catch (err) {
+        console.error('Translation error:', err.message);
         res.status(500).json({ error: err.message || 'Translation failed' });
     }
 });
+
 
 
 
