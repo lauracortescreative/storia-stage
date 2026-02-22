@@ -313,31 +313,37 @@ app.post('/api/gemini/tts', async (req, res) => {
     try {
         const { text, voice, style, language, mode, pace } = req.body;
         const ai = getAI();
+
+        // Split into larger chunks (3000 chars) — reduces API calls significantly
         const sentences = text.match(/[^.!?]+[.!?]+(?:\s|$)/g) || [text];
         const chunks = [];
         let cur = '';
         for (const s of sentences) {
-            if ((cur + s).length > 1000) { if (cur) chunks.push(cur.trim()); cur = s; } else cur += s;
+            if ((cur + s).length > 3000) { if (cur) chunks.push(cur.trim()); cur = s; } else cur += s;
         }
         if (cur) chunks.push(cur.trim());
+
         const paceStr = pace === 'slow' ? 'Very slow and meditative.' : 'Calm and slow rhythm.';
-        const buffers = [];
-        for (const chunk of chunks) {
-            const b64 = await withRetry(async () => {
+
+        // Process all chunks in parallel — preserves order via index
+        const b64Results = await Promise.all(chunks.map(chunk =>
+            withRetry(async () => {
                 const r = await ai.models.generateContent({
                     model: 'gemini-2.5-flash-preview-tts',
                     contents: [{ parts: [{ text: `Narrate for a children's story (${mode}) in ${language}. ${paceStr} Style: ${style}. Voice: ${voice}. Text: ${chunk}` }] }],
                     config: { responseModalities: [Modality.AUDIO], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } } },
                 });
                 return r.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || '';
-            });
-            if (b64) buffers.push(Buffer.from(b64, 'base64'));
-        }
+            })
+        ));
+
+        const buffers = b64Results.filter(Boolean).map(b64 => Buffer.from(b64, 'base64'));
         res.json({ audio: Buffer.concat(buffers).toString('base64') });
     } catch (err) {
         res.status(500).json({ error: err.message || 'TTS failed' });
     }
 });
+
 
 app.post('/api/gemini/image', async (req, res) => {
     try {
