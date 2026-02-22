@@ -625,9 +625,13 @@ const App: React.FC = () => {
   };
 
   const detectLocation = async () => {
-    // Only skip auto-detection if the user has EXPLICITLY chosen a language
-    // (not the default 'English' that gets auto-saved on every first load)
+    const storedLang = localStorage.getItem('storia_current_lang');
     const userExplicitLang = localStorage.getItem('storia_lang_user_explicit');
+    // Skip IP detection only if:
+    // (a) user explicitly set a non-English language, OR
+    // (b) user explicitly chose English (flag set + stored lang is English)
+    // Never skip if stored lang is just the default 'English' saved on first load.
+    const skipDetection = (storedLang && storedLang !== 'English') || (userExplicitLang && storedLang === 'English');
     const browserLang = navigator.language || (navigator as any).userLanguage;
     let initialLangDetected = 'English';
 
@@ -653,7 +657,7 @@ const App: React.FC = () => {
         if (match && match[1] && COUNTRY_MAP[match[1]]) {
           const code = match[1];
           region = COUNTRY_MAP[code];
-          if (!userExplicitLang) {
+          if (!skipDetection) {
             if (code === 'PT') initialLangDetected = 'Portuguese (Portugal)';
             else if (code === 'BR') initialLangDetected = 'Portuguese (Brazil)';
             else if (code === 'FR') initialLangDetected = 'French';
@@ -666,7 +670,7 @@ const App: React.FC = () => {
       if (tz.includes('Europe/Lisbon')) region = 'portugal';
       else if (tz.includes('America/Sao_Paulo')) region = 'brazil';
       else if (tz.includes('Europe/Paris')) region = 'france';
-      if (!userExplicitLang) {
+      if (!skipDetection) {
         if (region === 'portugal') initialLangDetected = 'Portuguese (Portugal)';
         else if (region === 'brazil') initialLangDetected = 'Portuguese (Brazil)';
         else if (region === 'france') initialLangDetected = 'French';
@@ -674,7 +678,7 @@ const App: React.FC = () => {
     }
 
     setDetectedRegion(region);
-    if (!userExplicitLang) {
+    if (!skipDetection) {
       setCurrentLang(initialLangDetected);
     }
   };
