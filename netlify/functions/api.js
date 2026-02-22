@@ -410,16 +410,20 @@ app.post('/api/gemini/translate', async (req, res) => {
         const allKeys = chunks.reduce((acc, chunk) => ({ ...acc, ...chunk }), {});
         const entries = Object.entries(allKeys);
 
-        // Split into two halves and translate in parallel to avoid output token limits
-        const half = Math.ceil(entries.length / 2);
-        const halves = [entries.slice(0, half), entries.slice(half)];
+        // Split into 4 small batches (~50 keys each) and translate in parallel
+        // gemini-2.0-flash-lite is fast for simple JSON translation tasks
+        const batchSize = Math.ceil(entries.length / 4);
+        const batches = [];
+        for (let i = 0; i < entries.length; i += batchSize) {
+            batches.push(entries.slice(i, i + batchSize));
+        }
 
-        const translateHalf = (pairs) => {
+        const translateBatch = (pairs) => {
             const obj = Object.fromEntries(pairs);
             return withRetry(async () => {
                 const response = await ai.models.generateContent({
-                    model: 'gemini-2.0-flash',
-                    contents: `Translate the values in this JSON object into ${targetLang}. Use a warm, friendly children's app tone. Keep all JSON keys exactly the same. Return ONLY valid JSON, no markdown.\nJSON: ${JSON.stringify(obj)}`,
+                    model: 'gemini-2.0-flash-lite',
+                    contents: `Translate the values of this JSON object into ${targetLang}. Use a warm, friendly tone for a children's app. Keep all JSON keys exactly the same. Return ONLY valid JSON, no markdown.\nJSON: ${JSON.stringify(obj)}`,
                     config: { responseMimeType: 'application/json' },
                 });
                 const raw = (response.text || '').trim();
@@ -428,14 +432,15 @@ app.post('/api/gemini/translate', async (req, res) => {
             });
         };
 
-        const [first, second] = await Promise.all(halves.map(translateHalf));
-        const result = { ...first, ...second };
-        res.json(result);
+        const results = await Promise.all(batches.map(translateBatch));
+        const combined = Object.assign({}, ...results);
+        res.json(combined);
     } catch (err) {
         console.error('Translation error:', err.message);
         res.status(500).json({ error: err.message || 'Translation failed' });
     }
 });
+
 
 
 
