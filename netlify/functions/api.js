@@ -422,15 +422,16 @@ app.post('/api/gemini/translate', async (req, res) => {
             const obj = Object.fromEntries(pairs);
             return withRetry(async () => {
                 const response = await ai.models.generateContent({
-                    model: 'gemini-2.0-flash-lite',
+                    model: 'gemini-2.0-flash',
                     contents: `Translate the values of this JSON object into ${targetLang}. Use a warm, friendly tone for a children's app. Keep all JSON keys exactly the same. Return ONLY valid JSON, no markdown.\nJSON: ${JSON.stringify(obj)}`,
                     config: { responseMimeType: 'application/json' },
                 });
                 const raw = (response.text || '').trim();
                 const match = raw.match(/\{[\s\S]*\}/);
                 return match ? JSON.parse(match[0]) : {};
-            });
+            }, 1, 500); // maxRetries=1, short delay
         };
+
 
         const results = await Promise.all(batches.map(translateBatch));
         const combined = Object.assign({}, ...results);
