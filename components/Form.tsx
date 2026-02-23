@@ -398,7 +398,7 @@ const Form: React.FC<FormProps> = ({ onSubmit, onJoinMembership, onBack, transla
         {/* Early-bird offer notice */}
         <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-bold">
           <span className="text-base shrink-0">🎁</span>
-          <span>Early access offer: <strong>5 free stories/month</strong> until August 1st — after that, 2 free stories/month.</span>
+          <span>{t.form_early_access}</span>
         </div>
 
         <div className="flex flex-col gap-4">

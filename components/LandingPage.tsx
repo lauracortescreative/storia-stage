@@ -309,7 +309,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
           {/* Early-bird free tier notice */}
           <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
             <span className="text-base">🎁</span>
-            <span>Early access: <strong>5 free stories/month</strong> until August 1st — then 2. Enjoy while it lasts!</span>
+            <span>{t.landing_early_access}</span>
           </div>
 
           <div className="flex flex-col md:flex-row items-center justify-center gap-6">
@@ -350,12 +350,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
               {isGenerating ? (
                 <>
                   <div className="w-5 h-5 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin"></div>
-                  Painting Magic...
+                  {t.landing_painting_magic}
                 </>
               ) : (
                 <>
                   <span className="text-lg">✨</span>
-                  Reveal Modern Technology Visuals
+                  {t.landing_reveal_button}
                 </>
               )}
             </button>

@@ -411,6 +411,12 @@ export interface UITranslations {
 
   // Nav
   nav_home_label: string;
+
+  // Landing/form banners
+  landing_early_access: string;
+  form_early_access: string;
+  landing_reveal_button: string;
+  landing_painting_magic: string;
 }
 
 /**

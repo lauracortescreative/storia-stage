@@ -380,6 +380,11 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     settings_copyright: "Magic Responsibly © 2026 Storia Labs",
     // Nav
     nav_home_label: "← Home",
+    // Landing/form banners
+    landing_early_access: "Early access: 5 free stories/month until August 1st — then 2. Enjoy while it lasts!",
+    form_early_access: "Early access offer: 5 free stories/month until August 1st — after that, 2 free stories/month.",
+    landing_reveal_button: "Reveal Modern Technology Visuals",
+    landing_painting_magic: "Painting Magic...",
   }
 };
 
@@ -488,8 +493,8 @@ const App: React.FC = () => {
     const cached = localStorage.getItem(`storia_trans_${currentLang}`);
     if (cached) {
       const parsed = JSON.parse(cached);
-      // Only use cache if it has a full translation (≥200 keys) — clears stale caches
-      if (Object.keys(parsed).length >= 200) {
+      // Only use cache if it has a full translation (≥204 keys) — clears stale caches
+      if (Object.keys(parsed).length >= 204) {
         setDynamicT(prev => ({ ...prev, [currentLang]: parsed }));
         return;
       }
