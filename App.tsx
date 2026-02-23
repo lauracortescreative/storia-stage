@@ -700,6 +700,19 @@ const App: React.FC = () => {
       else if (langCode === 'pt') {
         initialLangDetected = browserLang.toLowerCase().includes('br') ? 'Portuguese (Brazil)' : 'Portuguese (Portugal)';
       }
+      else if (langCode === 'it') initialLangDetected = 'Italian';
+      else if (langCode === 'de') initialLangDetected = 'German';
+      else if (langCode === 'pl') initialLangDetected = 'Polish';
+      else if (langCode === 'ru') initialLangDetected = 'Russian';
+      else if (langCode === 'bg') initialLangDetected = 'Bulgarian';
+      else if (langCode === 'nl') initialLangDetected = 'Dutch';
+      else if (langCode === 'tr') initialLangDetected = 'Turkish';
+      else if (langCode === 'ar') initialLangDetected = 'Arabic';
+      else if (langCode === 'ja') initialLangDetected = 'Japanese';
+      else if (langCode === 'ko') initialLangDetected = 'Korean';
+      else if (['zh', 'zh-hans', 'zh-cn'].includes(langCode)) initialLangDetected = 'Chinese (Simplified)';
+      else if (langCode === 'sv') initialLangDetected = 'Swedish';
+      else if (langCode === 'fi') initialLangDetected = 'Finnish';
     }
 
     let region: Region = 'global';
@@ -719,7 +732,20 @@ const App: React.FC = () => {
             if (code === 'PT') initialLangDetected = 'Portuguese (Portugal)';
             else if (code === 'BR') initialLangDetected = 'Portuguese (Brazil)';
             else if (code === 'FR') initialLangDetected = 'French';
-            else if (['MX', 'ES', 'AR', 'CL', 'CO'].includes(code)) initialLangDetected = 'Spanish';
+            else if (['MX', 'ES', 'AR', 'CL', 'CO', 'PE'].includes(code)) initialLangDetected = 'Spanish';
+            else if (code === 'IT') initialLangDetected = 'Italian';
+            else if (['DE', 'AT', 'CH'].includes(code)) initialLangDetected = 'German';
+            else if (code === 'PL') initialLangDetected = 'Polish';
+            else if (code === 'RU') initialLangDetected = 'Russian';
+            else if (code === 'BG') initialLangDetected = 'Bulgarian';
+            else if (['NL', 'BE'].includes(code)) initialLangDetected = 'Dutch';
+            else if (code === 'TR') initialLangDetected = 'Turkish';
+            else if (['EG', 'MA', 'SA', 'AE', 'QA', 'KW'].includes(code)) initialLangDetected = 'Arabic';
+            else if (code === 'JP') initialLangDetected = 'Japanese';
+            else if (code === 'KR') initialLangDetected = 'Korean';
+            else if (['CN', 'TW', 'HK', 'SG'].includes(code)) initialLangDetected = 'Chinese (Simplified)';
+            else if (['SE', 'NO', 'DK'].includes(code)) initialLangDetected = 'Swedish';
+            else if (code === 'FI') initialLangDetected = 'Finnish';
           }
         }
       }
@@ -729,9 +755,21 @@ const App: React.FC = () => {
       else if (tz.includes('America/Sao_Paulo')) region = 'brazil';
       else if (tz.includes('Europe/Paris')) region = 'france';
       if (!skipDetection) {
-        if (region === 'portugal') initialLangDetected = 'Portuguese (Portugal)';
-        else if (region === 'brazil') initialLangDetected = 'Portuguese (Brazil)';
-        else if (region === 'france') initialLangDetected = 'French';
+        if (tz.includes('Europe/Lisbon')) { region = 'portugal'; initialLangDetected = 'Portuguese (Portugal)'; }
+        else if (tz.includes('America/Sao_Paulo')) { region = 'brazil'; initialLangDetected = 'Portuguese (Brazil)'; }
+        else if (tz.includes('Europe/Paris')) { region = 'france'; initialLangDetected = 'French'; }
+        else if (tz.includes('Europe/Rome') || tz.includes('Europe/Vatican')) initialLangDetected = 'Italian';
+        else if (tz.includes('Europe/Berlin') || tz.includes('Europe/Vienna')) initialLangDetected = 'German';
+        else if (tz.includes('Europe/Warsaw')) initialLangDetected = 'Polish';
+        else if (tz.includes('Europe/Moscow')) initialLangDetected = 'Russian';
+        else if (tz.includes('Europe/Sofia')) initialLangDetected = 'Bulgarian';
+        else if (tz.includes('Europe/Amsterdam') || tz.includes('Europe/Brussels')) initialLangDetected = 'Dutch';
+        else if (tz.includes('Europe/Istanbul')) initialLangDetected = 'Turkish';
+        else if (tz.includes('Asia/Tokyo')) initialLangDetected = 'Japanese';
+        else if (tz.includes('Asia/Seoul')) initialLangDetected = 'Korean';
+        else if (tz.includes('Asia/Shanghai') || tz.includes('Asia/Hong_Kong')) initialLangDetected = 'Chinese (Simplified)';
+        else if (tz.includes('Europe/Stockholm') || tz.includes('Europe/Oslo') || tz.includes('Europe/Copenhagen')) initialLangDetected = 'Swedish';
+        else if (tz.includes('Europe/Helsinki')) initialLangDetected = 'Finnish';
       }
     }
 
