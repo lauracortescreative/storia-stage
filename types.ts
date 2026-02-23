@@ -362,6 +362,55 @@ export interface UITranslations {
   tester_instagram_cta: string;
   tester_feedback_cta: string;
   tester_cta: string;
+
+  // Auth form
+  auth_welcome_back: string;
+  auth_sign_in_desc: string;
+  auth_sign_in_button: string;
+  auth_already_have: string;
+  auth_new_here: string;
+  auth_please_wait: string;
+  auth_email_placeholder: string;
+  auth_password_placeholder: string;
+
+  // Checkout / Stripe
+  checkout_redirecting: string;
+  checkout_powered_by: string;
+
+  // Library card actions
+  lib_account_active: string;
+  lib_guest_session: string;
+  lib_listen: string;
+  lib_script: string;
+  lib_color: string;
+
+  // Story player controls
+  player_visuals_on: string;
+  player_audio_only: string;
+  player_fullscreen: string;
+  player_pdf: string;
+
+  // Filters
+  filter_all_regions: string;
+  filter_all_ages: string;
+
+  // Settings
+  settings_your_plan: string;
+  settings_plus_plan: string;
+  settings_basic_plan: string;
+  settings_monthly: string;
+  settings_yearly: string;
+  settings_per_month: string;
+  settings_per_year: string;
+  settings_upgrade_title: string;
+  settings_upgrade_desc: string;
+  settings_redirecting: string;
+  settings_plus_thanks: string;
+  settings_remaining: string;
+  settings_copyright: string;
+
+  // Nav
+  nav_home_label: string;
 }
 
 /**

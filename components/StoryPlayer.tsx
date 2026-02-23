@@ -387,7 +387,7 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onAut
                     onClick={() => { setShowCloseCTA(false); onAuth(); }}
                     className="w-full py-3 text-indigo-400 font-bold text-sm hover:text-indigo-300 transition-colors"
                   >
-                    Already have an account? Sign in
+                    {t.auth_already_have}
                   </button>
                 </div>
               </div>
@@ -556,7 +556,7 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onAut
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              <span className="hidden md:inline">PDF</span>
+              <span className="hidden md:inline">{t.player_pdf}</span>
             </button>
 
             <button
@@ -578,12 +578,12 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onAut
                 {subtitlesVisible ? (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                    <span className="hidden lg:inline">Visuals ON</span>
+                    <span className="hidden lg:inline">{t.player_visuals_on}</span>
                   </>
                 ) : (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" /></svg>
-                    <span className="hidden lg:inline">Audio Only</span>
+                    <span className="hidden lg:inline">{t.player_audio_only}</span>
                   </>
                 )}
               </button>
@@ -598,7 +598,7 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onAut
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
               </svg>
-              <span className="hidden md:inline">Fullscreen</span>
+              <span className="hidden md:inline">{t.player_fullscreen}</span>
             </button>
 
             <button onClick={() => setIsMenuOpen(true)} className="text-white bg-zinc-800/80 hover:bg-indigo-600 p-4 rounded-3xl transition-all shadow-2xl flex items-center gap-2 font-bold backdrop-blur-md border border-white/5">

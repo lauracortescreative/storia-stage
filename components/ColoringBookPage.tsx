@@ -201,7 +201,7 @@ const ColoringBookPage: React.FC<ColoringBookPageProps> = ({ translations: t, on
             {(['all', 'toddler', 'preschool'] as const).map(mode => (
               <button key={mode} onClick={() => setActiveMode(mode)}
                 className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeMode === mode ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                {mode === 'all' ? 'All Ages' : mode === 'toddler' ? '2-3' : '4-5'}
+                {mode === 'all' ? t.filter_all_ages : mode === 'toddler' ? '2-3' : '4-5'}
               </button>
             ))}
           </div>

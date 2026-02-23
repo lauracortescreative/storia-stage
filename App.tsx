@@ -338,6 +338,48 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     tester_instagram_cta: "Follow us @storia.land",
     tester_feedback_cta: "Please fill our Feedback Form",
     tester_cta: "Enter the Magic ✨",
+    // Auth
+    auth_welcome_back: "Welcome back",
+    auth_sign_in_desc: "Sign in to access your saved stories.",
+    auth_sign_in_button: "Sign In",
+    auth_already_have: "Already have an account? Sign in",
+    auth_new_here: "New here? Create a free account",
+    auth_please_wait: "Please wait…",
+    auth_email_placeholder: "Email Address",
+    auth_password_placeholder: "Password (min 6 chars)",
+    // Checkout
+    checkout_redirecting: "Redirecting to checkout…",
+    checkout_powered_by: "Powered by Stripe",
+    // Library card
+    lib_account_active: "Account Active",
+    lib_guest_session: "Guest Session",
+    lib_listen: "Listen",
+    lib_script: "Script",
+    lib_color: "Colour",
+    // Player controls
+    player_visuals_on: "Visuals ON",
+    player_audio_only: "Audio Only",
+    player_fullscreen: "Fullscreen",
+    player_pdf: "PDF",
+    // Filters
+    filter_all_regions: "All Regions",
+    filter_all_ages: "All Ages",
+    // Settings
+    settings_your_plan: "Your Plan",
+    settings_plus_plan: "💎 Storia Plus",
+    settings_basic_plan: "Storia Basic",
+    settings_monthly: "Monthly",
+    settings_yearly: "Yearly",
+    settings_per_month: "per month",
+    settings_per_year: "per year",
+    settings_upgrade_title: "Upgrade to Storia Plus ✨",
+    settings_upgrade_desc: "20 stories/month, all regions unlocked, every voice & soundscape.",
+    settings_redirecting: "Redirecting to checkout…",
+    settings_plus_thanks: "You're on Storia Plus. Thank you for supporting us!",
+    settings_remaining: "remaining",
+    settings_copyright: "Magic Responsibly © 2026 Storia Labs",
+    // Nav
+    nav_home_label: "← Home",
   }
 };
 
@@ -446,8 +488,8 @@ const App: React.FC = () => {
     const cached = localStorage.getItem(`storia_trans_${currentLang}`);
     if (cached) {
       const parsed = JSON.parse(cached);
-      // Only use cache if it has a full translation (≥158 keys incl tester_*) — clears stale caches
-      if (Object.keys(parsed).length >= 158) {
+      // Only use cache if it has a full translation (≥200 keys) — clears stale caches
+      if (Object.keys(parsed).length >= 200) {
         setDynamicT(prev => ({ ...prev, [currentLang]: parsed }));
         return;
       }
@@ -883,7 +925,7 @@ const App: React.FC = () => {
               className="flex items-center gap-2 text-white font-black text-xl tracking-tight hover:text-indigo-400 transition-colors"
             >
               Storia<sup className="text-[0.5em] align-super">©</sup>
-              <span className="text-zinc-700 text-sm font-normal ml-1 hidden sm:inline">← Home</span>
+              <span className="text-zinc-700 text-sm font-normal ml-1 hidden sm:inline">{t.nav_home_label}</span>
             </button>
             <div className="flex items-center gap-3">
               <button
@@ -975,10 +1017,10 @@ const App: React.FC = () => {
             <div className="max-w-md w-full bg-zinc-900 rounded-[3rem] p-10 border border-zinc-800 shadow-2xl text-center space-y-6">
               <div className="text-6xl">✨</div>
               <h2 className="text-3xl font-black text-white">
-                {authMode === 'register' ? t.button_create_account : 'Welcome back'}
+                {authMode === 'register' ? t.button_create_account : t.auth_welcome_back}
               </h2>
               <p className="text-zinc-400 text-sm">
-                {authMode === 'register' ? t.library_save_cta : 'Sign in to access your saved stories.'}
+                {authMode === 'register' ? t.library_save_cta : t.auth_sign_in_desc}
               </p>
               {authError && (
                 <p className="text-red-400 text-sm font-semibold bg-red-950/30 border border-red-900/50 rounded-xl px-4 py-2">{authError}</p>
@@ -993,14 +1035,14 @@ const App: React.FC = () => {
                 }}
                 className="space-y-3"
               >
-                <input required name="email" type="email" placeholder="Email Address" className="w-full px-6 py-4 rounded-2xl bg-zinc-800 border-2 border-zinc-700 text-white focus:border-indigo-500 focus:outline-none" />
-                <input required name="password" type="password" placeholder="Password (min 6 chars)" minLength={6} className="w-full px-6 py-4 rounded-2xl bg-zinc-800 border-2 border-zinc-700 text-white focus:border-indigo-500 focus:outline-none" />
+                <input required name="email" type="email" placeholder={t.auth_email_placeholder} className="w-full px-6 py-4 rounded-2xl bg-zinc-800 border-2 border-zinc-700 text-white focus:border-indigo-500 focus:outline-none" />
+                <input required name="password" type="password" placeholder={t.auth_password_placeholder} minLength={6} className="w-full px-6 py-4 rounded-2xl bg-zinc-800 border-2 border-zinc-700 text-white focus:border-indigo-500 focus:outline-none" />
                 <button
                   type="submit"
                   disabled={authLoading}
                   className="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-500 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {authLoading ? 'Please wait…' : (authMode === 'register' ? t.button_create_account : 'Sign In')}
+                  {authLoading ? t.auth_please_wait : (authMode === 'register' ? t.button_create_account : t.auth_sign_in_button)}
                 </button>
               </form>
               <div className="flex flex-col gap-2 pt-2">
@@ -1008,7 +1050,7 @@ const App: React.FC = () => {
                   onClick={() => { setAuthMode(m => m === 'register' ? 'login' : 'register'); setAuthError(null); }}
                   className="text-indigo-400 hover:text-indigo-300 font-semibold text-sm"
                 >
-                  {authMode === 'register' ? 'Already have an account? Sign in' : 'New here? Create a free account'}
+                  {authMode === 'register' ? t.auth_already_have : t.auth_new_here}
                 </button>
                 <button onClick={() => setView('app')} className="text-zinc-500 hover:text-white font-bold text-sm">{t.terms_back}</button>
               </div>
@@ -1038,8 +1080,8 @@ const App: React.FC = () => {
         {subscribeLoading && (
           <div className="fixed inset-0 z-[600] bg-black/80 flex items-center justify-center">
             <div className="text-white text-center space-y-4">
-              <p className="text-2xl font-black animate-pulse">Redirecting to checkout…</p>
-              <p className="text-zinc-500 text-xs font-black uppercase tracking-widest">Powered by Stripe</p>
+              <p className="text-2xl font-black animate-pulse">{t.checkout_redirecting}</p>
+              <p className="text-zinc-500 text-xs font-black uppercase tracking-widest">{t.checkout_powered_by}</p>
             </div>
           </div>
         )}

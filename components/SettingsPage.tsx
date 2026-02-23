@@ -68,9 +68,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ translations: t, userStats,
           <div className="absolute top-0 right-0 p-8 text-4xl opacity-10">💎</div>
 
           <div className="space-y-2">
-            <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">Your Plan</h3>
+            <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">{t.settings_your_plan}</h3>
             <p className="text-white text-3xl font-black tracking-tighter">
-              {isPlus ? '💎 Storia Plus' : 'Storia Basic'}
+              {isPlus ? t.settings_plus_plan : t.settings_basic_plan}
             </p>
           </div>
 
@@ -85,7 +85,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ translations: t, userStats,
             </div>
             <div className="space-y-1">
               <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{t.pw_plan_extras}</p>
-              <p className="text-white font-bold text-lg">{userStats.bundlesRemaining} remaining</p>
+              <p className="text-white font-bold text-lg">{userStats.bundlesRemaining} {t.settings_remaining}</p>
             </div>
           </div>
 
@@ -93,8 +93,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ translations: t, userStats,
           {!isPlus && (
             <div className="pt-6 border-t border-zinc-800 space-y-6">
               <div className="space-y-2">
-                <h4 className="text-white text-lg font-black tracking-tight">Upgrade to Storia Plus ✨</h4>
-                <p className="text-zinc-400 text-sm font-medium">20 stories/month, all regions unlocked, every voice & soundscape.</p>
+                <h4 className="text-white text-lg font-black tracking-tight">{t.settings_upgrade_title}</h4>
+                <p className="text-zinc-400 text-sm font-medium">{t.settings_upgrade_desc}</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -104,11 +104,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ translations: t, userStats,
                   disabled={!!checkoutLoading}
                   className="group p-6 rounded-[2rem] bg-zinc-800 border-2 border-zinc-700 hover:border-indigo-500 transition-all text-left disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 block mb-2">Monthly</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 block mb-2">{t.settings_monthly}</span>
                   <p className="text-3xl font-black text-white">{t.paywall_monthly_price}</p>
-                  <p className="text-zinc-500 text-xs font-bold mt-1">per month</p>
+                  <p className="text-zinc-500 text-xs font-bold mt-1">{t.settings_per_month}</p>
                   {checkoutLoading === 'monthly' && (
-                    <p className="text-indigo-400 text-xs font-bold mt-3 animate-pulse">Redirecting to checkout…</p>
+                    <p className="text-indigo-400 text-xs font-bold mt-3 animate-pulse">{t.settings_redirecting}</p>
                   )}
                 </button>
 
@@ -119,11 +119,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ translations: t, userStats,
                   className="group p-6 rounded-[2rem] bg-indigo-600 border-2 border-white/20 hover:scale-105 transition-all text-left relative disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <span className="absolute -top-3 left-6 bg-white text-indigo-600 text-[9px] font-black px-3 py-1 rounded-full uppercase">{t.paywall_yearly_discount}</span>
-                  <span className="text-white/70 font-black uppercase tracking-widest text-[10px] block mb-2">Yearly</span>
+                  <span className="text-white/70 font-black uppercase tracking-widest text-[10px] block mb-2">{t.settings_yearly}</span>
                   <p className="text-3xl font-black text-white">{t.paywall_yearly_price}</p>
-                  <p className="text-white/50 text-xs font-bold mt-1">per year</p>
+                  <p className="text-white/50 text-xs font-bold mt-1">{t.settings_per_year}</p>
                   {checkoutLoading === 'yearly' && (
-                    <p className="text-white/70 text-xs font-bold mt-3 animate-pulse">Redirecting to checkout…</p>
+                    <p className="text-white/70 text-xs font-bold mt-3 animate-pulse">{t.settings_redirecting}</p>
                   )}
                 </button>
               </div>
@@ -140,7 +140,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ translations: t, userStats,
           {isPlus && (
             <div className="pt-6 border-t border-zinc-800 flex items-center gap-3">
               <span className="text-emerald-400 text-lg">✓</span>
-              <p className="text-zinc-400 text-sm font-bold">You're on Storia Plus. Thank you for supporting us!</p>
+              <p className="text-zinc-400 text-sm font-bold">{t.settings_plus_thanks}</p>
             </div>
           )}
         </section>
@@ -158,7 +158,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ translations: t, userStats,
 
         <div className="pt-8 text-center text-zinc-600">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-            Magic Responsibly &copy; 2026 Storia Labs
+            {t.settings_copyright}
           </p>
         </div>
       </div>

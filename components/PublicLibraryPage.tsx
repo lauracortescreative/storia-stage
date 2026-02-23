@@ -152,7 +152,7 @@ const PublicLibraryPage: React.FC<PublicLibraryPageProps> = ({ translations: t, 
               onChange={(e) => setActiveRegion(e.target.value as any)}
               className="bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-indigo-500 transition-all appearance-none min-w-[160px]"
             >
-              <option value="all">All Regions</option>
+              <option value="all">{t.filter_all_regions}</option>
               {Object.entries(RAW_REGION_DATA).map(([key, data]) => (
                 <option key={key} value={key}>{data.flag} {data.label}</option>
               ))}
@@ -164,7 +164,7 @@ const PublicLibraryPage: React.FC<PublicLibraryPageProps> = ({ translations: t, 
                   onClick={() => setActiveMode(mode)}
                   className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeMode === mode ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
                 >
-                  {mode === 'all' ? 'All Ages' : mode === 'toddler' ? '2-3' : '4-5'}
+                  {mode === 'all' ? t.filter_all_ages : mode === 'toddler' ? '2-3' : '4-5'}
                 </button>
               ))}
             </div>
