@@ -6,10 +6,12 @@ interface StoryPlayerProps {
   story: StoryResult;
   onClose: () => void;
   onSave: () => void;
+  onAuth: () => void;
+  isLoggedIn: boolean;
   translations: UITranslations;
 }
 
-const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, translations: t }) => {
+const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onAuth, isLoggedIn, translations: t }) => {
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -363,29 +365,56 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, trans
 
       {showCloseCTA && (
         <div className="fixed inset-0 z-[250] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-6 animate-in fade-in duration-500">
-          <div className="max-w-md w-full bg-zinc-900 border border-white/10 rounded-[3rem] p-10 text-center space-y-8 shadow-[0_0_100px_rgba(0,0,0,0.8)] relative overflow-hidden">
+          <div className="max-w-md w-full bg-zinc-900 border border-white/10 rounded-[3rem] p-10 text-center space-y-6 shadow-[0_0_100px_rgba(0,0,0,0.8)] relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 animate-gradient-x"></div>
-            <div className="text-6xl animate-bounce-slow">🖍️</div>
-            <div className="space-y-4">
-              <h2 className="text-3xl font-black text-white tracking-tight leading-tight pt-2 font-borel">
-                {t.cta_coloring_title || "Finish with some magic?"}
+
+            {/* ── Auth prompt for logged-out users ── */}
+            {!isLoggedIn && !story.isSaved && (
+              <div className="bg-indigo-950/60 border border-indigo-500/30 rounded-3xl p-6 space-y-4">
+                <div className="text-3xl">✨</div>
+                <div className="space-y-1">
+                  <p className="text-white font-black text-lg tracking-tight">{t.library_account_required || 'Save this story?'}</p>
+                  <p className="text-indigo-200/60 text-sm">{t.library_save_cta || 'Create a free account to keep this story in your library forever.'}</p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => { setShowCloseCTA(false); onAuth(); }}
+                    className="w-full py-4 bg-white text-black font-black text-base rounded-2xl hover:bg-zinc-100 transition-all shadow-xl"
+                  >
+                    {t.button_create_account || 'Create Free Account'} →
+                  </button>
+                  <button
+                    onClick={() => { setShowCloseCTA(false); onAuth(); }}
+                    className="w-full py-3 text-indigo-400 font-bold text-sm hover:text-indigo-300 transition-colors"
+                  >
+                    Already have an account? Sign in
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ── Coloring book CTA ── */}
+            <div className="text-5xl animate-bounce-slow">🖍️</div>
+            <div className="space-y-3">
+              <h2 className="text-2xl font-black text-white tracking-tight leading-tight font-borel">
+                {t.cta_coloring_title || 'Finish with some magic?'}
               </h2>
-              <p className="text-zinc-400 text-base leading-relaxed">
-                {t.cta_coloring_desc || "Would you like to print a custom coloring book featuring the scenes from this story?"}
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                {t.cta_coloring_desc || 'Would you like to print a custom coloring book featuring the scenes from this story?'}
               </p>
             </div>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               <button
                 onClick={() => { handleDownloadPDF(); setShowCloseCTA(false); }}
-                className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-lg rounded-2xl transition-all shadow-xl active:scale-95"
+                className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-base rounded-2xl transition-all shadow-xl active:scale-95"
               >
-                {t.cta_coloring_button || "Print Coloring Book 🖍️"}
+                {t.cta_coloring_button || 'Print Coloring Book 🖍️'}
               </button>
               <button
                 onClick={onClose}
-                className="w-full py-4 text-zinc-500 hover:text-zinc-300 font-bold transition-colors"
+                className="w-full py-3 text-zinc-500 hover:text-zinc-300 font-bold transition-colors text-sm"
               >
-                {t.cta_coloring_skip || "No thanks, just close"}
+                {t.cta_coloring_skip || 'No thanks, just close'}
               </button>
             </div>
           </div>

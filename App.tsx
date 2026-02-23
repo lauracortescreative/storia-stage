@@ -1071,7 +1071,7 @@ const App: React.FC = () => {
                 </div>
               </header>
               {error && <div className="text-center text-red-500 mb-8 p-4 bg-red-950/20 rounded-2xl border border-red-900">{error}</div>}
-              {story && <StoryPlayer translations={t} story={story} onClose={() => { generationIdRef.current++; setStory(null); setView('app'); }} onSave={() => saveToAccount(story)} />}
+              {story && <StoryPlayer translations={t} story={story} isLoggedIn={isLoggedIn} onAuth={() => setView('auth')} onClose={() => { generationIdRef.current++; setStory(null); setView('app'); }} onSave={() => saveToAccount(story)} />}
             </div>
           </div>
         )}

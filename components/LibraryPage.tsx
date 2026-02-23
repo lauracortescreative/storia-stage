@@ -13,12 +13,12 @@ interface LibraryPageProps {
   onAuth: () => void;
 }
 
-const LibraryPage: React.FC<LibraryPageProps> = ({ 
-  translations: t, 
-  sessionStories, 
-  savedStories, 
-  isLoggedIn, 
-  onSelectStory, 
+const LibraryPage: React.FC<LibraryPageProps> = ({
+  translations: t,
+  sessionStories,
+  savedStories,
+  isLoggedIn,
+  onSelectStory,
   onSaveStory,
   onBack,
   onAuth
@@ -42,23 +42,23 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         if (!ctx) return resolve(src);
-        
+
         canvas.width = img.width;
         canvas.height = img.height;
-        
+
         ctx.filter = 'grayscale(1) contrast(500%) brightness(1.2) invert(1)';
         ctx.drawImage(img, 0, 0);
-        
+
         const dataUrl = canvas.toDataURL("image/png");
         const finalCanvas = document.createElement("canvas");
         finalCanvas.width = canvas.width;
         finalCanvas.height = canvas.height;
         const fctx = finalCanvas.getContext("2d");
         if (!fctx) return resolve(dataUrl);
-        
+
         fctx.filter = 'invert(1)';
         fctx.drawImage(canvas, 0, 0);
-        
+
         resolve(finalCanvas.toDataURL("image/png"));
       };
       img.onerror = () => resolve(src);
@@ -68,7 +68,7 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
 
   const handleDownloadPDF = async (story: StoryResult) => {
     setIsGeneratingPdf(true);
-    
+
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
       alert("Please allow popups to download the coloring book.");
@@ -142,7 +142,7 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
 
     doc.close();
     setIsGeneratingPdf(false);
-    
+
     setTimeout(() => {
       printWindow.focus();
       printWindow.print();
@@ -161,7 +161,7 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
               {isLoggedIn ? 'Account Active' : 'Guest Session'}
             </p>
           </div>
-          <button 
+          <button
             onClick={onBack}
             className="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-2xl transition-all flex items-center gap-2 text-sm"
           >
@@ -172,11 +172,35 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
           </button>
         </div>
 
+        {/* ── Login banner for logged-out users ── */}
+        {!isLoggedIn && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 px-8 py-6 bg-gradient-to-r from-indigo-950/80 to-purple-950/80 border border-indigo-500/30 rounded-3xl animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="text-center sm:text-left">
+              <p className="text-white font-black text-lg tracking-tight">✨ {t.library_account_required}</p>
+              <p className="text-indigo-200/60 text-sm mt-1">{t.library_save_cta}</p>
+            </div>
+            <div className="flex gap-3 flex-shrink-0">
+              <button
+                onClick={onAuth}
+                className="px-6 py-3 bg-white text-black font-black text-sm rounded-2xl hover:bg-zinc-100 transition-all shadow-lg whitespace-nowrap"
+              >
+                {t.button_create_account}
+              </button>
+              <button
+                onClick={onAuth}
+                className="px-6 py-3 border border-indigo-500/40 text-indigo-300 font-bold text-sm rounded-2xl hover:bg-indigo-600/20 transition-colors whitespace-nowrap"
+              >
+                Sign In
+              </button>
+            </div>
+          </div>
+        )}
+
         {isGeneratingPdf && (
-           <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex flex-col items-center justify-center space-y-4">
-              <div className="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
-              <p className="text-white font-black tracking-widest uppercase text-sm animate-pulse">Creating your coloring book...</p>
-           </div>
+          <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex flex-col items-center justify-center space-y-4">
+            <div className="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+            <p className="text-white font-black tracking-widest uppercase text-sm animate-pulse">Creating your coloring book...</p>
+          </div>
         )}
 
         {allEmpty ? (
@@ -197,7 +221,7 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
                     {t.library_recent}
                   </h3>
                   {!isLoggedIn && (
-                    <button 
+                    <button
                       onClick={onAuth}
                       className="text-indigo-400 font-bold text-xs uppercase tracking-widest hover:text-indigo-300 transition-colors"
                     >
@@ -207,11 +231,11 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {sessionStories.map(story => (
-                    <StoryCard 
-                      key={story.id} 
-                      story={story} 
-                      t={t} 
-                      onPlay={() => onSelectStory(story)} 
+                    <StoryCard
+                      key={story.id}
+                      story={story}
+                      t={t}
+                      onPlay={() => onSelectStory(story)}
                       onSave={() => onSaveStory(story)}
                       onReadScript={() => setScriptStory(story)}
                       onDownloadPDF={() => handleDownloadPDF(story)}
@@ -230,11 +254,11 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {savedStories.map(story => (
-                    <StoryCard 
-                      key={story.id} 
-                      story={story} 
-                      t={t} 
-                      onPlay={() => onSelectStory(story)} 
+                    <StoryCard
+                      key={story.id}
+                      story={story}
+                      t={t}
+                      onPlay={() => onSelectStory(story)}
                       onReadScript={() => setScriptStory(story)}
                       onDownloadPDF={() => handleDownloadPDF(story)}
                       isLoggedIn={isLoggedIn}
@@ -251,7 +275,7 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
           <div className="mt-20 p-10 bg-indigo-900/20 border border-indigo-500/30 rounded-[3rem] text-center space-y-6">
             <h4 className="text-2xl font-black text-white">{t.library_account_required}</h4>
             <p className="text-indigo-200/70">{t.library_save_cta}</p>
-            <button 
+            <button
               onClick={onAuth}
               className="px-10 py-5 bg-white text-black font-black text-xl rounded-full hover:bg-zinc-200 transition-all shadow-xl"
             >
@@ -270,7 +294,7 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
                 <h2 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em] mb-1">{t.script_title}</h2>
                 <h3 className="text-white text-3xl font-black tracking-tighter">{scriptStory.app_title}</h3>
               </div>
-              <button 
+              <button
                 onClick={() => setScriptStory(null)}
                 className="p-4 bg-zinc-800 hover:bg-zinc-700 text-white rounded-2xl transition-colors"
               >
@@ -296,11 +320,11 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
                 </div>
               ))}
               <div className="pt-8 text-center">
-                 <p className="text-zinc-600 text-xs font-bold uppercase tracking-widest italic">{scriptStory.main_character_description}</p>
+                <p className="text-zinc-600 text-xs font-bold uppercase tracking-widest italic">{scriptStory.main_character_description}</p>
               </div>
             </div>
             <footer className="p-8 border-t border-zinc-800 flex justify-center shrink-0">
-              <button 
+              <button
                 onClick={() => setScriptStory(null)}
                 className="px-10 py-4 bg-white text-black font-black text-lg rounded-2xl hover:bg-zinc-200 transition-all shadow-xl"
               >
@@ -314,15 +338,15 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
   );
 };
 
-const StoryCard: React.FC<{ 
-  story: StoryResult, 
-  t: UITranslations, 
-  onPlay: () => void, 
-  onSave?: () => void, 
-  onReadScript: () => void, 
+const StoryCard: React.FC<{
+  story: StoryResult,
+  t: UITranslations,
+  onPlay: () => void,
+  onSave?: () => void,
+  onReadScript: () => void,
   onDownloadPDF: () => void,
-  isLoggedIn: boolean, 
-  saved?: boolean 
+  isLoggedIn: boolean,
+  saved?: boolean
 }> = ({ story, t, onPlay, onSave, onReadScript, onDownloadPDF, isLoggedIn, saved }) => {
   const firstThumbnail = story.episodes[0]?.visual_plan?.[0]?.imageUrl;
 
@@ -336,7 +360,7 @@ const StoryCard: React.FC<{
         )}
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-2xl scale-75 group-hover:scale-100 transition-transform">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-black ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-black ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
           </div>
         </div>
       </div>
@@ -347,16 +371,16 @@ const StoryCard: React.FC<{
             {story.story_mode === 'toddler' ? '2-3' : '4-5'} {t.opt_years} • {story.language}
           </p>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-2">
-          <button 
+          <button
             onClick={onPlay}
             className="col-span-2 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-xl text-xs transition-colors"
           >
             Listen
           </button>
-          
-          <button 
+
+          <button
             onClick={(e) => { e.stopPropagation(); onReadScript(); }}
             className="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white rounded-xl transition-colors flex items-center justify-center gap-2"
             title={t.library_read_script}
@@ -367,7 +391,7 @@ const StoryCard: React.FC<{
             <span className="text-[9px] font-black uppercase tracking-tighter">Script</span>
           </button>
 
-          <button 
+          <button
             onClick={(e) => { e.stopPropagation(); onDownloadPDF(); }}
             className="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white rounded-xl transition-colors flex items-center justify-center gap-2"
             title={t.button_download_pdf}
@@ -379,7 +403,7 @@ const StoryCard: React.FC<{
           </button>
 
           {!saved && onSave && (
-            <button 
+            <button
               onClick={onSave}
               className={`col-span-2 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 ${story.isSaved ? 'bg-green-900/40 text-green-400' : 'bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white'}`}
             >
