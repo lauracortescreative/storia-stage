@@ -436,6 +436,9 @@ const App: React.FC = () => {
     detectLocation();
   }, []);
 
+  // Scroll to top on every view change
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }); }, [view]);
+
   useEffect(() => {
     localStorage.setItem('storia_current_lang', currentLang);
     if (!hasKey || currentLang === 'English') return;
@@ -871,6 +874,35 @@ const App: React.FC = () => {
       )}
 
       <div className="flex-1">
+
+        {/* ── Universal sub-page mini-nav (shown for all views except landing + app) ── */}
+        {!['landing', 'app', 'seed', 'refinement'].includes(view) && (
+          <div className="sticky top-0 z-50 bg-black/95 backdrop-blur-xl border-b border-zinc-900 px-5 py-3 flex items-center justify-between animate-in fade-in duration-300">
+            <button
+              onClick={() => setView('landing')}
+              className="flex items-center gap-2 text-white font-black text-xl tracking-tight hover:text-indigo-400 transition-colors"
+            >
+              Storia<sup className="text-[0.5em] align-super">©</sup>
+              <span className="text-zinc-700 text-sm font-normal ml-1 hidden sm:inline">← Home</span>
+            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setView('library')}
+                className="px-4 py-2 text-zinc-400 hover:text-white text-xs font-black uppercase tracking-widest transition-colors hidden sm:flex items-center gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                {t.library_title}
+              </button>
+              <button
+                onClick={() => setView('app')}
+                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black uppercase tracking-widest rounded-full transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-1.5"
+              >
+                ✨ {t.landing_button || 'Create a Story'}
+              </button>
+            </div>
+          </div>
+        )}
+
         {showWizardHeader && (
           <div className="w-full max-w-6xl mx-auto px-4 py-8 md:py-12 animate-in fade-in slide-in-from-top-4 duration-500">
             <header className="flex flex-col md:flex-row items-center justify-between gap-6">
@@ -984,8 +1016,8 @@ const App: React.FC = () => {
           </div>
         )}
         {view === 'settings' && <SettingsPage userStats={userStats} translations={t} token={getToken()} onBack={() => setView('app')} />}
-        {view === 'privacy' && <PrivacyPolicyPage translations={t} onBack={() => setView('app')} />}
-        {view === 'about' && <AboutPage translations={t} onBack={() => setView('app')} />}
+        {view === 'privacy' && <PrivacyPolicyPage translations={t} onBack={() => setView('landing')} />}
+        {view === 'about' && <AboutPage translations={t} onBack={() => setView('landing')} />}
         {view === 'paywall' && (
           <Paywall
             screen={paywallScreen}
