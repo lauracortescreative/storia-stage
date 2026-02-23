@@ -7,6 +7,7 @@ import storiesRouter from './routes/stories.js';
 import statsRouter from './routes/stats.js';
 import publicRouter from './routes/public.js';
 import geminiRouter from './routes/gemini.js';
+import profileRouter from './routes/profile.js';
 
 const app = express();
 
@@ -49,6 +50,7 @@ app.use('/api/stories', storiesRouter);
 app.use('/api/stats', statsRouter);
 app.use('/api/public-stories', publicRouter);
 app.use('/api/gemini', geminiRouter);
+app.use('/api/profile', profileRouter);
 
 // ─── Global error handler ─────────────────────────────────────────────────────
 app.use((err, _req, res, _next) => {

@@ -17,6 +17,7 @@ import PublicLibraryPage from './components/PublicLibraryPage';
 import ColoringBookPage from './components/ColoringBookPage';
 import AccountPage from './components/AccountPage';
 import TesterDisclaimer from './components/TesterDisclaimer';
+import TermsPage from './components/TermsPage';
 import { StoryService } from './services/gemini';
 import { decodeAudio } from './services/audio';
 import { checkSafety } from './services/moderation';
@@ -26,8 +27,10 @@ import {
   apiGetStories, apiSaveStory,
   apiGetStats, apiUpdateStats,
   apiCreateCheckoutSession, apiCreateTopupSession,
+  apiGetProfile, apiSaveProfile,
   getToken, clearToken
 } from './services/api';
+import type { ChildProfile } from './services/api';
 
 const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
   'English': {
@@ -219,6 +222,12 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     delete_confirm_prompt: "Are you sure? Type DELETE to confirm.",
     account_updated: "Account details updated.",
     account_deleted: "Account and all data have been deleted.",
+    account_child_section: "Your Child",
+    account_child_optional: "Optional · Prefills your story form",
+    account_child_name: "Child's Name",
+    account_child_age: "Child's Age",
+    account_child_avatar: "Choose an Avatar",
+    account_child_saved: "Child profile saved! ✨",
     setup_title: "Magical Access",
     setup_desc: "Select a paid API Key to unlock high-quality master artist illustrations.",
     setup_button: "Select API Key",
@@ -266,6 +275,19 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     lang_portuguese_portugal: "Portuguese (Portugal)",
     lang_spanish: "Spanish",
     lang_french: "French",
+    lang_italian: "Italian",
+    lang_german: "German",
+    lang_polish: "Polish",
+    lang_russian: "Russian",
+    lang_bulgarian: "Bulgarian",
+    lang_dutch: "Dutch",
+    lang_turkish: "Turkish",
+    lang_arabic: "Arabic",
+    lang_japanese: "Japanese",
+    lang_korean: "Korean",
+    lang_chinese_simplified: "Chinese (Simplified)",
+    lang_swedish: "Swedish",
+    lang_finnish: "Finnish",
     terms_link: "Terms & Conditions",
     terms_title: "Terms & Conditions",
     terms_ai_gen_title: "Modern Technology-Generated Content",
@@ -412,7 +434,7 @@ const DEFAULT_STATS: UserStats = {
 
 const App: React.FC = () => {
   const [showDisclaimer, setShowDisclaimer] = useState(true);
-  const [view, setView] = useState<'landing' | 'app' | 'seed' | 'refinement' | 'setup' | 'settings' | 'privacy' | 'about' | 'paywall' | 'library' | 'public_library' | 'coloring_book' | 'auth' | 'account' | 'subscribe_success'>(
+  const [view, setView] = useState<'landing' | 'app' | 'seed' | 'refinement' | 'setup' | 'settings' | 'privacy' | 'terms' | 'about' | 'paywall' | 'library' | 'public_library' | 'coloring_book' | 'auth' | 'account' | 'subscribe_success'>(
     window.location.pathname === '/subscribe/success' ? 'subscribe_success' : 'landing'
   );
   const [paywallScreen, setPaywallScreen] = useState<'intro' | 'plus' | 'limit' | 'topup'>('intro');
@@ -444,6 +466,10 @@ const App: React.FC = () => {
   const [savedStories, setSavedStories] = useState<StoryResult[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [childProfile, setChildProfile] = useState<ChildProfile>(() => {
+    const saved = localStorage.getItem('storia_child_profile');
+    return saved ? JSON.parse(saved) : { childName: '', childAge: null, childAvatar: '' };
+  });
 
   const generationIdRef = useRef(0);
   const translationIdRef = useRef(0);
@@ -474,6 +500,15 @@ const App: React.FC = () => {
         .catch(() => {
           const saved = localStorage.getItem('storia_saved_stories');
           if (saved) setSavedStories(JSON.parse(saved));
+        });
+      apiGetProfile()
+        .then(profile => {
+          setChildProfile(profile);
+          localStorage.setItem('storia_child_profile', JSON.stringify(profile));
+        })
+        .catch(() => {
+          const saved = localStorage.getItem('storia_child_profile');
+          if (saved) setChildProfile(JSON.parse(saved));
         });
     } else {
       // Not logged in — use localStorage stats
@@ -622,6 +657,12 @@ const App: React.FC = () => {
     } finally {
       setAuthLoading(false);
     }
+  };
+
+  const handleSaveProfile = async (profile: ChildProfile) => {
+    setChildProfile(profile);
+    localStorage.setItem('storia_child_profile', JSON.stringify(profile));
+    await apiSaveProfile(profile);
   };
 
   const handleUpdateEmail = async (newEmail: string) => {
@@ -1046,7 +1087,13 @@ const App: React.FC = () => {
         {view === 'app' && !story && (
           <div className="py-12 md:py-24 px-4 bg-black min-h-screen">
             <Form
-              initialData={savedPersonalization}
+              initialData={{
+                ...savedPersonalization,
+                // Prepopulate from saved child profile (child name + age → storyMode)
+                ...(childProfile.childName ? { childName: childProfile.childName } : {}),
+                ...(childProfile.childAge === 2 ? { storyMode: 'toddler' as const } : {}),
+                ...(childProfile.childAge === 4 ? { storyMode: 'preschool' as const } : {}),
+              }}
               generationCount={userStats.monthlyUsed}
               translations={t}
               onBack={() => setView('landing')}
@@ -1101,7 +1148,8 @@ const App: React.FC = () => {
           </div>
         )}
         {view === 'settings' && <SettingsPage userStats={userStats} translations={t} token={getToken()} onBack={() => setView('app')} />}
-        {view === 'privacy' && <PrivacyPolicyPage translations={t} onBack={() => setView('landing')} />}
+        {view === 'privacy' && <PrivacyPolicyPage translations={t} onBack={() => setView('landing')} onGoToTerms={() => setView('terms')} />}
+        {view === 'terms' && <TermsPage translations={t} onBack={() => setView('landing')} onGoToPrivacy={() => setView('privacy')} />}
         {view === 'about' && <AboutPage translations={t} onBack={() => setView('landing')} />}
         {view === 'paywall' && (
           <Paywall
@@ -1128,7 +1176,7 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
-        {view === 'account' && <AccountPage translations={t} email={userEmail} onUpdateEmail={handleUpdateEmail} onDeleteAccount={handleDeleteAccount} onBack={() => setView('app')} />}
+        {view === 'account' && <AccountPage translations={t} email={userEmail} childProfile={childProfile} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onBack={() => setView('app')} />}
         {view === 'library' && <LibraryPage translations={t} sessionStories={sessionStories} savedStories={savedStories} isLoggedIn={isLoggedIn} onSelectStory={(s) => { setStory(s); setView('app'); }} onSaveStory={saveToAccount} onBack={() => setView('app')} onAuth={() => setView('auth')} />}
         {view === 'public_library' && <PublicLibraryPage translations={t} onSelectStory={(s) => { setStory(s); setView('app'); }} onGoToColoring={() => setView('coloring_book')} onBack={() => setView('landing')} />}
         {view === 'coloring_book' && <ColoringBookPage translations={t} onBack={() => setView('landing')} />}
@@ -1174,10 +1222,12 @@ const App: React.FC = () => {
       <footer className="bg-zinc-950 border-t border-zinc-900 py-10 px-6">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="flex flex-col gap-1"><p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{t.footer_region}</p><div className="relative"><select value={currentLang} onChange={(e) => { localStorage.setItem('storia_lang_user_explicit', '1'); setCurrentLang(e.target.value); }} className="bg-zinc-900 text-white text-xs font-bold py-3 pl-4 pr-10 rounded-xl border border-zinc-800 appearance-none cursor-pointer focus:outline-none focus:border-indigo-500">{SUPPORTED_LANGUAGES.map(lang => (<option key={lang} value={lang}>{lang}</option>))}</select><div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-600"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg></div></div></div>
+            <div className="flex flex-col gap-1"><p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{t.footer_region}</p><div className="relative"><select value={currentLang} onChange={(e) => { localStorage.setItem('storia_lang_user_explicit', '1'); setCurrentLang(e.target.value); }} className="bg-zinc-900 text-white text-xs font-bold py-3 pl-4 pr-10 rounded-xl border border-zinc-800 appearance-none cursor-pointer focus:outline-none focus:border-indigo-500">{SUPPORTED_LANGUAGES.map(lang => { const langKey = `lang_${lang.toLowerCase().replace(/\s+/g, '_').replace(/[()]/g, '')}` as keyof typeof t; return (<option key={lang} value={lang}>{(t[langKey] as string) || lang}</option>); })}</select><div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-600"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg></div></div></div>
 
             <button onClick={() => setView('public_library')} className="text-zinc-400 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>{t.public_library_link}</button>
             <button onClick={() => setView('about')} className="text-zinc-400 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>{t.about_link}</button>
+            <button onClick={() => setView('terms')} className="text-zinc-400 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors">{t.terms_link}</button>
+            <button onClick={() => setView('privacy')} className="text-zinc-400 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors">{t.privacy_link}</button>
             <a
               href="https://www.instagram.com/storia.land/"
               target="_blank"

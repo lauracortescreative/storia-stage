@@ -27,6 +27,16 @@ CREATE TABLE IF NOT EXISTS user_stats (
 CREATE INDEX IF NOT EXISTS idx_stories_user_id ON stories(user_id);
 CREATE INDEX IF NOT EXISTS idx_stories_public ON stories(is_public) WHERE is_public = TRUE;
 
+-- Child profiles table (optional, prepopulates the story form)
+CREATE TABLE IF NOT EXISTS child_profiles (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  child_name TEXT,
+  child_age  INT,
+  child_avatar TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Disable Row Level Security (server uses service_role key which bypasses RLS anyway)
 ALTER TABLE stories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE user_stats DISABLE ROW LEVEL SECURITY;
+ALTER TABLE child_profiles DISABLE ROW LEVEL SECURITY;

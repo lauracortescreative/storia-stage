@@ -234,6 +234,12 @@ export interface UITranslations {
   delete_confirm_prompt: string;
   account_updated: string;
   account_deleted: string;
+  account_child_section: string;
+  account_child_optional: string;
+  account_child_name: string;
+  account_child_age: string;
+  account_child_avatar: string;
+  account_child_saved: string;
 
   // Setup
   setup_title: string;

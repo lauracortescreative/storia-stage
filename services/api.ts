@@ -139,6 +139,7 @@ export async function apiGetPublicStories(): Promise<StoryResult[]> {
     return apiFetch<StoryResult[]>('/public-stories');
 }
 
+
 // ─── Health check (useful for detecting if server is offline) ─────────────────
 
 export async function apiHealthCheck(): Promise<boolean> {
@@ -148,4 +149,23 @@ export async function apiHealthCheck(): Promise<boolean> {
     } catch {
         return false;
     }
+}
+
+// ─── Child Profile ─────────────────────────────────────────────────────────────
+
+export interface ChildProfile {
+    childName: string;
+    childAge: number | null;
+    childAvatar: string;
+}
+
+export async function apiGetProfile(): Promise<ChildProfile> {
+    return apiFetch<ChildProfile>('/profile');
+}
+
+export async function apiSaveProfile(profile: ChildProfile): Promise<void> {
+    await apiFetch('/profile', {
+        method: 'PUT',
+        body: JSON.stringify(profile)
+    });
 }
