@@ -410,9 +410,9 @@ app.post('/api/gemini/translate', async (req, res) => {
         const allKeys = chunks.reduce((acc, chunk) => ({ ...acc, ...chunk }), {});
         const entries = Object.entries(allKeys);
 
-        // Split into 4 small batches (~50 keys each) and translate in parallel
+        // Split into 8 small batches (~37 keys each) and translate in parallel
         // gemini-2.0-flash-lite is fast for simple JSON translation tasks
-        const batchSize = Math.ceil(entries.length / 4);
+        const batchSize = Math.ceil(entries.length / 8);
         const batches = [];
         for (let i = 0; i < entries.length; i += batchSize) {
             batches.push(entries.slice(i, i + batchSize));
