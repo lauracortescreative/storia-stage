@@ -620,8 +620,8 @@ const App: React.FC = () => {
     const cached = localStorage.getItem(`storia_trans_${currentLang}`);
     if (cached) {
       const parsed = JSON.parse(cached);
-      // Only use cache if it has a full translation (≥295 keys) — clears stale caches missing legal page keys
-      if (Object.keys(parsed).length >= 295) {
+      // Only use cache if it has a full translation (≥240 keys) — invalidates stale caches missing legal page keys
+      if (Object.keys(parsed).length >= 240) {
         setDynamicT(prev => ({ ...prev, [currentLang]: parsed }));
         return;
       }
