@@ -732,7 +732,7 @@ const App: React.FC = () => {
     setSubscribeError(null);
     try {
       const { url } = await apiCreateCheckoutSession(plan);
-      window.location.href = url;
+      window.open(url, '_blank');
     } catch (err: any) {
       console.error('Stripe checkout error:', err);
       setSubscribeError(err.message || 'Could not start checkout. Please try again.');
@@ -746,7 +746,7 @@ const App: React.FC = () => {
     setSubscribeError(null);
     try {
       const { url } = await apiCreateTopupSession(count);
-      window.location.href = url;
+      window.open(url, '_blank');
     } catch (err: any) {
       console.error('Topup checkout error:', err);
       setSubscribeError(err.message || 'Could not start checkout. Please try again.');
