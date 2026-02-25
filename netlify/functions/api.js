@@ -452,7 +452,7 @@ import Stripe from 'stripe';
 function getStripe() {
     const key = process.env.STRIPE_SECRET_KEY;
     if (!key) throw new Error('STRIPE_SECRET_KEY is not configured.');
-    return new Stripe(key, { apiVersion: '2024-11-20' });
+    return new Stripe(key, { apiVersion: '2024-06-20' });
 }
 
 // POST /api/subscribe/checkout — create a Stripe Checkout Session
