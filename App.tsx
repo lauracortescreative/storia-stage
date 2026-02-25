@@ -1147,8 +1147,8 @@ const App: React.FC = () => {
 
       <div className="flex-1">
 
-        {/* ── Global Nav — shown on every view except the story player ('app') ── */}
-        {view !== 'app' && (
+        {/* ── Global Nav — hidden only during story playback ── */}
+        {!(view === 'app' && !!story) && (
           <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-8 py-4 flex justify-between items-center bg-black/80 backdrop-blur-md border-b border-white/5 animate-in fade-in duration-300">
             {/* Logo */}
             <button
@@ -1210,8 +1210,8 @@ const App: React.FC = () => {
           </nav>
         )}
 
-        {/* Offset for fixed nav on non-landing, non-player pages */}
-        {view !== 'app' && view !== 'landing' && <div className="h-16" />}
+        {/* Offset for fixed nav: all pages except landing and story player */}
+        {!(view === 'app' && !!story) && view !== 'landing' && <div className="h-16" />}
 
         {view === 'landing' && <LandingPage onStart={() => hasKey ? setView('app') : setView('setup')} onJoinMembership={() => { setPaywallScreen('plus'); setView('paywall'); }} onExplorePublic={() => setView('public_library')} onGoToColoring={() => setView('coloring_book')} translations={t} currentLang={currentLang} />}
         {view === 'setup' && (
