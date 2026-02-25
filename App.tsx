@@ -1149,7 +1149,7 @@ const App: React.FC = () => {
 
         {/* ── Global Nav — hidden only when the story player is actively showing ── */}
         {(!story || view !== 'app') && (
-          <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-8 py-4 flex justify-between items-center bg-black/80 backdrop-blur-md border-b border-white/5 animate-in fade-in duration-300">
+          <nav className={`fixed top-0 left-0 w-full z-[100] px-4 md:px-8 py-4 flex justify-between items-center animate-in fade-in duration-300 ${view === 'landing' ? 'bg-gradient-to-b from-black/70 via-black/30 to-transparent backdrop-blur-[2px] border-b-0' : 'bg-black/80 backdrop-blur-md border-b border-white/5'}`}>
             {/* Logo */}
             <button
               onClick={() => setView('landing')}
