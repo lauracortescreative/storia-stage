@@ -345,7 +345,7 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     terms_s_disclaimer_list: "Uninterrupted or error-free access to the service.\nThat AI-generated stories will always meet your expectations in quality or tone.\nThat third-party services (Gemini API, Stripe, Supabase) will be continuously available.",
     terms_s_disclaimer_footer: "To the maximum extent permitted by law, Spoonful Labs, Ltd shall not be liable for any indirect, incidental, or consequential damages arising from your use of Storia. Our total liability in any matter is limited to the amount you paid us in the 3 months preceding the claim.",
     terms_s_law_title: "Governing Law",
-    terms_s_law_p1: "These Terms are governed by the laws of the European Union and, where applicable, the laws of the country in which Spoonful Labs, Ltd is incorporated. Any disputes will be resolved through binding arbitration, or in the courts of our jurisdiction, at our election.",
+    terms_s_law_p1: "These Terms are governed by the laws of the European Union and, where applicable, the laws of the country in which Spoonful Labs, property of Keep Away From Fire Ld.a, Ltd, is incorporated. Any disputes will be resolved through binding arbitration, or in the courts of our jurisdiction, at our election.",
     terms_s_law_p2: "If you are a consumer in the EU, you retain all rights granted by mandatory local consumer protection laws, which these Terms do not override.",
     terms_s_changes_title: "Changes to These Terms",
     terms_s_changes_p1: "We may update these Terms as the service evolves. If we make material changes, we will notify you by email or via an in-app notice at least 14 days before they take effect. Continued use after the effective date constitutes acceptance.",
