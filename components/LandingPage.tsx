@@ -446,7 +446,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
                               <svg className="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                             )}
                             <span className="relative">
-                              {loadingAudioId === story.id ? "Loading..." : playingAudioId === story.id ? "Stop Sample" : "Play Sample"}
+                              {loadingAudioId === story.id ? t.loading_audio : playingAudioId === story.id ? t.stop_sample : t.play_sample}
                             </span>
                           </button>
                         )}

@@ -288,6 +288,9 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     lang_chinese_simplified: "Chinese (Simplified)",
     lang_swedish: "Swedish",
     lang_finnish: "Finnish",
+    play_sample: "Play Sample",
+    stop_sample: "Stop Sample",
+    loading_audio: "Loading...",
     terms_link: "Terms & Conditions",
     terms_title: "Terms & Conditions",
     terms_ai_gen_title: "Modern Technology-Generated Content",
@@ -620,50 +623,87 @@ const App: React.FC = () => {
     const cached = localStorage.getItem(`storia_trans_${currentLang}`);
     if (cached) {
       const parsed = JSON.parse(cached);
-      // Only use cache if it has a full translation (≥240 keys) — invalidates stale caches missing legal page keys
-      if (Object.keys(parsed).length >= 240) {
+      // Use cache if it has ≥180 keys (main-UI batch from Gemini returns ~210-230)
+      if (Object.keys(parsed).length >= 180) {
         setDynamicT(prev => ({ ...prev, [currentLang]: parsed }));
         return;
       }
-      // Remove the partial/bad cache so we fetch a fresh full translation
+      // Stale/partial cache — remove and re-fetch
       localStorage.removeItem(`storia_trans_${currentLang}`);
     }
 
-
-    const translateMagic = async () => {
+    const translateMainUI = async () => {
       const tid = ++translationIdRef.current;
       try {
         const englishStrings = ALL_TRANSLATIONS['English'];
-        const keys = Object.keys(englishStrings);
-        const chunkSize = 200;
-        const chunks: any[] = [];
-        for (let i = 0; i < keys.length; i += chunkSize) {
-          const chunkObj: any = {};
-          keys.slice(i, i + chunkSize).forEach(k => chunkObj[k] = (englishStrings as any)[k]);
-          chunks.push(chunkObj);
-        }
+        // Exclude long legal-section keys to keep the payload well under 10 s
+        const mainKeys = Object.keys(englishStrings).filter(
+          k => !k.startsWith('terms_s_') && !k.startsWith('privacy_s_')
+        );
+        const chunkObj: any = {};
+        mainKeys.forEach(k => chunkObj[k] = (englishStrings as any)[k]);
 
         const BASE = import.meta.env.DEV ? 'http://localhost:3001' : '';
         const res = await fetch(`${BASE}/api/gemini/translate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chunks, targetLang: currentLang }),
+          body: JSON.stringify({ chunks: [chunkObj], targetLang: currentLang }),
         });
         if (!res.ok) throw new Error('Translation request failed');
-        const combinedResult = await res.json() as Partial<UITranslations>;
+        const result = await res.json() as Partial<UITranslations>;
 
         if (tid !== translationIdRef.current) return;
 
-        if (Object.keys(combinedResult).length > 5) {
-          localStorage.setItem(`storia_trans_${currentLang}`, JSON.stringify(combinedResult));
-          setDynamicT(prev => ({ ...prev, [currentLang]: combinedResult }));
+        if (Object.keys(result).length > 5) {
+          localStorage.setItem(`storia_trans_${currentLang}`, JSON.stringify(result));
+          setDynamicT(prev => ({ ...prev, [currentLang]: result }));
         }
       } catch (e) {
-        console.error("Storia Magic Localization Failed", e);
+        console.error('Storia Magic Localization Failed', e);
       }
     };
-    translateMagic();
+    translateMainUI();
   }, [currentLang, hasKey]);
+
+  // Lazy-load legal section translations only when Terms or Privacy is opened
+  useEffect(() => {
+    if (currentLang === 'English' || (view !== 'terms' && view !== 'privacy')) return;
+    if (!hasKey) return;
+    // Skip if already translated
+    const cur = dynamicT[currentLang] as any;
+    if (cur?.terms_s_accept_title) return;
+
+    const translateLegal = async () => {
+      try {
+        const englishStrings = ALL_TRANSLATIONS['English'];
+        const legalKeys = Object.keys(englishStrings).filter(
+          k => k.startsWith('terms_s_') || k.startsWith('privacy_s_')
+        );
+        const chunkObj: any = {};
+        legalKeys.forEach(k => chunkObj[k] = (englishStrings as any)[k]);
+
+        const BASE = import.meta.env.DEV ? 'http://localhost:3001' : '';
+        const res = await fetch(`${BASE}/api/gemini/translate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chunks: [chunkObj], targetLang: currentLang }),
+        });
+        if (!res.ok) throw new Error('Legal translation failed');
+        const result = await res.json() as Partial<UITranslations>;
+
+        if (Object.keys(result).length > 5) {
+          setDynamicT(prev => {
+            const merged = { ...(prev[currentLang] || {}), ...result };
+            localStorage.setItem(`storia_trans_${currentLang}`, JSON.stringify(merged));
+            return { ...prev, [currentLang]: merged };
+          });
+        }
+      } catch (e) {
+        console.error('Legal page translation failed', e);
+      }
+    };
+    translateLegal();
+  }, [view, currentLang]);
 
   const updateStats = (updates: Partial<UserStats>) => {
     setUserStats(prev => {
