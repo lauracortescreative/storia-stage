@@ -1160,14 +1160,16 @@ const App: React.FC = () => {
 
             {/* Right actions */}
             <div className="flex items-center gap-2 md:gap-3">
-              {/* Create a Story */}
-              <button
-                id="nav-create-story"
-                onClick={() => { setStory(null); setView('app'); }}
-                className="px-4 md:px-6 py-2 rounded-full bg-white text-black hover:bg-zinc-200 transition-all text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg"
-              >
-                ✨ {t.landing_button || 'Create a Story'}
-              </button>
+              {/* Create a Story — hidden on form pages */}
+              {!['seed', 'refinement'].includes(view) && !(view === 'app' && !story) && (
+                <button
+                  id="nav-create-story"
+                  onClick={() => { setStory(null); setView('app'); }}
+                  className="px-4 md:px-6 py-2 rounded-full bg-white text-black hover:bg-zinc-200 transition-all text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg"
+                >
+                  ✨ {t.landing_button || 'Create a Story'}
+                </button>
+              )}
               {/* Public Library */}
               <button
                 onClick={() => setView('public_library')}
