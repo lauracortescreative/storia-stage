@@ -81,7 +81,16 @@ const Paywall: React.FC<PaywallProps> = ({
           <div className="bg-indigo-950/60 border border-indigo-500/30 rounded-2xl px-5 py-4 text-left space-y-1">
             <p className="text-indigo-300 font-black text-sm">🎁 {t.pw_promo_label || 'New member offer'}</p>
             <p className="text-indigo-200/80 text-sm font-medium leading-relaxed">
-              {t.pw_promo_desc || 'Follow @storia.land on Instagram and DM us for a discount code — £3.99/month for your first 3 months.'}
+              Follow{' '}
+              <a
+                href="https://www.instagram.com/storia.land/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-indigo-300 font-black underline underline-offset-2 hover:text-white transition-colors"
+              >
+                @storia.land
+              </a>
+              {' '}on Instagram and DM us for a discount code — £3.99/month for your first 3 months.
             </p>
           </div>
 
