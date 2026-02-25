@@ -854,6 +854,15 @@ const App: React.FC = () => {
     setView('landing');
   };
 
+  const handleLogout = () => {
+    clearToken();
+    localStorage.removeItem('storia_user');
+    setIsLoggedIn(false);
+    setUserEmail('');
+    setSavedStories([]);
+    setUserStats(DEFAULT_STATS);
+    setView('landing');
+  };
   const saveToAccount = async (storyToSave: StoryResult) => {
     if (!isLoggedIn) {
       setView('auth');
@@ -1363,7 +1372,7 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
-        {view === 'account' && <AccountPage translations={t} email={userEmail} childProfile={childProfile} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onBack={() => setView('app')} />}
+        {view === 'account' && <AccountPage translations={t} email={userEmail} childProfile={childProfile} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onLogout={handleLogout} onBack={() => setView('app')} />}
         {view === 'library' && <LibraryPage translations={t} sessionStories={sessionStories} savedStories={savedStories} isLoggedIn={isLoggedIn} onSelectStory={(s) => { setStory(s); setView('app'); }} onSaveStory={saveToAccount} onBack={() => setView('app')} onAuth={() => setView('auth')} />}
         {view === 'public_library' && <PublicLibraryPage translations={t} onSelectStory={(s) => { setStory(s); setView('app'); }} onGoToColoring={() => setView('coloring_book')} onBack={() => setView('landing')} />}
         {view === 'coloring_book' && <ColoringBookPage translations={t} onBack={() => setView('landing')} />}

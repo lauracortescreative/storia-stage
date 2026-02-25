@@ -12,6 +12,7 @@ interface AccountPageProps {
   onUpdateEmail: (newEmail: string) => void;
   onSaveProfile: (profile: ChildProfile) => Promise<void>;
   onDeleteAccount: () => void;
+  onLogout: () => void;
   onBack: () => void;
 }
 
@@ -22,6 +23,7 @@ const AccountPage: React.FC<AccountPageProps> = ({
   onUpdateEmail,
   onSaveProfile,
   onDeleteAccount,
+  onLogout,
   onBack
 }) => {
   const [newEmail, setNewEmail] = useState(email);
@@ -147,8 +149,8 @@ const AccountPage: React.FC<AccountPageProps> = ({
                   type="button"
                   onClick={() => setChildAge(childAge === 2 ? null : 2)}
                   className={`flex-1 py-4 rounded-2xl text-xs font-black uppercase tracking-widest border-2 transition-all ${childAge === 2
-                      ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg'
-                      : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200'
+                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg'
+                    : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200'
                     }`}
                 >
                   👶 2–3 {t.opt_years || 'Years'}
@@ -157,8 +159,8 @@ const AccountPage: React.FC<AccountPageProps> = ({
                   type="button"
                   onClick={() => setChildAge(childAge === 4 ? null : 4)}
                   className={`flex-1 py-4 rounded-2xl text-xs font-black uppercase tracking-widest border-2 transition-all ${childAge === 4
-                      ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg'
-                      : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200'
+                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg'
+                    : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200'
                     }`}
                 >
                   🧒 4–5 {t.opt_years || 'Years'}
@@ -178,8 +180,8 @@ const AccountPage: React.FC<AccountPageProps> = ({
                     type="button"
                     onClick={() => setChildAvatar(childAvatar === emoji ? '' : emoji)}
                     className={`aspect-square flex items-center justify-center text-2xl rounded-2xl border-2 transition-all ${childAvatar === emoji
-                        ? 'border-indigo-500 bg-indigo-600/20 shadow-[0_0_12px_rgba(99,102,241,0.3)] scale-105'
-                        : 'border-zinc-700 bg-zinc-800 hover:border-zinc-500 hover:scale-105'
+                      ? 'border-indigo-500 bg-indigo-600/20 shadow-[0_0_12px_rgba(99,102,241,0.3)] scale-105'
+                      : 'border-zinc-700 bg-zinc-800 hover:border-zinc-500 hover:scale-105'
                       }`}
                   >
                     {emoji}
@@ -221,6 +223,23 @@ const AccountPage: React.FC<AccountPageProps> = ({
               )}
             </button>
           </form>
+        </section>
+
+        {/* Log Out */}
+        <section className="p-10 rounded-[3rem] border border-zinc-800 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-white font-black text-lg">{t.account_logout || 'Log Out'}</p>
+              <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">{t.account_logout_desc || 'You can log back in any time'}</p>
+            </div>
+            <button
+              onClick={onLogout}
+              className="px-8 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-black rounded-2xl transition-all text-sm flex items-center gap-2 border border-zinc-700"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+              {t.account_logout || 'Log Out'}
+            </button>
+          </div>
         </section>
 
         {/* Danger Zone */}
