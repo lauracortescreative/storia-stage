@@ -727,7 +727,17 @@ const App: React.FC = () => {
   const [subscribeError, setSubscribeError] = useState<string | null>(null);
 
   const handleSubscribe = async (plan: 'monthly' | 'yearly') => {
-    if (!isLoggedIn) { setView('auth'); return; }
+    if (!isLoggedIn || !getToken()) {
+      // Clear any stale session that has no JWT
+      if (isLoggedIn && !getToken()) {
+        clearToken();
+        localStorage.removeItem('storia_user');
+        setIsLoggedIn(false);
+        setUserEmail('');
+      }
+      setView('auth');
+      return;
+    }
     setSubscribeLoading(true);
     setSubscribeError(null);
     try {
@@ -741,7 +751,13 @@ const App: React.FC = () => {
   };
 
   const handleAddStories = async (count: number) => {
-    if (!isLoggedIn) { setView('auth'); return; }
+    if (!isLoggedIn || !getToken()) {
+      if (isLoggedIn && !getToken()) {
+        clearToken(); localStorage.removeItem('storia_user');
+        setIsLoggedIn(false); setUserEmail('');
+      }
+      setView('auth'); return;
+    }
     setSubscribeLoading(true);
     setSubscribeError(null);
     try {
