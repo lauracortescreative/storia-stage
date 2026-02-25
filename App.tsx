@@ -770,7 +770,7 @@ const App: React.FC = () => {
       for (const s of sessionStories) {
         await apiSaveStory(s).catch(() => { });
       }
-      setView('library');
+      setView('account');
     } catch (err: any) {
       setAuthError(err.message || 'Registration failed');
     } finally {
@@ -789,7 +789,7 @@ const App: React.FC = () => {
       const [stories, stats] = await Promise.all([apiGetStories(), apiGetStats()]);
       setSavedStories(stories);
       setUserStats(stats);
-      setView('library');
+      setView('account');
     } catch (err: any) {
       setAuthError(err.message || 'Login failed');
     } finally {
