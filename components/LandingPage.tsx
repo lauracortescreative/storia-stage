@@ -237,50 +237,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
         ))}
       </div>
 
-      {/* Navigation Header */}
-      <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-8 py-6 flex justify-between items-center bg-gradient-to-b from-black/80 via-black/40 to-transparent backdrop-blur-[2px]">
-        <div className="text-2xl font-black text-white tracking-tighter font-borel pt-1">
-          Storia<sup className="text-[0.5em] ml-1">©</sup>
-        </div>
-        <div className="flex items-center gap-3 md:gap-6">
-          <a
-            href="https://www.instagram.com/storia.land/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden xs:flex p-2.5 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white"
-            title="Follow us on Instagram"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.999 0h.001zm-.512 1.442c.859-.04 1.154-.047 3.333-.047 2.179 0 2.474.007 3.333.047.794.037 1.226.171 1.513.282.38.147.652.322.936.606.284.284.459.556.606.936.111.287.245.72.282 1.513.04.859.047 1.154.047 3.333 0 2.179-.007 2.474-.047 3.333-.037.794-.171 1.226-.282 1.513a2.389 2.389 0 0 1-.606.936 2.39 2.39 0 0 1-.936.606c-.287.111-.72.245-1.513.282-.859.04-1.154.047-3.333.047-2.179 0-2.474-.007-3.333-.047-.794-.037-1.226-.171-1.513-.282a2.389 2.389 0 0 1-.936-.606 2.389 2.389 0 0 1-.606-.936c-.111-.287-.245-.72-.282-1.513-.04-.859-.047-1.154-.047-3.333 0-2.179.007-2.474.047-3.333.037-.794.171-1.226.282-1.513.147-.38.322-.652.606-.936.284-.284.556-.459.936-.606.287-.111.72-.245 1.513-.282zM8 3.891a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334zm4.328-1.576a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92z" />
-            </svg>
-          </a>
-          <button
-            onClick={onStart}
-            className="px-4 md:px-6 py-2.5 rounded-full bg-white text-black hover:bg-zinc-200 transition-all shadow-lg text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center gap-2"
-          >
-            ✨ {t.landing_button}
-          </button>
-          <button
-            onClick={onExplorePublic}
-            className="hidden sm:flex px-6 py-2.5 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2"
-          >
-            📚 {t.public_library_link}
-          </button>
-          <button
-            onClick={onGoToColoring}
-            className="hidden lg:flex px-6 py-2.5 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2"
-          >
-            🖍️ Coloring Lab
-          </button>
-          <button
-            onClick={onJoinMembership}
-            className="group relative px-6 py-2.5 rounded-full bg-indigo-600/20 hover:bg-indigo-600 transition-all border border-indigo-500/40 text-indigo-400 hover:text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs flex items-center gap-2"
-          >
-            <span className="text-lg">💎</span>
-            <span className="hidden xs:inline">{t.button_membership}</span>
-          </button>
-        </div>
-      </nav>
 
       <div className="relative z-10 w-full flex flex-col items-center">
         {/* Hero Section */}

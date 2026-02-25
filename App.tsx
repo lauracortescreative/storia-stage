@@ -1127,8 +1127,6 @@ const App: React.FC = () => {
     }
   };
 
-  const showWizardHeader = !story && (view === 'app' || view === 'seed' || view === 'refinement');
-
   if (showDisclaimer) {
     return <TesterDisclaimer translations={t} onProceed={() => setShowDisclaimer(false)} />;
   }
@@ -1149,58 +1147,71 @@ const App: React.FC = () => {
 
       <div className="flex-1">
 
-        {/* ── Universal sub-page mini-nav (shown for all views except landing + app) ── */}
-        {!['landing', 'app', 'seed', 'refinement'].includes(view) && (
-          <div className="sticky top-0 z-50 bg-black/95 backdrop-blur-xl border-b border-zinc-900 px-5 py-3 flex items-center justify-between animate-in fade-in duration-300">
+        {/* ── Global Nav — shown on every view except the story player ('app') ── */}
+        {view !== 'app' && (
+          <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-8 py-4 flex justify-between items-center bg-black/80 backdrop-blur-md border-b border-white/5 animate-in fade-in duration-300">
+            {/* Logo */}
             <button
               onClick={() => setView('landing')}
-              className="flex items-center gap-2 text-white font-black text-xl tracking-tight hover:text-indigo-400 transition-colors"
+              className="text-xl font-black text-white tracking-tighter font-borel hover:text-indigo-300 transition-colors"
             >
-              Storia<sup className="text-[0.5em] align-super">©</sup>
-              <span className="text-zinc-700 text-sm font-normal ml-1 hidden sm:inline">{t.nav_home_label}</span>
+              Storia<sup className="text-[0.5em] ml-0.5">©</sup>
             </button>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setView('library')}
-                className="px-4 py-2 text-zinc-400 hover:text-white text-xs font-black uppercase tracking-widest transition-colors hidden sm:flex items-center gap-1.5"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                {t.library_title}
-              </button>
+
+            {/* Right actions */}
+            <div className="flex items-center gap-2 md:gap-3">
+              {/* Create a Story */}
               <button
                 onClick={() => setView('app')}
-                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black uppercase tracking-widest rounded-full transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-1.5"
+                className="px-4 md:px-6 py-2 rounded-full bg-white text-black hover:bg-zinc-200 transition-all text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg"
               >
                 ✨ {t.landing_button || 'Create a Story'}
               </button>
-            </div>
-          </div>
-        )}
-
-        {showWizardHeader && (
-          <div className="w-full max-w-6xl mx-auto px-4 py-8 md:py-12 animate-in fade-in slide-in-from-top-4 duration-500">
-            <header className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <h1 className="text-5xl md:text-6xl font-extrabold text-white tracking-tight font-borel py-2 cursor-pointer" onClick={() => setView('landing')}>Storia<sup className="text-[0.4em] mb-4">©</sup></h1>
-              <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-
-                <button onClick={() => setView('library')} className="px-5 py-3 md:px-6 md:py-3 bg-zinc-900 border border-zinc-800 rounded-full text-white text-sm font-bold hover:bg-zinc-800 transition-all flex items-center gap-2 shadow-xl backdrop-blur-md">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                  {t.library_title}
+              {/* Public Library */}
+              <button
+                onClick={() => setView('public_library')}
+                className="hidden sm:flex px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2"
+              >
+                📚 {t.public_library_link || 'Public Library'}
+              </button>
+              {/* Coloring Lab */}
+              <button
+                onClick={() => setView('coloring_book')}
+                className="hidden lg:flex px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2"
+              >
+                🖍️ Coloring Lab
+              </button>
+              {/* Account / Auth — changes based on login state */}
+              {isLoggedIn ? (
+                <button
+                  onClick={() => setView('account')}
+                  className="flex items-center gap-2 px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                  <span className="hidden sm:inline">{t.account_title || 'My Account'}</span>
                 </button>
-                {isLoggedIn ? (
-                  <button onClick={() => setView('account')} className="px-5 py-3 md:px-6 md:py-3 bg-zinc-900 border border-zinc-800 rounded-full text-white text-sm font-bold hover:bg-zinc-800 transition-all flex items-center gap-2 shadow-xl backdrop-blur-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                    {t.account_title}
-                  </button>
-                ) : (
-                  <button onClick={() => setView('auth')} className="px-5 py-3 md:px-6 md:py-3 bg-indigo-600 rounded-full text-white text-sm font-bold hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-600/20">
-                    {t.button_create_account}
-                  </button>
-                )}
-              </div>
-            </header>
-          </div>
+              ) : (
+                <button
+                  onClick={() => setView('auth')}
+                  className="px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs"
+                >
+                  {t.button_create_account || 'Create Account'}
+                </button>
+              )}
+              {/* Membership gem */}
+              <button
+                onClick={() => { setPaywallScreen('plus'); setView('paywall'); }}
+                className="group px-3 md:px-4 py-2 rounded-full bg-indigo-600/20 hover:bg-indigo-600 transition-all border border-indigo-500/40 text-indigo-400 hover:text-white font-black text-xs flex items-center gap-1.5"
+              >
+                <span className="text-base">💎</span>
+                <span className="hidden md:inline uppercase tracking-widest text-[10px]">{t.button_membership || 'Plus'}</span>
+              </button>
+            </div>
+          </nav>
         )}
+
+        {/* Offset for fixed nav on non-landing, non-player pages */}
+        {view !== 'app' && view !== 'landing' && <div className="h-16" />}
 
         {view === 'landing' && <LandingPage onStart={() => hasKey ? setView('app') : setView('setup')} onJoinMembership={() => { setPaywallScreen('plus'); setView('paywall'); }} onExplorePublic={() => setView('public_library')} onGoToColoring={() => setView('coloring_book')} translations={t} currentLang={currentLang} />}
         {view === 'setup' && (
