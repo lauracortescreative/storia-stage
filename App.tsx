@@ -1333,9 +1333,15 @@ const App: React.FC = () => {
         )}
         {subscribeLoading && (
           <div className="fixed inset-0 z-[600] bg-black/80 flex items-center justify-center">
-            <div className="text-white text-center space-y-4">
+            <div className="text-white text-center space-y-6">
               <p className="text-2xl font-black animate-pulse">{t.checkout_redirecting}</p>
               <p className="text-zinc-500 text-xs font-black uppercase tracking-widest">{t.checkout_powered_by}</p>
+              <button
+                onClick={() => setSubscribeLoading(false)}
+                className="mt-4 px-8 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-400 hover:text-white text-xs font-black uppercase tracking-widest transition-all"
+              >
+                {t.cancel || 'Cancel'}
+              </button>
             </div>
           </div>
         )}
