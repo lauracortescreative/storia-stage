@@ -423,6 +423,8 @@ export interface UITranslations {
   form_early_access: string;
   landing_reveal_button: string;
   landing_painting_magic: string;
+  landing_promo_price: string;
+  landing_promo_instagram: string;
 }
 
 /**

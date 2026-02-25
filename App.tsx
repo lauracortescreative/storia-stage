@@ -502,6 +502,8 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     form_early_access: "Early access offer: 5 free stories/month until August 1st — after that, 2 free stories/month.",
     landing_reveal_button: "Reveal Modern Technology Visuals",
     landing_painting_magic: "Painting Magic...",
+    landing_promo_price: "New users: £3.99/month for the first 3 months",
+    landing_promo_instagram: "Follow @storia.land · DM for access code",
   }
 };
 
