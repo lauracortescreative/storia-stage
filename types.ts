@@ -329,6 +329,9 @@ export interface UITranslations {
   pw_plus_feat4: string;
   pw_plus_feat5: string;
   pw_keep_exploring: string;
+  pw_promo_label: string;
+  pw_promo_desc: string;
+  pw_subscribe_cta: string;
   pw_limit_title: string;
   pw_limit_body: string;
   pw_limit_replay: string;

@@ -24,7 +24,7 @@ const Paywall: React.FC<PaywallProps> = ({
   onReplay
 }) => {
 
-  // SCREEN 1: FIRST LAUNCH
+  // SCREEN 1: FIRST LAUNCH / INTRO
   if (screen === 'intro') {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 animate-in fade-in duration-700">
@@ -58,18 +58,18 @@ const Paywall: React.FC<PaywallProps> = ({
     );
   }
 
-  // SCREEN 2: MEMBERSHIP / STRIPE PRICING TABLE
+  // SCREEN 2: MEMBERSHIP / PLAN SELECTION
   if (screen === 'plus') {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 animate-in zoom-in duration-500">
-        <div className="max-w-3xl w-full space-y-10 text-center">
+        <div className="max-w-lg w-full space-y-8 text-center">
           <div className="space-y-4">
             <div className="text-6xl">💎</div>
             <h2 className="text-4xl font-black text-white tracking-tighter">{t.pw_plus_title}</h2>
             <p className="text-zinc-400 font-medium leading-relaxed max-w-lg mx-auto">{t.pw_plus_body}</p>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4 text-sm">
+          <div className="flex flex-wrap justify-center gap-3 text-sm">
             {[t.pw_plus_feat1, t.pw_plus_feat2, t.pw_plus_feat3, t.pw_plus_feat4, t.pw_plus_feat5].map((f, i) => (
               <div key={i} className="flex items-center gap-2 text-zinc-300 font-bold bg-zinc-900 border border-zinc-800 rounded-full px-4 py-2">
                 <span className="text-indigo-400">✦</span> {f}
@@ -77,14 +77,56 @@ const Paywall: React.FC<PaywallProps> = ({
             ))}
           </div>
 
-          {/* Stripe Pricing Table — rendered as a native web component */}
-          <div dangerouslySetInnerHTML={{
-            __html: `
-            <stripe-pricing-table
-              pricing-table-id="prctbl_1T3KYr4GwzKI4QvMH6nyKb3L"
-              publishable-key="pk_live_51Sx4pa4GwzKI4QvMf86GNCpx3ed8udyo6t6tZ5jq6kxIvJ8HVuNZifZxVOCq1USimVHr8TkfbzLBg6Z164iKaoEQ0008QOPnLu">
-            </stripe-pricing-table>
-          ` }} />
+          {/* Promo / Instagram notice */}
+          <div className="bg-indigo-950/60 border border-indigo-500/30 rounded-2xl px-5 py-4 text-left space-y-1">
+            <p className="text-indigo-300 font-black text-sm">🎁 {t.pw_promo_label || 'New member offer'}</p>
+            <p className="text-indigo-200/80 text-sm font-medium leading-relaxed">
+              {t.pw_promo_desc || 'Follow @storia.land on Instagram and DM us for a discount code — £3.99/month for your first 3 months.'}
+            </p>
+          </div>
+
+          {/* Plan cards */}
+          <div className="space-y-4">
+
+            {/* Monthly */}
+            <button
+              id="paywall-monthly-btn"
+              onClick={() => onSubscribe('monthly')}
+              className="w-full p-6 bg-zinc-900 border-2 border-zinc-700 hover:border-indigo-500 rounded-[2rem] text-left transition-all group"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white font-black text-lg">{t.settings_monthly || 'Monthly'}</p>
+                  <p className="text-zinc-400 text-sm font-medium">{t.pw_plus_feat1 || '20 stories/month'}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-white font-black text-2xl">£6.99</p>
+                  <p className="text-zinc-500 text-xs">{t.settings_per_month || 'per month'}</p>
+                </div>
+              </div>
+            </button>
+
+            {/* Yearly — highlighted */}
+            <button
+              id="paywall-yearly-btn"
+              onClick={() => onSubscribe('yearly')}
+              className="w-full p-6 bg-indigo-600 border-2 border-indigo-500 hover:bg-indigo-500 rounded-[2rem] text-left transition-all relative overflow-hidden"
+            >
+              <div className="absolute top-3 right-3 bg-white text-indigo-700 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+                {t.paywall_yearly_discount || 'Best value'}
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white font-black text-lg">{t.settings_yearly || 'Yearly'}</p>
+                  <p className="text-indigo-200 text-sm font-medium">{t.pw_plus_feat1 || '20 stories/month'}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-white font-black text-2xl">£59.99</p>
+                  <p className="text-indigo-200 text-xs">{t.settings_per_year || 'per year'}</p>
+                </div>
+              </div>
+            </button>
+          </div>
 
           <button onClick={onContinue} className="text-zinc-500 hover:text-white font-bold text-sm tracking-wide transition-colors">
             {t.pw_keep_exploring}
@@ -99,7 +141,7 @@ const Paywall: React.FC<PaywallProps> = ({
   }
 
 
-  // SCREEN 3: MONTHLY LIMIT REACHED
+  // SCREEN 3: FREE STORIES USED UP
   if (screen === 'limit') {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 animate-in fade-in duration-500">
@@ -113,10 +155,26 @@ const Paywall: React.FC<PaywallProps> = ({
           </div>
 
           <div className="space-y-4">
-            <button onClick={() => onAddStories(0)} className="w-full py-6 bg-indigo-600 text-white font-black text-xl rounded-[2rem] hover:bg-indigo-500 transition-all shadow-xl">
+            {/* Primary: Subscribe */}
+            <button
+              id="limit-subscribe-btn"
+              onClick={() => onSubscribe('monthly')}
+              className="w-full py-6 bg-indigo-600 text-white font-black text-xl rounded-[2rem] hover:bg-indigo-500 transition-all shadow-xl"
+            >
+              {t.pw_subscribe_cta || 'Subscribe — £6.99/month'}
+            </button>
+            {/* Secondary: Top-up */}
+            <button
+              onClick={() => onAddStories(0)}
+              className="w-full py-5 bg-zinc-800 text-zinc-300 font-bold rounded-[2rem] hover:bg-zinc-700 transition-all"
+            >
               {t.pw_add_stories}
             </button>
-            <button onClick={onReplay} className="w-full py-5 bg-zinc-800 text-zinc-300 font-bold rounded-[2rem] hover:bg-zinc-700 transition-all">
+            {/* Tertiary: Replay a saved story */}
+            <button
+              onClick={onReplay}
+              className="w-full py-5 bg-zinc-900 text-zinc-500 font-bold rounded-[2rem] hover:bg-zinc-800 transition-all"
+            >
               {t.pw_limit_replay}
             </button>
           </div>
@@ -134,12 +192,12 @@ const Paywall: React.FC<PaywallProps> = ({
   // SCREEN 4: TOP-UP SELECTION
   if (screen === 'topup') {
     const bundles = [
-      { count: 10, price: '€6.99', title: t.pw_bundle_15_title || '10 Stories', desc: t.pw_bundle_15_desc || 'One-time top-up', popular: true },
+      { count: 10, price: '£6.99', title: t.pw_bundle_15_title || '10 Stories', desc: t.pw_bundle_15_desc || 'One-time top-up', popular: true },
     ];
 
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 animate-in slide-in-from-bottom duration-500">
-        <div className="max-w-sm w-full space-y-12">
+        <div className="max-w-sm w-full space-y-10">
           <div className="text-center space-y-4">
             <h2 className="text-5xl font-black text-white tracking-tighter">{t.pw_topup_title}</h2>
             <p className="text-zinc-400 font-medium px-8">{t.pw_topup_subtitle}</p>
@@ -160,7 +218,15 @@ const Paywall: React.FC<PaywallProps> = ({
             ))}
           </div>
 
-          <div className="text-center space-y-8">
+          {/* Also offer subscription */}
+          <button
+            onClick={() => onSubscribe('monthly')}
+            className="w-full py-5 bg-zinc-900 border border-zinc-700 text-zinc-300 font-bold rounded-[2rem] hover:bg-zinc-800 transition-all"
+          >
+            {t.pw_subscribe_cta || 'Subscribe instead — £6.99/month'}
+          </button>
+
+          <div className="text-center space-y-6">
             <p className="text-zinc-500 text-xs font-black uppercase tracking-widest">{t.pw_bundle_footer}</p>
             <button onClick={onBack} className="text-zinc-400 hover:text-white font-bold transition-colors">{t.pw_not_now}</button>
           </div>

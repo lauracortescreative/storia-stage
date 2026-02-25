@@ -473,6 +473,7 @@ app.post('/api/subscribe/checkout', authenticateToken, async (req, res) => {
             mode: 'subscription',
             payment_method_types: ['card'],
             line_items: [{ price: priceId, quantity: 1 }],
+            allow_promotion_codes: true,   // Enables Instagram DM promo codes at checkout
             success_url: `${origin}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${origin}/`,
             client_reference_id: req.user.id,   // used in webhook to identify user
