@@ -561,6 +561,7 @@ const App: React.FC = () => {
   });
 
   const [detectedRegion, setDetectedRegion] = useState<Region>('global');
+  const [detectedCountry, setDetectedCountry] = useState<string>('');
   const [userStats, setUserStats] = useState<UserStats>(DEFAULT_STATS);
   const [sessionStories, setSessionStories] = useState<StoryResult[]>([]);
   const [savedStories, setSavedStories] = useState<StoryResult[]>([]);
@@ -906,6 +907,7 @@ const App: React.FC = () => {
         if (match && match[1] && COUNTRY_MAP[match[1]]) {
           const code = match[1];
           region = COUNTRY_MAP[code];
+          setDetectedCountry(code);
           if (!skipDetection) {
             if (code === 'PT') initialLangDetected = 'Portuguese (Portugal)';
             else if (code === 'BR') initialLangDetected = 'Portuguese (Brazil)';
@@ -956,6 +958,15 @@ const App: React.FC = () => {
       setCurrentLang(initialLangDetected);
     }
   };
+
+  // Derive display currency from detected country code
+  const currencySymbol = (() => {
+    if (detectedCountry === 'GB') return '£';
+    if (detectedCountry === 'US') return '$';
+    if (detectedCountry === 'CA') return 'CA$';
+    if (detectedCountry === 'AU') return 'A$';
+    return '€'; // default for EU and rest of world
+  })();
 
   const calculateSceneTimings = (visualScene: VisualScene[]) => {
     if (!visualScene || visualScene.length === 0) return [];
@@ -1293,6 +1304,7 @@ const App: React.FC = () => {
             screen={paywallScreen}
             translations={t}
             userStats={userStats}
+            currencySymbol={currencySymbol}
             onSubscribe={handleSubscribe}
             onAddStories={handleAddStories}
             onContinue={() => setView('app')}

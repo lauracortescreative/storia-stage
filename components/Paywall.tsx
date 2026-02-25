@@ -6,6 +6,7 @@ interface PaywallProps {
   screen: 'intro' | 'plus' | 'limit' | 'topup';
   translations: UITranslations;
   userStats: UserStats;
+  currencySymbol: string;
   onContinue: () => void;
   onSubscribe: (plan: 'monthly' | 'yearly') => void;
   onAddStories: (count: number) => void;
@@ -17,6 +18,7 @@ const Paywall: React.FC<PaywallProps> = ({
   screen,
   translations: t,
   userStats,
+  currencySymbol,
   onContinue,
   onSubscribe,
   onAddStories,
@@ -109,7 +111,7 @@ const Paywall: React.FC<PaywallProps> = ({
                   <p className="text-zinc-400 text-sm font-medium">{t.pw_plus_feat1 || '20 stories/month'}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-white font-black text-2xl">£6.99</p>
+                  <p className="text-white font-black text-2xl">{currencySymbol}6.99</p>
                   <p className="text-zinc-500 text-xs">{t.settings_per_month || 'per month'}</p>
                 </div>
               </div>
@@ -130,7 +132,7 @@ const Paywall: React.FC<PaywallProps> = ({
                   <p className="text-indigo-200 text-sm font-medium">{t.pw_plus_feat1 || '20 stories/month'}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-white font-black text-2xl">£59.99</p>
+                  <p className="text-white font-black text-2xl">{currencySymbol}59.99</p>
                   <p className="text-indigo-200 text-xs">{t.settings_per_year || 'per year'}</p>
                 </div>
               </div>
@@ -170,7 +172,7 @@ const Paywall: React.FC<PaywallProps> = ({
               onClick={() => onSubscribe('monthly')}
               className="w-full py-6 bg-indigo-600 text-white font-black text-xl rounded-[2rem] hover:bg-indigo-500 transition-all shadow-xl"
             >
-              {t.pw_subscribe_cta || 'Subscribe — £6.99/month'}
+              {t.pw_subscribe_cta || `Subscribe — ${currencySymbol}6.99/month`}
             </button>
             {/* Secondary: Top-up */}
             <button
@@ -201,7 +203,7 @@ const Paywall: React.FC<PaywallProps> = ({
   // SCREEN 4: TOP-UP SELECTION
   if (screen === 'topup') {
     const bundles = [
-      { count: 10, price: '£6.99', title: t.pw_bundle_15_title || '10 Stories', desc: t.pw_bundle_15_desc || 'One-time top-up', popular: true },
+      { count: 10, price: `${currencySymbol}6.99`, title: t.pw_bundle_15_title || '10 Stories', desc: t.pw_bundle_15_desc || 'One-time top-up', popular: true },
     ];
 
     return (
@@ -232,7 +234,7 @@ const Paywall: React.FC<PaywallProps> = ({
             onClick={() => onSubscribe('monthly')}
             className="w-full py-5 bg-zinc-900 border border-zinc-700 text-zinc-300 font-bold rounded-[2rem] hover:bg-zinc-800 transition-all"
           >
-            {t.pw_subscribe_cta || 'Subscribe instead — £6.99/month'}
+            {t.pw_subscribe_cta || `Subscribe instead — ${currencySymbol}6.99/month`}
           </button>
 
           <div className="text-center space-y-6">
