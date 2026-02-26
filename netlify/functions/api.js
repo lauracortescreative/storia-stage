@@ -39,9 +39,50 @@ async function sendEmail(to, subject, html, replyTo) {
         console.log('✅ Email sent to', to);
     } catch (err) {
         console.error('Email send error:', err.message);
-        throw err; // re-throw so callers can handle it
+        throw err;
     }
 }
+
+// Sends via a Resend template if RESEND_VERIFICATION_TEMPLATE_ID is set,
+// otherwise falls back to inline HTML.
+async function sendVerificationEmail(to, verifyUrl) {
+    const key = process.env.RESEND_API_KEY;
+    const templateId = process.env.RESEND_VERIFICATION_TEMPLATE_ID;
+    if (!key) { console.warn('⚠️ RESEND_API_KEY not set'); return; }
+
+    const payload = templateId
+        ? {
+            from: 'Storia <no-reply@contact.storia.land>',
+            to,
+            template_id: templateId,
+            variables: { confirmation_link: verifyUrl, email: to },
+        }
+        : {
+            from: 'Storia <no-reply@contact.storia.land>',
+            to,
+            subject: 'Verify your Storia account ✉️',
+            html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;background:#0a0a0a;color:#fff;padding:40px;border-radius:24px">
+              <h1 style="font-size:26px;font-weight:900;margin-bottom:8px">Welcome to Storia ✨</h1>
+              <p style="color:#a1a1aa;font-size:15px;line-height:1.6">Your account is ready — you have <strong style="color:#fff">5 free stories</strong> to get started.</p>
+              <p style="color:#a1a1aa;font-size:14px;margin-top:16px">Please verify your email address to keep your account secure:</p>
+              <a href="${verifyUrl}" style="display:inline-block;margin-top:20px;padding:14px 28px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Verify My Email →</a>
+              <p style="color:#52525b;font-size:11px;margin-top:28px">If you didn't create this account, you can safely ignore this email.</p>
+            </div>`,
+        };
+
+    const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+        const body = await response.text();
+        console.error(`❌ Resend error ${response.status}:`, body);
+        throw new Error(`Email delivery failed (${response.status}): ${body}`);
+    }
+    console.log('✅ Verification email sent to', to);
+}
+
 
 // ─── Auth middleware ─────────────────────────────────────────────────────────
 async function authenticateToken(req, res, next) {
@@ -178,18 +219,9 @@ app.post('/api/auth/register', async (req, res) => {
         const origin = req.headers.origin || 'https://stage-storia.netlify.app';
         const verifyUrl = `${origin}/verify?token=${verifyToken}`;
 
-        // Welcome + Verify email (non-blocking — don't let email failure break registration)
-        sendEmail(
-            email.toLowerCase(),
-            'Verify your Storia account ✉️',
-            `<div style="font-family:sans-serif;max-width:600px;margin:auto;background:#0a0a0a;color:#fff;padding:40px;border-radius:24px">
-              <h1 style="font-size:26px;font-weight:900;margin-bottom:8px">Welcome to Storia ✨</h1>
-              <p style="color:#a1a1aa;font-size:15px;line-height:1.6">Your account is ready — you have <strong style="color:#fff">5 free stories</strong> to get started.</p>
-              <p style="color:#a1a1aa;font-size:14px;margin-top:16px">Please verify your email address to keep your account secure:</p>
-              <a href="${verifyUrl}" style="display:inline-block;margin-top:20px;padding:14px 28px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Verify My Email →</a>
-              <p style="color:#52525b;font-size:11px;margin-top:28px">If you didn't create this account, you can safely ignore this email. This link expires in 24 hours.</p>
-            </div>`
-        ).catch(e => console.warn('Welcome email failed (non-fatal):', e.message));
+        // Welcome + Verify email (non-blocking)
+        sendVerificationEmail(email.toLowerCase(), verifyUrl)
+            .catch(e => console.warn('Welcome email failed (non-fatal):', e.message));
 
         res.status(201).json({ token: signIn.session.access_token, refreshToken: signIn.session.refresh_token, user: { id: data.user.id, email: data.user.email } });
     } catch (err) {
@@ -257,16 +289,7 @@ app.post('/api/auth/resend-verification', authenticateToken, async (req, res) =>
         const origin = req.headers.origin || 'https://stage-storia.netlify.app';
         const verifyUrl = `${origin}/verify?token=${newToken}`;
 
-        await sendEmail(
-            req.user.email,
-            'Verify your Storia account ✉️',
-            `<div style="font-family:sans-serif;max-width:600px;margin:auto;background:#0a0a0a;color:#fff;padding:40px;border-radius:24px">
-              <h1 style="font-size:24px;font-weight:900;margin-bottom:8px">Verify your email ✉️</h1>
-              <p style="color:#a1a1aa;font-size:15px;line-height:1.6">Here's your new verification link. Click below to confirm your Storia account:</p>
-              <a href="${verifyUrl}" style="display:inline-block;margin-top:20px;padding:14px 28px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Verify My Email →</a>
-              <p style="color:#52525b;font-size:11px;margin-top:28px">If you didn't request this, you can safely ignore it.</p>
-            </div>`
-        );
+        await sendVerificationEmail(req.user.email, verifyUrl);
 
         res.json({ success: true });
     } catch (err) {
