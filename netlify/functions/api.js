@@ -47,33 +47,17 @@ async function sendEmail(to, subject, html, replyTo) {
 // otherwise falls back to inline HTML.
 async function sendVerificationEmail(to, verifyUrl) {
     const key = process.env.RESEND_API_KEY;
-    const templateId = process.env.RESEND_VERIFICATION_TEMPLATE_ID;
     if (!key) { console.warn('⚠️ RESEND_API_KEY not set'); return; }
-
-    const payload = templateId
-        ? {
-            from: 'Storia <no-reply@contact.storia.land>',
-            to,
-            template_id: templateId,
-            variables: { confirmation_link: verifyUrl, email: to },
-        }
-        : {
-            from: 'Storia <no-reply@contact.storia.land>',
-            to,
-            subject: 'Verify your Storia account ✉️',
-            html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;background:#0a0a0a;color:#fff;padding:40px;border-radius:24px">
-              <h1 style="font-size:26px;font-weight:900;margin-bottom:8px">Welcome to Storia ✨</h1>
-              <p style="color:#a1a1aa;font-size:15px;line-height:1.6">Your account is ready — you have <strong style="color:#fff">5 free stories</strong> to get started.</p>
-              <p style="color:#a1a1aa;font-size:14px;margin-top:16px">Please verify your email address to keep your account secure:</p>
-              <a href="${verifyUrl}" style="display:inline-block;margin-top:20px;padding:14px 28px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Verify My Email →</a>
-              <p style="color:#52525b;font-size:11px;margin-top:28px">If you didn't create this account, you can safely ignore this email.</p>
-            </div>`,
-        };
 
     const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+            from: 'Storia <no-reply@contact.storia.land>',
+            to,
+            template_alias: 'email-confirmation',
+            variables: { confirmation_link: verifyUrl, email: to },
+        }),
     });
     if (!response.ok) {
         const body = await response.text();
