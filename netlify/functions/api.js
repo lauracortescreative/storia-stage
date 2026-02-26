@@ -198,6 +198,38 @@ app.get('/api/auth/verify-email', async (req, res) => {
     }
 });
 
+// POST /api/auth/resend-verification — generate new token and re-send verification email
+app.post('/api/auth/resend-verification', authenticateToken, async (req, res) => {
+    try {
+        const sb = getSupabase();
+        // Check if already verified
+        const { data } = await sb.from('user_stats').select('email_verified').eq('user_id', req.user.id).single();
+        if (data?.email_verified) return res.json({ success: true, alreadyVerified: true });
+
+        const newToken = crypto.randomUUID();
+        await sb.from('user_stats').update({ email_verify_token: newToken }).eq('user_id', req.user.id);
+
+        const origin = req.headers.origin || 'https://stage-storia.netlify.app';
+        const verifyUrl = `${origin}/verify?token=${newToken}`;
+
+        await sendEmail(
+            req.user.email,
+            'Verify your Storia account ✉️',
+            `<div style="font-family:sans-serif;max-width:600px;margin:auto;background:#0a0a0a;color:#fff;padding:40px;border-radius:24px">
+              <h1 style="font-size:24px;font-weight:900;margin-bottom:8px">Verify your email ✉️</h1>
+              <p style="color:#a1a1aa;font-size:15px;line-height:1.6">Here's your new verification link. Click below to confirm your Storia account:</p>
+              <a href="${verifyUrl}" style="display:inline-block;margin-top:20px;padding:14px 28px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Verify My Email →</a>
+              <p style="color:#52525b;font-size:11px;margin-top:28px">If you didn't request this, you can safely ignore it.</p>
+            </div>`
+        );
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Resend verification error:', err.message);
+        res.status(500).json({ error: 'Failed to resend verification email' });
+    }
+});
+
 app.put('/api/auth/email', authenticateToken, async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email is required' });

@@ -29,7 +29,7 @@ import {
   apiRegister, apiLogin, apiDeleteAccount, apiUpdateEmail,
   apiGetStories, apiSaveStory,
   apiGetStats, apiUpdateStats,
-  apiCreateCheckoutSession, apiCreateTopupSession, apiCreatePortalSession, apiCancelSubscription,
+  apiCreateCheckoutSession, apiCreateTopupSession, apiCreatePortalSession, apiCancelSubscription, apiResendVerification,
   apiGetProfile, apiSaveProfile,
   getToken, setToken, clearToken
 } from './services/api';
@@ -1456,7 +1456,7 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
-        {view === 'account' && <AccountPage translations={t} email={userEmail} emailVerified={emailVerified} childProfile={childProfile} plan={userStats.plan} monthlyUsed={userStats.monthlyUsed} monthlyLimit={userStats.monthlyLimit} subscriptionStatus={userStats.subscriptionStatus} subscriptionEndsAt={userStats.subscriptionEndsAt} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onLogout={handleLogout} onManageBilling={handleManageBilling} onSubscribe={handleSubscribe} onCancelSubscription={handleCancelSubscription} onBack={() => setView('app')} />}
+        {view === 'account' && <AccountPage translations={t} email={userEmail} emailVerified={emailVerified} childProfile={childProfile} plan={userStats.plan} monthlyUsed={userStats.monthlyUsed} monthlyLimit={userStats.monthlyLimit} subscriptionStatus={userStats.subscriptionStatus} subscriptionEndsAt={userStats.subscriptionEndsAt} onResendVerification={apiResendVerification} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onLogout={handleLogout} onManageBilling={handleManageBilling} onSubscribe={handleSubscribe} onCancelSubscription={handleCancelSubscription} onBack={() => setView('app')} />}
         {view === 'help' && <HelpPage translations={t} userEmail={userEmail} onBack={() => setView(isLoggedIn ? 'app' : 'landing')} />}
         {view === 'verify' && <VerifyEmailPage token={verifyToken} onContinue={() => { setEmailVerified(true); window.history.replaceState({}, '', '/'); setView(isLoggedIn ? 'account' : 'landing'); }} />}
         {view === 'library' && <LibraryPage translations={t} sessionStories={sessionStories} savedStories={savedStories} isLoggedIn={isLoggedIn} onSelectStory={(s) => { setStory(s); setView('app'); }} onSaveStory={saveToAccount} onBack={() => setView('app')} onAuth={() => setView('auth')} />}

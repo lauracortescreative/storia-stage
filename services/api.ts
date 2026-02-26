@@ -140,6 +140,10 @@ export async function apiCancelSubscription(): Promise<void> {
     await apiFetch('/subscribe/cancel', { method: 'DELETE' });
 }
 
+export async function apiResendVerification(): Promise<void> {
+    await apiFetch('/auth/resend-verification', { method: 'POST' });
+}
+
 
 // ─── Public Library ───────────────────────────────────────────────────────────
 

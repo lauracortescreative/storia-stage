@@ -6,6 +6,39 @@ import { useToast } from './ToastContext';
 
 const AVATAR_OPTIONS = ['🐻', '🦁', '🐼', '🦊', '🐸', '🦄', '🦋', '🐬', '🦕', '🌟', '🚀', '🧸'];
 
+const VerifyNudge: React.FC<{ onResend: () => Promise<void> }> = ({ onResend }) => {
+  const [state, setState] = useState<'idle' | 'sending' | 'sent'>('idle');
+  const handleResend = async () => {
+    setState('sending');
+    try { await onResend(); setState('sent'); }
+    catch { setState('idle'); }
+  };
+  return (
+    <div className="flex items-center justify-between gap-3 px-5 py-4 rounded-2xl bg-amber-950/40 border border-amber-700/40">
+      <div className="flex items-start gap-3">
+        <span className="text-xl">✉️</span>
+        <div>
+          <p className="text-amber-300 font-black text-sm">{state === 'sent' ? 'Verification email sent!' : 'Verify your email'}</p>
+          <p className="text-amber-200/60 text-xs mt-0.5">
+            {state === 'sent' ? 'Check your inbox for the link.' : 'Check your inbox or resend the verification link.'}
+          </p>
+        </div>
+      </div>
+      {state !== 'sent' && (
+        <button
+          onClick={handleResend}
+          disabled={state === 'sending'}
+          className="shrink-0 px-4 py-2 rounded-xl bg-amber-600/30 hover:bg-amber-600/50 border border-amber-600/40 text-amber-300 text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-60 flex items-center gap-1.5"
+        >
+          {state === 'sending'
+            ? <span className="w-3 h-3 rounded-full border-2 border-amber-300/30 border-t-amber-300 animate-spin" />
+            : '↺'} Resend
+        </button>
+      )}
+    </div>
+  );
+};
+
 interface AccountPageProps {
   translations: UITranslations;
   email: string;
@@ -16,6 +49,7 @@ interface AccountPageProps {
   monthlyLimit: number;
   subscriptionStatus: string | null;
   subscriptionEndsAt: string | null;
+  onResendVerification: () => Promise<void>;
   onUpdateEmail: (newEmail: string) => void;
   onSaveProfile: (profile: ChildProfile) => Promise<void>;
   onDeleteAccount: () => void;
@@ -36,6 +70,7 @@ const AccountPage: React.FC<AccountPageProps> = ({
   monthlyLimit,
   subscriptionStatus,
   subscriptionEndsAt,
+  onResendVerification,
   onUpdateEmail,
   onSaveProfile,
   onDeleteAccount,
@@ -139,13 +174,7 @@ const AccountPage: React.FC<AccountPageProps> = ({
 
         {/* Email verification nudge banner */}
         {!emailVerified && (
-          <div className="flex items-start gap-3 px-5 py-4 rounded-2xl bg-amber-950/40 border border-amber-700/40">
-            <span className="text-xl">✉️</span>
-            <div>
-              <p className="text-amber-300 font-black text-sm">Verify your email</p>
-              <p className="text-amber-200/60 text-xs mt-0.5">Check your inbox for a verification link we sent when you signed up.</p>
-            </div>
-          </div>
+          <VerifyNudge onResend={onResendVerification} />
         )}
 
         {/* ── YOUR PLAN SECTION ── */}
