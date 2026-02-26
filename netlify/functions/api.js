@@ -303,6 +303,8 @@ app.get('/api/stats', authenticateToken, async (req, res) => {
             plan, monthlyUsed: data.monthly_used, monthlyLimit,
             bundlesRemaining: data.bundles_remaining, totalGenerated: data.total_generated,
             nextResetDate: data.next_reset_date,
+            subscriptionStatus: data.subscription_status || null,
+            subscriptionEndsAt: data.subscription_ends_at || null,
         });
     } catch (err) {
         res.status(500).json({ error: 'Failed to load stats' });
@@ -687,32 +689,33 @@ app.post('/api/subscribe/portal', authenticateToken, async (req, res) => {
     }
 });
 
-// DELETE /api/subscribe/cancel — cancel active Stripe subscription
+// DELETE /api/subscribe/cancel — cancel at period end (not immediately)
 app.delete('/api/subscribe/cancel', authenticateToken, async (req, res) => {
     try {
         const stripe = getStripe();
 
-        // Find Stripe customer by email
         const customers = await stripe.customers.list({ email: req.user.email, limit: 1 });
-        if (!customers.data.length) {
-            return res.status(404).json({ error: 'No billing account found.' });
-        }
+        if (!customers.data.length) return res.status(404).json({ error: 'No billing account found.' });
         const customerId = customers.data[0].id;
 
-        // Find active subscription
         const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: 'active', limit: 1 });
-        if (!subscriptions.data.length) {
-            return res.status(404).json({ error: 'No active subscription found.' });
-        }
+        if (!subscriptions.data.length) return res.status(404).json({ error: 'No active subscription found.' });
 
-        // Cancel immediately
-        await stripe.subscriptions.cancel(subscriptions.data[0].id);
+        // Schedule cancellation at period end — user keeps Plus until then
+        const updated = await stripe.subscriptions.update(subscriptions.data[0].id, {
+            cancel_at_period_end: true,
+        });
 
-        // Downgrade in Supabase
+        const endsAt = new Date(updated.current_period_end * 1000).toISOString();
+
+        // Mark as cancelling in Supabase (still 'plus' until webhook fires)
         const sb = getSupabase();
-        await sb.from('user_stats').update({ plan: 'free', monthly_limit: 5 }).eq('user_id', req.user.id);
+        await sb.from('user_stats').update({
+            subscription_status: 'cancelling',
+            subscription_ends_at: endsAt,
+        }).eq('user_id', req.user.id);
 
-        res.json({ success: true });
+        res.json({ success: true, endsAt });
     } catch (err) {
         console.error('Cancel subscription error:', err.message);
         res.status(500).json({ error: err.message || 'Failed to cancel subscription' });

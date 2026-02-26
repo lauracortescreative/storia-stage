@@ -14,6 +14,8 @@ interface AccountPageProps {
   plan: 'free' | 'plus';
   monthlyUsed: number;
   monthlyLimit: number;
+  subscriptionStatus: string | null;
+  subscriptionEndsAt: string | null;
   onUpdateEmail: (newEmail: string) => void;
   onSaveProfile: (profile: ChildProfile) => Promise<void>;
   onDeleteAccount: () => void;
@@ -32,6 +34,8 @@ const AccountPage: React.FC<AccountPageProps> = ({
   plan,
   monthlyUsed,
   monthlyLimit,
+  subscriptionStatus,
+  subscriptionEndsAt,
   onUpdateEmail,
   onSaveProfile,
   onDeleteAccount,
@@ -157,9 +161,20 @@ const AccountPage: React.FC<AccountPageProps> = ({
               </span>
             </div>
             {plan === 'plus' && (
-              <span className="ml-auto px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-black uppercase tracking-widest border border-indigo-500/30">
-                Active
-              </span>
+              subscriptionStatus === 'cancelling' && subscriptionEndsAt ? (
+                <div className="ml-auto text-right">
+                  <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-widest border border-amber-500/30 block">
+                    Cancelling
+                  </span>
+                  <span className="text-zinc-500 text-[10px] font-bold mt-1 block">
+                    Ends {new Date(subscriptionEndsAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </span>
+                </div>
+              ) : (
+                <span className="ml-auto px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-black uppercase tracking-widest border border-indigo-500/30">
+                  Active
+                </span>
+              )
             )}
           </div>
 

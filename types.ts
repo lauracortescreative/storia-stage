@@ -23,6 +23,8 @@ export interface UserStats {
   bundlesRemaining: number;
   totalGenerated: number;
   nextResetDate: string;
+  subscriptionStatus: string | null;
+  subscriptionEndsAt: string | null;
 }
 
 export interface UITranslations {
