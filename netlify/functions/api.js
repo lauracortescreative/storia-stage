@@ -128,6 +128,28 @@ app.get('/api/health', (_req, res) =>
     res.json({ status: 'ok', service: 'storia-backend', timestamp: new Date().toISOString() })
 );
 
+// ─── Resend diagnostics ───────────────────────────────────────────────────────
+app.get('/api/test-email', async (_req, res) => {
+    const key = process.env.RESEND_API_KEY;
+    if (!key) return res.json({ ok: false, error: 'RESEND_API_KEY not set in environment' });
+    try {
+        const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                from: 'Storia <no-reply@contact.storia.land>',
+                to: 'info@storia.land',
+                subject: 'Storia email test',
+                html: '<p>Email delivery test — if you see this, Resend is connected ✅</p>',
+            }),
+        });
+        const body = await response.text();
+        res.json({ ok: response.ok, status: response.status, body });
+    } catch (err) {
+        res.json({ ok: false, error: err.message });
+    }
+});
+
 // ─── Auth routes ──────────────────────────────────────────────────────────────
 app.post('/api/auth/register', async (req, res) => {
     const { email, password } = req.body;
