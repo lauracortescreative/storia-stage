@@ -17,9 +17,12 @@ function getSupabase() {
 // ─── Resend email helper ──────────────────────────────────────────────────────
 async function sendEmail(to, subject, html, replyTo) {
     const key = process.env.RESEND_API_KEY;
-    if (!key) return;
+    if (!key) {
+        console.warn('⚠️ RESEND_API_KEY not set — email not sent to', to);
+        return;
+    }
     try {
-        await fetch('https://api.resend.com/emails', {
+        const response = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -28,8 +31,15 @@ async function sendEmail(to, subject, html, replyTo) {
                 ...(replyTo ? { reply_to: replyTo } : {}),
             }),
         });
+        if (!response.ok) {
+            const body = await response.text();
+            console.error(`❌ Resend API error ${response.status}:`, body);
+            throw new Error(`Email delivery failed (${response.status}): ${body}`);
+        }
+        console.log('✅ Email sent to', to);
     } catch (err) {
-        console.warn('Email send failed (non-fatal):', err.message);
+        console.error('Email send error:', err.message);
+        throw err; // re-throw so callers can handle it
     }
 }
 
@@ -146,7 +156,7 @@ app.post('/api/auth/register', async (req, res) => {
         const origin = req.headers.origin || 'https://stage-storia.netlify.app';
         const verifyUrl = `${origin}/verify?token=${verifyToken}`;
 
-        // Welcome + Verify email (non-blocking)
+        // Welcome + Verify email (non-blocking — don't let email failure break registration)
         sendEmail(
             email.toLowerCase(),
             'Verify your Storia account ✉️',
@@ -157,7 +167,7 @@ app.post('/api/auth/register', async (req, res) => {
               <a href="${verifyUrl}" style="display:inline-block;margin-top:20px;padding:14px 28px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Verify My Email →</a>
               <p style="color:#52525b;font-size:11px;margin-top:28px">If you didn't create this account, you can safely ignore this email. This link expires in 24 hours.</p>
             </div>`
-        );
+        ).catch(e => console.warn('Welcome email failed (non-fatal):', e.message));
 
         res.status(201).json({ token: signIn.session.access_token, user: { id: data.user.id, email: data.user.email } });
     } catch (err) {
@@ -836,7 +846,7 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
                               <a href="https://stage-storia.netlify.app" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Create Your First Plus Story →</a>
                               <p style="color:#52525b;font-size:12px;margin-top:32px">Manage your subscription anytime from your Account page.</p>
                             </div>`
-                        );
+                        ).catch(e => console.warn('Subscription email failed (non-fatal):', e.message));
                     }
                 }
             } catch (err) {
