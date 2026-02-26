@@ -14,6 +14,21 @@ function getSupabase() {
     );
 }
 
+// ─── Resend email helper ──────────────────────────────────────────────────────
+async function sendEmail(to, subject, html) {
+    const key = process.env.RESEND_API_KEY;
+    if (!key) return; // silently skip if not configured
+    try {
+        await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ from: 'Storia <no-reply@storia.land>', to, subject, html }),
+        });
+    } catch (err) {
+        console.warn('Email send failed (non-fatal):', err.message);
+    }
+}
+
 // ─── Auth middleware ─────────────────────────────────────────────────────────
 async function authenticateToken(req, res, next) {
     const token = (req.headers['authorization'] || '').split(' ')[1];
@@ -119,6 +134,19 @@ app.post('/api/auth/register', async (req, res) => {
         });
         const { data: signIn, error: signInError } = await sb.auth.signInWithPassword({ email: email.toLowerCase(), password });
         if (signInError) throw signInError;
+
+        // Fire welcome email (non-blocking)
+        sendEmail(
+            email.toLowerCase(),
+            'Welcome to Storia ✨',
+            `<div style="font-family:sans-serif;max-width:600px;margin:auto;background:#0a0a0a;color:#fff;padding:40px;border-radius:24px">
+              <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Welcome to Storia ✨</h1>
+              <p style="color:#a1a1aa;font-size:15px;line-height:1.6">Your account is ready. You have <strong style="color:#fff">5 free stories</strong> to get started — no credit card needed.</p>
+              <a href="https://stage-storia.netlify.app" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Start Creating Stories →</a>
+              <p style="color:#52525b;font-size:12px;margin-top:32px">If you didn't create this account, you can safely ignore this email.</p>
+            </div>`
+        );
+
         res.status(201).json({ token: signIn.session.access_token, user: { id: data.user.id, email: data.user.email } });
     } catch (err) {
         console.error('Register error:', err.message);
@@ -626,6 +654,27 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
                     }).eq('user_id', userId);
                     if (error) throw error;
                     console.log(`✅ User ${userId} upgraded to Plus via Stripe webhook`);
+
+                    // Fire subscription confirmation email (non-blocking)
+                    const customerEmail = session.customer_email || session.customer_details?.email;
+                    if (customerEmail) {
+                        sendEmail(
+                            customerEmail,
+                            "You're on Storia Plus 💎",
+                            `<div style="font-family:sans-serif;max-width:600px;margin:auto;background:#0a0a0a;color:#fff;padding:40px;border-radius:24px">
+                              <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">You're on Storia Plus 💎</h1>
+                              <p style="color:#a1a1aa;font-size:15px;line-height:1.6">Thank you for subscribing! You now have access to <strong style="color:#fff">20 new stories every month</strong>, all voices, and every cultural region.</p>
+                              <ul style="color:#a1a1aa;font-size:14px;line-height:2;padding-left:20px">
+                                <li>20 stories per month</li>
+                                <li>Unlimited replays</li>
+                                <li>All voices &amp; soundscapes</li>
+                                <li>Cultural localization for every region</li>
+                              </ul>
+                              <a href="https://stage-storia.netlify.app" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Create Your First Plus Story →</a>
+                              <p style="color:#52525b;font-size:12px;margin-top:32px">Manage your subscription anytime from your Account page.</p>
+                            </div>`
+                        );
+                    }
                 }
             } catch (err) {
                 console.error('Supabase update error:', err.message);
