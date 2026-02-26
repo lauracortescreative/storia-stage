@@ -15,14 +15,18 @@ function getSupabase() {
 }
 
 // ─── Resend email helper ──────────────────────────────────────────────────────
-async function sendEmail(to, subject, html) {
+async function sendEmail(to, subject, html, replyTo) {
     const key = process.env.RESEND_API_KEY;
-    if (!key) return; // silently skip if not configured
+    if (!key) return;
     try {
         await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ from: 'Storia <no-reply@storia.land>', to, subject, html }),
+            body: JSON.stringify({
+                from: 'Storia <no-reply@storia.land>',
+                to, subject, html,
+                ...(replyTo ? { reply_to: replyTo } : {}),
+            }),
         });
     } catch (err) {
         console.warn('Email send failed (non-fatal):', err.message);
@@ -553,6 +557,49 @@ app.post('/api/subscribe/topup', authenticateToken, async (req, res) => {
         console.error('Topup checkout error:', err.message);
         res.status(500).json({ error: err.message || 'Failed to create topup session' });
     }
+});
+
+// POST /api/contact — contact form (no auth required)
+app.post('/api/contact', async (req, res) => {
+    const { name, email, subject, message } = req.body;
+    if (!name || !email || !message) {
+        return res.status(400).json({ error: 'Name, email, and message are required.' });
+    }
+    if (message.length > 2000) {
+        return res.status(400).json({ error: 'Message is too long (max 2000 characters).' });
+    }
+
+    // Email to support
+    await sendEmail(
+        'info@storia.land',
+        `[Storia Help] ${subject || 'Contact Form'}`,
+        `<div style="font-family:sans-serif;max-width:600px;background:#0a0a0a;color:#fff;padding:32px;border-radius:16px">
+          <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">New Contact Form Submission</h2>
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <tr><td style="color:#71717a;padding:6px 0;width:100px">Name</td><td style="color:#fff;font-weight:bold">${name}</td></tr>
+            <tr><td style="color:#71717a;padding:6px 0">Email</td><td style="color:#fff;font-weight:bold">${email}</td></tr>
+            <tr><td style="color:#71717a;padding:6px 0">Subject</td><td style="color:#fff;font-weight:bold">${subject || '—'}</td></tr>
+          </table>
+          <hr style="border-color:#27272a;margin:20px 0">
+          <p style="color:#a1a1aa;font-size:14px;line-height:1.7;white-space:pre-wrap">${message}</p>
+          <p style="color:#52525b;font-size:11px;margin-top:24px">Reply directly to this email to respond to ${name}.</p>
+        </div>`,
+        email // reply-to
+    );
+
+    // Confirmation to user
+    await sendEmail(
+        email,
+        `We got your message, ${name} 💬`,
+        `<div style="font-family:sans-serif;max-width:600px;background:#0a0a0a;color:#fff;padding:40px;border-radius:24px">
+          <h1 style="font-size:24px;font-weight:900;margin-bottom:8px">We've received your message 💬</h1>
+          <p style="color:#a1a1aa;font-size:15px;line-height:1.6">Thanks for reaching out, <strong style="color:#fff">${name}</strong>! We usually reply within a few hours.</p>
+          <p style="color:#52525b;font-size:12px;margin-top:24px;font-style:italic">Your message: "${message.slice(0, 200)}${message.length > 200 ? '…' : ''}"</p>
+          <a href="https://stage-storia.netlify.app" style="display:inline-block;margin-top:24px;padding:12px 24px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Back to Storia →</a>
+        </div>`
+    );
+
+    res.json({ success: true });
 });
 
 // POST /api/subscribe/portal — create a Stripe Customer Portal session

@@ -18,6 +18,7 @@ import ColoringBookPage from './components/ColoringBookPage';
 import AccountPage from './components/AccountPage';
 import TesterDisclaimer from './components/TesterDisclaimer';
 import TermsPage from './components/TermsPage';
+import HelpPage from './components/HelpPage';
 import { useToast } from './components/ToastContext';
 import { StoryService } from './services/gemini';
 import { decodeAudio } from './services/audio';
@@ -1294,6 +1295,14 @@ const App: React.FC = () => {
                   {t.button_create_account || 'Create Account'}
                 </button>
               )}
+              {/* Help button */}
+              <button
+                onClick={() => setView('help')}
+                className="flex items-center gap-2 px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span className="hidden sm:inline">Help</span>
+              </button>
               {/* Membership gem */}
               <button
                 onClick={() => { setPaywallScreen('plus'); setView('paywall'); }}
@@ -1435,6 +1444,7 @@ const App: React.FC = () => {
           </div>
         )}
         {view === 'account' && <AccountPage translations={t} email={userEmail} childProfile={childProfile} plan={userStats.plan} monthlyUsed={userStats.monthlyUsed} monthlyLimit={userStats.monthlyLimit} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onLogout={handleLogout} onManageBilling={handleManageBilling} onSubscribe={handleSubscribe} onCancelSubscription={handleCancelSubscription} onBack={() => setView('app')} />}
+        {view === 'help' && <HelpPage translations={t} userEmail={userEmail} onBack={() => setView(isLoggedIn ? 'app' : 'landing')} />}
         {view === 'library' && <LibraryPage translations={t} sessionStories={sessionStories} savedStories={savedStories} isLoggedIn={isLoggedIn} onSelectStory={(s) => { setStory(s); setView('app'); }} onSaveStory={saveToAccount} onBack={() => setView('app')} onAuth={() => setView('auth')} />}
         {view === 'public_library' && <PublicLibraryPage translations={t} onSelectStory={(s) => { setStory(s); setView('app'); }} onGoToColoring={() => setView('coloring_book')} onBack={() => setView('landing')} />}
         {view === 'coloring_book' && <ColoringBookPage translations={t} onBack={() => setView('landing')} />}
