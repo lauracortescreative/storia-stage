@@ -777,12 +777,8 @@ const App: React.FC = () => {
 
   const handleManageBilling = async () => {
     if (!isLoggedIn || !getToken()) { setView('auth'); return; }
-    try {
-      const { url } = await apiCreatePortalSession();
-      window.open(url, '_blank');
-    } catch (err: any) {
-      setSubscribeError(err.message || 'Could not open billing portal. Please try again.');
-    }
+    const { url } = await apiCreatePortalSession(); // throws on error — AccountPage will catch & display
+    window.location.href = url;
   };
 
   const [authError, setAuthError] = useState<string | null>(null);

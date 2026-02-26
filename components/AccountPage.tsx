@@ -13,7 +13,7 @@ interface AccountPageProps {
   onSaveProfile: (profile: ChildProfile) => Promise<void>;
   onDeleteAccount: () => void;
   onLogout: () => void;
-  onManageBilling: () => void;
+  onManageBilling: () => Promise<void>;
   onBack: () => void;
 }
 
@@ -32,6 +32,8 @@ const AccountPage: React.FC<AccountPageProps> = ({
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<'success' | 'error'>('success');
+  const [billingLoading, setBillingLoading] = useState(false);
 
   // Child profile state
   const [childName, setChildName] = useState(childProfile.childName || '');
@@ -40,8 +42,26 @@ const AccountPage: React.FC<AccountPageProps> = ({
   const [profileSaving, setProfileSaving] = useState(false);
 
   const showSuccess = (msg: string) => {
+    setMessageType('success');
     setMessage(msg);
-    setTimeout(() => setMessage(null), 3000);
+    setTimeout(() => setMessage(null), 4000);
+  };
+
+  const showError = (msg: string) => {
+    setMessageType('error');
+    setMessage(msg);
+    setTimeout(() => setMessage(null), 5000);
+  };
+
+  const handleManageBillingClick = async () => {
+    setBillingLoading(true);
+    try {
+      await onManageBilling();
+    } catch (err: any) {
+      showError(err.message || 'Could not open billing portal. Please try again.');
+    } finally {
+      setBillingLoading(false);
+    }
   };
 
   const handleUpdateEmail = (e: React.FormEvent) => {
@@ -83,7 +103,10 @@ const AccountPage: React.FC<AccountPageProps> = ({
 
         {/* Success Toast */}
         {message && (
-          <div className="bg-green-900/20 border border-green-500/30 text-green-400 p-4 rounded-2xl text-center font-bold animate-in zoom-in duration-300">
+          <div className={`p-4 rounded-2xl text-center font-bold animate-in zoom-in duration-300 ${messageType === 'error'
+            ? 'bg-red-900/20 border border-red-500/30 text-red-400'
+            : 'bg-green-900/20 border border-green-500/30 text-green-400'
+            }`}>
             {message}
           </div>
         )}
@@ -235,11 +258,15 @@ const AccountPage: React.FC<AccountPageProps> = ({
               <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">{t.account_billing_desc || 'Update payment method, cancel or manage subscription'}</p>
             </div>
             <button
-              onClick={onManageBilling}
-              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all text-sm flex items-center gap-2 shadow-lg"
+              onClick={handleManageBillingClick}
+              disabled={billingLoading}
+              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all text-sm flex items-center gap-2 shadow-lg disabled:opacity-60"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
-              {t.account_billing || 'Manage Billing'}
+              {billingLoading ? (
+                <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />Opening…</>
+              ) : (
+                <><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>{t.account_billing || 'Manage Billing'}</>
+              )}
             </button>
           </div>
         </section>
