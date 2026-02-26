@@ -819,13 +819,16 @@ const App: React.FC = () => {
 
   const handleManageBilling = async () => {
     if (!isLoggedIn || !getToken()) { setView('auth'); return; }
+    // Open blank tab NOW (synchronously, tied to the click gesture) so browsers don't block it
+    const newTab = window.open('', '_blank');
     try {
       const { url } = await apiCreatePortalSession();
-      window.location.href = url;
+      if (newTab) newTab.location.href = url;
+      else window.open(url, '_blank'); // fallback if tab was blocked
     } catch (err: any) {
+      if (newTab) newTab.close();
       const msg = (err.message || '').toLowerCase();
       if (msg.includes('token') || msg.includes('expired') || msg.includes('invalid') || msg.includes('403')) {
-        // Stale session — log out and send to login
         clearToken();
         localStorage.removeItem('storia_user');
         setIsLoggedIn(false);
