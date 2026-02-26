@@ -9,6 +9,7 @@ const AVATAR_OPTIONS = ['🐻', '🦁', '🐼', '🦊', '🐸', '🦄', '🦋', 
 interface AccountPageProps {
   translations: UITranslations;
   email: string;
+  emailVerified: boolean;
   childProfile: ChildProfile;
   plan: 'free' | 'plus';
   monthlyUsed: number;
@@ -26,6 +27,7 @@ interface AccountPageProps {
 const AccountPage: React.FC<AccountPageProps> = ({
   translations: t,
   email,
+  emailVerified,
   childProfile,
   plan,
   monthlyUsed,
@@ -130,6 +132,17 @@ const AccountPage: React.FC<AccountPageProps> = ({
             {t.terms_back}
           </button>
         </div>
+
+        {/* Email verification nudge banner */}
+        {!emailVerified && (
+          <div className="flex items-start gap-3 px-5 py-4 rounded-2xl bg-amber-950/40 border border-amber-700/40">
+            <span className="text-xl">✉️</span>
+            <div>
+              <p className="text-amber-300 font-black text-sm">Verify your email</p>
+              <p className="text-amber-200/60 text-xs mt-0.5">Check your inbox for a verification link we sent when you signed up.</p>
+            </div>
+          </div>
+        )}
 
         {/* ── YOUR PLAN SECTION ── */}
         <section className="bg-zinc-900/50 p-10 rounded-[3rem] border border-zinc-800 space-y-8">

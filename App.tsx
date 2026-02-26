@@ -19,6 +19,7 @@ import AccountPage from './components/AccountPage';
 import TesterDisclaimer from './components/TesterDisclaimer';
 import TermsPage from './components/TermsPage';
 import HelpPage from './components/HelpPage';
+import VerifyEmailPage from './components/VerifyEmailPage';
 import { useToast } from './components/ToastContext';
 import { StoryService } from './services/gemini';
 import { decodeAudio } from './services/audio';
@@ -553,11 +554,15 @@ const DEFAULT_STATS: UserStats = {
 
 const App: React.FC = () => {
   const [showDisclaimer, setShowDisclaimer] = useState(() => !localStorage.getItem('storia_tester_seen'));
-  const [view, setView] = useState<'landing' | 'app' | 'seed' | 'refinement' | 'setup' | 'settings' | 'privacy' | 'terms' | 'about' | 'paywall' | 'library' | 'public_library' | 'coloring_book' | 'auth' | 'account' | 'subscribe_success'>(
-    window.location.pathname === '/subscribe/success' ? 'subscribe_success' : 'landing'
+  const [view, setView] = useState<'landing' | 'app' | 'seed' | 'refinement' | 'setup' | 'settings' | 'privacy' | 'terms' | 'about' | 'paywall' | 'library' | 'public_library' | 'coloring_book' | 'auth' | 'account' | 'subscribe_success' | 'help' | 'verify'>(
+    window.location.pathname === '/subscribe/success' ? 'subscribe_success'
+      : window.location.pathname === '/verify' ? 'verify'
+        : 'landing'
   );
+  const [verifyToken] = useState(() => new URLSearchParams(window.location.search).get('token') || '');
   const [paywallScreen, setPaywallScreen] = useState<'intro' | 'plus' | 'limit' | 'topup'>('intro');
   const [hasKey, setHasKey] = useState(true);
+  const [emailVerified, setEmailVerified] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState<string | null>(null);
   const [story, setStory] = useState<StoryResult | null>(null);
@@ -1446,8 +1451,9 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
-        {view === 'account' && <AccountPage translations={t} email={userEmail} childProfile={childProfile} plan={userStats.plan} monthlyUsed={userStats.monthlyUsed} monthlyLimit={userStats.monthlyLimit} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onLogout={handleLogout} onManageBilling={handleManageBilling} onSubscribe={handleSubscribe} onCancelSubscription={handleCancelSubscription} onBack={() => setView('app')} />}
+        {view === 'account' && <AccountPage translations={t} email={userEmail} emailVerified={emailVerified} childProfile={childProfile} plan={userStats.plan} monthlyUsed={userStats.monthlyUsed} monthlyLimit={userStats.monthlyLimit} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onLogout={handleLogout} onManageBilling={handleManageBilling} onSubscribe={handleSubscribe} onCancelSubscription={handleCancelSubscription} onBack={() => setView('app')} />}
         {view === 'help' && <HelpPage translations={t} userEmail={userEmail} onBack={() => setView(isLoggedIn ? 'app' : 'landing')} />}
+        {view === 'verify' && <VerifyEmailPage token={verifyToken} onContinue={() => { setEmailVerified(true); window.history.replaceState({}, '', '/'); setView(isLoggedIn ? 'account' : 'landing'); }} />}
         {view === 'library' && <LibraryPage translations={t} sessionStories={sessionStories} savedStories={savedStories} isLoggedIn={isLoggedIn} onSelectStory={(s) => { setStory(s); setView('app'); }} onSaveStory={saveToAccount} onBack={() => setView('app')} onAuth={() => setView('auth')} />}
         {view === 'public_library' && <PublicLibraryPage translations={t} onSelectStory={(s) => { setStory(s); setView('app'); }} onGoToColoring={() => setView('coloring_book')} onBack={() => setView('landing')} />}
         {view === 'coloring_book' && <ColoringBookPage translations={t} onBack={() => setView('landing')} />}

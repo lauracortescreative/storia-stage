@@ -139,15 +139,23 @@ app.post('/api/auth/register', async (req, res) => {
         const { data: signIn, error: signInError } = await sb.auth.signInWithPassword({ email: email.toLowerCase(), password });
         if (signInError) throw signInError;
 
-        // Fire welcome email (non-blocking)
+        // Generate verification token and store it
+        const verifyToken = crypto.randomUUID();
+        await sb.from('user_stats').update({ email_verify_token: verifyToken }).eq('user_id', data.user.id);
+
+        const origin = req.headers.origin || 'https://stage-storia.netlify.app';
+        const verifyUrl = `${origin}/verify?token=${verifyToken}`;
+
+        // Welcome + Verify email (non-blocking)
         sendEmail(
             email.toLowerCase(),
-            'Welcome to Storia ✨',
+            'Verify your Storia account ✉️',
             `<div style="font-family:sans-serif;max-width:600px;margin:auto;background:#0a0a0a;color:#fff;padding:40px;border-radius:24px">
-              <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Welcome to Storia ✨</h1>
-              <p style="color:#a1a1aa;font-size:15px;line-height:1.6">Your account is ready. You have <strong style="color:#fff">5 free stories</strong> to get started — no credit card needed.</p>
-              <a href="https://stage-storia.netlify.app" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Start Creating Stories →</a>
-              <p style="color:#52525b;font-size:12px;margin-top:32px">If you didn't create this account, you can safely ignore this email.</p>
+              <h1 style="font-size:26px;font-weight:900;margin-bottom:8px">Welcome to Storia ✨</h1>
+              <p style="color:#a1a1aa;font-size:15px;line-height:1.6">Your account is ready — you have <strong style="color:#fff">5 free stories</strong> to get started.</p>
+              <p style="color:#a1a1aa;font-size:14px;margin-top:16px">Please verify your email address to keep your account secure:</p>
+              <a href="${verifyUrl}" style="display:inline-block;margin-top:20px;padding:14px 28px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Verify My Email →</a>
+              <p style="color:#52525b;font-size:11px;margin-top:28px">If you didn't create this account, you can safely ignore this email. This link expires in 24 hours.</p>
             </div>`
         );
 
@@ -164,10 +172,29 @@ app.post('/api/auth/login', async (req, res) => {
     try {
         const { data, error } = await getSupabase().auth.signInWithPassword({ email: email.toLowerCase(), password });
         if (error) return res.status(401).json({ error: 'Invalid email or password' });
-        res.json({ token: data.session.access_token, user: { id: data.user.id, email: data.user.email } });
+        // Include email_verified in response
+        const { data: stats } = await getSupabase().from('user_stats').select('email_verified').eq('user_id', data.user.id).single();
+        res.json({ token: data.session.access_token, user: { id: data.user.id, email: data.user.email, emailVerified: stats?.email_verified ?? false } });
     } catch (err) {
         console.error('Login error:', err.message);
         res.status(500).json({ error: 'Login failed' });
+    }
+});
+
+// GET /api/auth/verify-email?token= — one-click email verification
+app.get('/api/auth/verify-email', async (req, res) => {
+    const { token } = req.query;
+    if (!token) return res.status(400).json({ error: 'Verification token required' });
+    try {
+        const sb = getSupabase();
+        const { data, error } = await sb.from('user_stats')
+            .update({ email_verified: true, email_verify_token: null })
+            .eq('email_verify_token', token)
+            .select('user_id').single();
+        if (error || !data) return res.status(400).json({ error: 'Invalid or expired verification link' });
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Verification failed' });
     }
 });
 
