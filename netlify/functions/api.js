@@ -14,28 +14,24 @@ function getSupabase() {
     );
 }
 
-// ─── Resend email helper ──────────────────────────────────────────────────────
-async function sendEmail(to, subject, html, replyTo) {
+// ─── Resend SDK ───────────────────────────────────────────────────────────────
+import { Resend } from 'resend';
+
+function getResend() {
     const key = process.env.RESEND_API_KEY;
-    if (!key) {
-        console.warn('⚠️ RESEND_API_KEY not set — email not sent to', to);
-        return;
-    }
+    if (!key) throw new Error('RESEND_API_KEY not set');
+    return new Resend(key);
+}
+
+const FROM = 'Storia <no-reply@contact.storia.land>';
+
+async function sendEmail(to, subject, html, replyTo) {
     try {
-        const response = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                from: 'Storia <no-reply@contact.storia.land>',
-                to, subject, html,
-                ...(replyTo ? { reply_to: replyTo } : {}),
-            }),
+        const { error } = await getResend().emails.send({
+            from: FROM, to, subject, html,
+            ...(replyTo ? { reply_to: replyTo } : {}),
         });
-        if (!response.ok) {
-            const body = await response.text();
-            console.error(`❌ Resend API error ${response.status}:`, body);
-            throw new Error(`Email delivery failed (${response.status}): ${body}`);
-        }
+        if (error) throw new Error(error.message);
         console.log('✅ Email sent to', to);
     } catch (err) {
         console.error('Email send error:', err.message);
@@ -43,31 +39,16 @@ async function sendEmail(to, subject, html, replyTo) {
     }
 }
 
-// Sends via a Resend template if RESEND_VERIFICATION_TEMPLATE_ID is set,
-// otherwise falls back to inline HTML.
 async function sendVerificationEmail(to, verifyUrl) {
-    const key = process.env.RESEND_API_KEY;
-    if (!key) { console.warn('⚠️ RESEND_API_KEY not set'); return; }
-
-    const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            from: 'Storia <no-reply@contact.storia.land>',
-            to,
-            subject: 'Verify your Storia account ✉️',
-            html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#0a0a0a;color:#fff;padding:40px;border-radius:24px">
-              <h1 style="font-size:26px;font-weight:900;margin-bottom:8px">Welcome to Storia ✨</h1>
-              <p style="color:#a1a1aa;font-size:15px;line-height:1.6">Please verify your email address to keep your account secure:</p>
-              <a href="${verifyUrl}" style="display:inline-block;margin-top:20px;padding:14px 28px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Verify My Email →</a>
-              <p style="color:#52525b;font-size:12px;margin-top:28px">If you didn't create a Storia account, you can safely ignore this email.</p>
-            </div>`,
-        }),
+    const { error } = await getResend().emails.send({
+        from: FROM,
+        to,
+        template_alias: 'email-confirmation',
+        variables: { confirmation_link: verifyUrl, email: to },
     });
-    if (!response.ok) {
-        const body = await response.text();
-        console.error(`❌ Resend error ${response.status}:`, body);
-        throw new Error(`Email delivery failed (${response.status}): ${body}`);
+    if (error) {
+        console.error('❌ Resend verification error:', error.message);
+        throw new Error(error.message);
     }
     console.log('✅ Verification email sent to', to);
 }
@@ -165,42 +146,28 @@ app.get('/api/health', (_req, res) =>
 
 // ─── Resend diagnostics ───────────────────────────────────────────────────────
 app.get('/api/test-email', async (_req, res) => {
-    const key = process.env.RESEND_API_KEY;
-    if (!key) return res.json({ ok: false, error: 'RESEND_API_KEY not set in environment' });
     try {
-        const response = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                from: 'Storia <no-reply@contact.storia.land>',
-                to: 'info@storia.land',
-                subject: 'Storia email test',
-                html: '<p>Email delivery test — if you see this, Resend is connected ✅</p>',
-            }),
+        const { data, error } = await getResend().emails.send({
+            from: FROM, to: 'info@storia.land',
+            subject: 'Storia email test',
+            html: '<p>Email delivery test — if you see this, Resend is connected ✅</p>',
         });
-        const body = await response.text();
-        res.json({ ok: response.ok, status: response.status, body });
+        if (error) return res.json({ ok: false, error: error.message });
+        res.json({ ok: true, id: data?.id });
     } catch (err) {
         res.json({ ok: false, error: err.message });
     }
 });
 
 app.get('/api/test-template', async (_req, res) => {
-    const key = process.env.RESEND_API_KEY;
-    if (!key) return res.json({ ok: false, error: 'RESEND_API_KEY not set' });
     try {
-        const response = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                from: 'Storia <no-reply@contact.storia.land>',
-                to: 'info@storia.land',
-                template_alias: 'email-confirmation',
-                variables: { confirmation_link: 'https://storia.land/verify?token=test123', email: 'info@storia.land' },
-            }),
+        const { data, error } = await getResend().emails.send({
+            from: FROM, to: 'info@storia.land',
+            template_alias: 'email-confirmation',
+            variables: { confirmation_link: 'https://storia.land/verify?token=test123', email: 'info@storia.land' },
         });
-        const body = await response.text();
-        res.json({ ok: response.ok, status: response.status, body });
+        if (error) return res.json({ ok: false, error: error.message });
+        res.json({ ok: true, id: data?.id });
     } catch (err) {
         res.json({ ok: false, error: err.message });
     }
