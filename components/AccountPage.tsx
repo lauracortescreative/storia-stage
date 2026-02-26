@@ -8,10 +8,17 @@ const AVATAR_OPTIONS = ['🐻', '🦁', '🐼', '🦊', '🐸', '🦄', '🦋', 
 
 const VerifyNudge: React.FC<{ onResend: () => Promise<void> }> = ({ onResend }) => {
   const [state, setState] = useState<'idle' | 'sending' | 'sent'>('idle');
+  const { showToast } = useToast();
   const handleResend = async () => {
     setState('sending');
-    try { await onResend(); setState('sent'); }
-    catch { setState('idle'); }
+    try {
+      await onResend();
+      setState('sent');
+      showToast('Verification email sent! Check your inbox.', 'success');
+    } catch (err: any) {
+      setState('idle');
+      showToast(err?.message || 'Failed to send verification email.', 'error');
+    }
   };
   return (
     <div className="flex items-center justify-between gap-3 px-5 py-4 rounded-2xl bg-amber-950/40 border border-amber-700/40">
