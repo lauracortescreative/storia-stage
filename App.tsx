@@ -777,8 +777,22 @@ const App: React.FC = () => {
 
   const handleManageBilling = async () => {
     if (!isLoggedIn || !getToken()) { setView('auth'); return; }
-    const { url } = await apiCreatePortalSession(); // throws on error — AccountPage will catch & display
-    window.location.href = url;
+    try {
+      const { url } = await apiCreatePortalSession();
+      window.location.href = url;
+    } catch (err: any) {
+      const msg = (err.message || '').toLowerCase();
+      if (msg.includes('token') || msg.includes('expired') || msg.includes('invalid') || msg.includes('403')) {
+        // Stale session — log out and send to login
+        clearToken();
+        localStorage.removeItem('storia_user');
+        setIsLoggedIn(false);
+        setUserEmail('');
+        setView('auth');
+      } else {
+        throw err; // Let AccountPage surface it as a toast
+      }
+    }
   };
 
   const [authError, setAuthError] = useState<string | null>(null);
