@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { UITranslations } from '../types';
 import { ChildProfile } from '../services/api';
+import { useToast } from './ToastContext';
 
 const AVATAR_OPTIONS = ['🐻', '🦁', '🐼', '🦊', '🐸', '🦄', '🦋', '🐬', '🦕', '🌟', '🚀', '🧸'];
 
@@ -41,10 +42,7 @@ const AccountPage: React.FC<AccountPageProps> = ({
   const [newEmail, setNewEmail] = useState(email);
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success');
-
-  // Billing loading states
+  const { showToast } = useToast();
   const [billingLoading, setBillingLoading] = useState(false);
   const [subscribeLoading, setSubscribeLoading] = useState<null | 'monthly' | 'yearly'>(null);
   const [cancelLoading, setCancelLoading] = useState(false);
@@ -56,17 +54,8 @@ const AccountPage: React.FC<AccountPageProps> = ({
   const [childAvatar, setChildAvatar] = useState(childProfile.childAvatar || '');
   const [profileSaving, setProfileSaving] = useState(false);
 
-  const showSuccess = (msg: string) => {
-    setMessageType('success');
-    setMessage(msg);
-    setTimeout(() => setMessage(null), 4000);
-  };
-
-  const showError = (msg: string) => {
-    setMessageType('error');
-    setMessage(msg);
-    setTimeout(() => setMessage(null), 5000);
-  };
+  const showSuccess = (msg: string) => showToast(msg, 'success');
+  const showError = (msg: string) => showToast(msg, 'error');
 
   const handleUpdateEmail = (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,17 +130,6 @@ const AccountPage: React.FC<AccountPageProps> = ({
             {t.terms_back}
           </button>
         </div>
-
-        {/* Toast — fixed bottom-right */}
-        {message && (
-          <div className={`fixed bottom-6 right-6 z-[500] max-w-sm w-full px-5 py-4 rounded-2xl font-bold shadow-2xl animate-in slide-in-from-bottom-3 duration-300 flex items-start gap-3 ${messageType === 'error'
-              ? 'bg-red-950 border border-red-700/60 text-red-200'
-              : 'bg-zinc-900 border border-green-600/40 text-green-300'
-            }`}>
-            <span className="text-lg mt-0.5">{messageType === 'error' ? '⚠️' : '✅'}</span>
-            <span className="text-sm leading-snug">{message}</span>
-          </div>
-        )}
 
         {/* ── YOUR PLAN SECTION ── */}
         <section className="bg-zinc-900/50 p-10 rounded-[3rem] border border-zinc-800 space-y-8">

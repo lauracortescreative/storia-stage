@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { UITranslations, UserStats } from '../types';
+import { useToast } from './ToastContext';
 
 interface SettingsPageProps {
   translations: UITranslations;
@@ -10,12 +11,11 @@ interface SettingsPageProps {
 }
 
 const SettingsPage: React.FC<SettingsPageProps> = ({ translations: t, userStats, token, onBack }) => {
+  const { showToast } = useToast();
   const [checkoutLoading, setCheckoutLoading] = useState<'monthly' | 'yearly' | null>(null);
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const handleSubscribe = async (plan: 'monthly' | 'yearly') => {
     setCheckoutLoading(plan);
-    setCheckoutError(null);
     try {
       const BASE = import.meta.env.DEV ? 'http://localhost:3001' : '';
       const res = await fetch(`${BASE}/api/subscribe/checkout`, {
@@ -30,7 +30,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ translations: t, userStats,
       if (!res.ok) throw new Error(data.error || 'Failed to start checkout');
       window.location.href = data.url;
     } catch (err: any) {
-      setCheckoutError(err.message || 'Something went wrong. Please try again.');
+      showToast(err.message || 'Something went wrong. Please try again.', 'error');
       setCheckoutLoading(null);
     }
   };
@@ -127,12 +127,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ translations: t, userStats,
                   )}
                 </button>
               </div>
-
-              {checkoutError && (
-                <p className="text-red-400 text-sm font-bold bg-red-500/10 px-4 py-3 rounded-xl border border-red-500/20">
-                  ⚠ {checkoutError}
-                </p>
-              )}
             </div>
           )}
 

@@ -18,6 +18,7 @@ import ColoringBookPage from './components/ColoringBookPage';
 import AccountPage from './components/AccountPage';
 import TesterDisclaimer from './components/TesterDisclaimer';
 import TermsPage from './components/TermsPage';
+import { useToast } from './components/ToastContext';
 import { StoryService } from './services/gemini';
 import { decodeAudio } from './services/audio';
 import { checkSafety } from './services/moderation';
@@ -755,7 +756,7 @@ const App: React.FC = () => {
   };
 
   const [subscribeLoading, setSubscribeLoading] = useState(false);
-  const [subscribeError, setSubscribeError] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const handleSubscribe = async (plan: 'monthly' | 'yearly') => {
     if (!isLoggedIn || !getToken()) {
@@ -770,13 +771,12 @@ const App: React.FC = () => {
       return;
     }
     setSubscribeLoading(true);
-    setSubscribeError(null);
     try {
       const { url } = await apiCreateCheckoutSession(plan);
       window.open(url, '_blank');
     } catch (err: any) {
       console.error('Stripe checkout error:', err);
-      setSubscribeError(err.message || 'Could not start checkout. Please try again.');
+      showToast(err.message || 'Could not start checkout. Please try again.', 'error');
       setSubscribeLoading(false);
     }
   };
@@ -790,13 +790,12 @@ const App: React.FC = () => {
       setView('auth'); return;
     }
     setSubscribeLoading(true);
-    setSubscribeError(null);
     try {
       const { url } = await apiCreateTopupSession(count);
       window.open(url, '_blank');
     } catch (err: any) {
       console.error('Topup checkout error:', err);
-      setSubscribeError(err.message || 'Could not start checkout. Please try again.');
+      showToast(err.message || 'Could not start checkout. Please try again.', 'error');
       setSubscribeLoading(false);
     }
   };
@@ -1420,12 +1419,7 @@ const App: React.FC = () => {
             onReplay={() => setView('library')}
           />
         )}
-        {subscribeError && view === 'paywall' && (
-          <div className="fixed bottom-6 right-6 z-[500] max-w-sm w-full px-5 py-4 rounded-2xl font-bold shadow-2xl animate-in slide-in-from-bottom-3 duration-300 flex items-start gap-3 bg-red-950 border border-red-700/60 text-red-200">
-            <span className="text-lg mt-0.5">⚠️</span>
-            <span className="text-sm leading-snug">{subscribeError}</span>
-          </div>
-        )}
+
         {subscribeLoading && (
           <div className="fixed inset-0 z-[600] bg-black/80 flex items-center justify-center">
             <div className="text-white text-center space-y-6">
