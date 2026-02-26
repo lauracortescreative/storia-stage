@@ -20,6 +20,15 @@ export function setToken(token: string) {
 
 export function clearToken() {
     localStorage.removeItem('storia_jwt');
+    localStorage.removeItem('storia_refresh_token');
+}
+
+export function getRefreshToken(): string | null {
+    return localStorage.getItem('storia_refresh_token');
+}
+
+export function setRefreshToken(token: string) {
+    localStorage.setItem('storia_refresh_token', token);
 }
 
 // ─── Core fetch wrapper ───────────────────────────────────────────────────────
@@ -28,14 +37,36 @@ async function apiFetch<T>(
     path: string,
     options: RequestInit = {}
 ): Promise<T> {
-    const token = getToken();
-    const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(options.headers || {})
-    };
+    const doFetch = (token: string | null) =>
+        fetch(`${BASE_URL}${path}`, {
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                ...(options.headers || {}),
+            },
+        });
 
-    const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+    let res = await doFetch(getToken());
+
+    // Auto-refresh session on 401/403 and retry once
+    if ((res.status === 401 || res.status === 403) && getRefreshToken()) {
+        try {
+            const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refreshToken: getRefreshToken() }),
+            });
+            if (refreshRes.ok) {
+                const refreshed = await refreshRes.json() as { token: string; refreshToken: string };
+                setToken(refreshed.token);
+                setRefreshToken(refreshed.refreshToken);
+                res = await doFetch(refreshed.token);
+            }
+        } catch {
+            // refresh failed — fall through to throw below
+        }
+    }
 
     if (!res.ok) {
         const body = await res.json().catch(() => ({ error: 'Unknown error' }));

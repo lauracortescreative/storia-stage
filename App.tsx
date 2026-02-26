@@ -31,7 +31,7 @@ import {
   apiGetStats, apiUpdateStats,
   apiCreateCheckoutSession, apiCreateTopupSession, apiCreatePortalSession, apiCancelSubscription, apiResendVerification,
   apiGetProfile, apiSaveProfile,
-  getToken, setToken, clearToken
+  getToken, setToken, clearToken, setRefreshToken
 } from './services/api';
 import type { ChildProfile } from './services/api';
 
@@ -860,6 +860,7 @@ const App: React.FC = () => {
     try {
       const result = await apiRegister(email, password);
       setToken(result.token);
+      if ((result as any).refreshToken) setRefreshToken((result as any).refreshToken);
       localStorage.setItem('storia_user', JSON.stringify({ email: result.user.email }));
       setIsLoggedIn(true);
       setUserEmail(result.user.email);
@@ -881,6 +882,7 @@ const App: React.FC = () => {
     try {
       const result = await apiLogin(email, password);
       setToken(result.token);
+      if ((result as any).refreshToken) setRefreshToken((result as any).refreshToken);
       localStorage.setItem('storia_user', JSON.stringify({ email: result.user.email }));
       setIsLoggedIn(true);
       setUserEmail(result.user.email);

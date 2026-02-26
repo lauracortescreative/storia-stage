@@ -169,7 +169,7 @@ app.post('/api/auth/register', async (req, res) => {
             </div>`
         ).catch(e => console.warn('Welcome email failed (non-fatal):', e.message));
 
-        res.status(201).json({ token: signIn.session.access_token, user: { id: data.user.id, email: data.user.email } });
+        res.status(201).json({ token: signIn.session.access_token, refreshToken: signIn.session.refresh_token, user: { id: data.user.id, email: data.user.email } });
     } catch (err) {
         console.error('Register error:', err.message);
         res.status(500).json({ error: err.message || 'Registration failed' });
@@ -184,10 +184,23 @@ app.post('/api/auth/login', async (req, res) => {
         if (error) return res.status(401).json({ error: 'Invalid email or password' });
         // Include email_verified in response
         const { data: stats } = await getSupabase().from('user_stats').select('email_verified').eq('user_id', data.user.id).single();
-        res.json({ token: data.session.access_token, user: { id: data.user.id, email: data.user.email, emailVerified: stats?.email_verified ?? false } });
+        res.json({ token: data.session.access_token, refreshToken: data.session.refresh_token, user: { id: data.user.id, email: data.user.email, emailVerified: stats?.email_verified ?? false } });
     } catch (err) {
         console.error('Login error:', err.message);
         res.status(500).json({ error: 'Login failed' });
+    }
+});
+
+// POST /api/auth/refresh — exchange refresh token for a new access token
+app.post('/api/auth/refresh', async (req, res) => {
+    const { refreshToken } = req.body;
+    if (!refreshToken) return res.status(400).json({ error: 'Refresh token required' });
+    try {
+        const { data, error } = await getSupabase().auth.refreshSession({ refresh_token: refreshToken });
+        if (error || !data.session) return res.status(401).json({ error: 'Refresh failed — please log in again' });
+        res.json({ token: data.session.access_token, refreshToken: data.session.refresh_token });
+    } catch (err) {
+        res.status(500).json({ error: 'Refresh failed' });
     }
 });
 
