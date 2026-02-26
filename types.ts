@@ -240,6 +240,11 @@ export interface UITranslations {
   account_child_age: string;
   account_child_avatar: string;
   account_child_saved: string;
+  account_billing: string;
+  account_billing_desc: string;
+  account_support: string;
+  account_logout: string;
+  account_logout_desc: string;
 
   // Setup
   setup_title: string;

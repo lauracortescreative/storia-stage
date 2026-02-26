@@ -13,6 +13,7 @@ interface AccountPageProps {
   onSaveProfile: (profile: ChildProfile) => Promise<void>;
   onDeleteAccount: () => void;
   onLogout: () => void;
+  onManageBilling: () => void;
   onBack: () => void;
 }
 
@@ -24,6 +25,7 @@ const AccountPage: React.FC<AccountPageProps> = ({
   onSaveProfile,
   onDeleteAccount,
   onLogout,
+  onManageBilling,
   onBack
 }) => {
   const [newEmail, setNewEmail] = useState(email);
@@ -223,6 +225,40 @@ const AccountPage: React.FC<AccountPageProps> = ({
               )}
             </button>
           </form>
+        </section>
+
+        {/* Manage Billing */}
+        <section className="p-10 rounded-[3rem] border border-zinc-800 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-white font-black text-lg">{t.account_billing || 'Manage Billing'}</p>
+              <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">{t.account_billing_desc || 'Update payment method, cancel or manage subscription'}</p>
+            </div>
+            <button
+              onClick={onManageBilling}
+              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all text-sm flex items-center gap-2 shadow-lg"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+              {t.account_billing || 'Manage Billing'}
+            </button>
+          </div>
+        </section>
+
+        {/* Contact Support */}
+        <section className="p-10 rounded-[3rem] border border-zinc-800 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-white font-black text-lg">{t.account_support || 'Contact Support'}</p>
+              <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">info@storia.land</p>
+            </div>
+            <a
+              href="mailto:info@storia.land"
+              className="px-8 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-black rounded-2xl transition-all text-sm flex items-center gap-2 border border-zinc-700"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+              {t.account_support || 'Email Us'}
+            </a>
+          </div>
         </section>
 
         {/* Log Out */}

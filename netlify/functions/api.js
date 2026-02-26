@@ -527,6 +527,31 @@ app.post('/api/subscribe/topup', authenticateToken, async (req, res) => {
     }
 });
 
+// POST /api/subscribe/portal — create a Stripe Customer Portal session
+app.post('/api/subscribe/portal', authenticateToken, async (req, res) => {
+    try {
+        const stripe = getStripe();
+        const origin = req.headers.origin || (process.env.URL ? `https://${process.env.URL}` : 'http://localhost:3000');
+
+        // Look up existing Stripe customer by email
+        const customers = await stripe.customers.list({ email: req.user.email, limit: 1 });
+        if (!customers.data.length) {
+            return res.status(404).json({ error: 'No billing account found. Please subscribe first.' });
+        }
+        const customerId = customers.data[0].id;
+
+        const portalSession = await stripe.billingPortal.sessions.create({
+            customer: customerId,
+            return_url: `${origin}/`,
+        });
+
+        res.json({ url: portalSession.url });
+    } catch (err) {
+        console.error('Billing portal error:', err.message);
+        res.status(500).json({ error: err.message || 'Failed to open billing portal' });
+    }
+});
+
 // POST /api/webhooks/stripe — handle Stripe events
 // Must receive raw body for signature verification
 app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), async (req, res) => {

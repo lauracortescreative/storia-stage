@@ -26,7 +26,7 @@ import {
   apiRegister, apiLogin, apiDeleteAccount, apiUpdateEmail,
   apiGetStories, apiSaveStory,
   apiGetStats, apiUpdateStats,
-  apiCreateCheckoutSession, apiCreateTopupSession,
+  apiCreateCheckoutSession, apiCreateTopupSession, apiCreatePortalSession,
   apiGetProfile, apiSaveProfile,
   getToken, setToken, clearToken
 } from './services/api';
@@ -228,6 +228,11 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     account_child_age: "Child's Age",
     account_child_avatar: "Choose an Avatar",
     account_child_saved: "Child profile saved! ✨",
+    account_billing: "Manage Billing",
+    account_billing_desc: "Update payment method, cancel or manage subscription",
+    account_support: "Contact Support",
+    account_logout: "Log Out",
+    account_logout_desc: "You can log back in any time",
     setup_title: "Magical Access",
     setup_desc: "Select a paid API Key to unlock high-quality master artist illustrations.",
     setup_button: "Select API Key",
@@ -767,6 +772,16 @@ const App: React.FC = () => {
       console.error('Topup checkout error:', err);
       setSubscribeError(err.message || 'Could not start checkout. Please try again.');
       setSubscribeLoading(false);
+    }
+  };
+
+  const handleManageBilling = async () => {
+    if (!isLoggedIn || !getToken()) { setView('auth'); return; }
+    try {
+      const { url } = await apiCreatePortalSession();
+      window.open(url, '_blank');
+    } catch (err: any) {
+      setSubscribeError(err.message || 'Could not open billing portal. Please try again.');
     }
   };
 
@@ -1372,7 +1387,7 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
-        {view === 'account' && <AccountPage translations={t} email={userEmail} childProfile={childProfile} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onLogout={handleLogout} onBack={() => setView('app')} />}
+        {view === 'account' && <AccountPage translations={t} email={userEmail} childProfile={childProfile} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onLogout={handleLogout} onManageBilling={handleManageBilling} onBack={() => setView('app')} />}
         {view === 'library' && <LibraryPage translations={t} sessionStories={sessionStories} savedStories={savedStories} isLoggedIn={isLoggedIn} onSelectStory={(s) => { setStory(s); setView('app'); }} onSaveStory={saveToAccount} onBack={() => setView('app')} onAuth={() => setView('auth')} />}
         {view === 'public_library' && <PublicLibraryPage translations={t} onSelectStory={(s) => { setStory(s); setView('app'); }} onGoToColoring={() => setView('coloring_book')} onBack={() => setView('landing')} />}
         {view === 'coloring_book' && <ColoringBookPage translations={t} onBack={() => setView('landing')} />}

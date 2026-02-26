@@ -132,6 +132,10 @@ export async function apiCreateTopupSession(count: number): Promise<{ url: strin
     });
 }
 
+export async function apiCreatePortalSession(): Promise<{ url: string }> {
+    return apiFetch<{ url: string }>('/subscribe/portal', { method: 'POST' });
+}
+
 
 // ─── Public Library ───────────────────────────────────────────────────────────
 
