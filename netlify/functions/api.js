@@ -139,7 +139,12 @@ const app = express();
 
 app.use(cors({
     origin: (origin, cb) => {
-        if (!origin || /\.netlify\.app$/.test(origin) || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+        if (
+            !origin ||
+            /\.netlify\.app$/.test(origin) ||
+            /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+            /^https?:\/\/(www\.)?storia\.land$/.test(origin)
+        ) {
             return cb(null, true);
         }
         cb(new Error(`CORS: ${origin} not allowed`));
