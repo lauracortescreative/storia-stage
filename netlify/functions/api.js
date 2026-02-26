@@ -236,11 +236,44 @@ app.delete('/api/stories/:id', authenticateToken, async (req, res) => {
 // ─── Stats routes ─────────────────────────────────────────────────────────────
 app.get('/api/stats', authenticateToken, async (req, res) => {
     try {
-        const { data, error } = await getSupabase().from('user_stats')
+        const sb = getSupabase();
+        const { data, error } = await sb.from('user_stats')
             .select('*').eq('user_id', req.user.id).single();
         if (error) throw error;
+
+        let plan = data.plan;
+        let monthlyLimit = data.monthly_limit;
+
+        // ── Stripe cross-check ────────────────────────────────────────────────
+        // If Supabase says 'free', verify with Stripe directly.
+        // This self-heals missed/delayed webhooks.
+        if (plan !== 'plus') {
+            try {
+                const stripe = getStripe();
+                const customers = await stripe.customers.list({ email: req.user.email, limit: 1 });
+                if (customers.data.length) {
+                    const subs = await stripe.subscriptions.list({
+                        customer: customers.data[0].id,
+                        status: 'active',
+                        limit: 1,
+                    });
+                    if (subs.data.length) {
+                        // Active subscription found — upgrade locally and return plus
+                        plan = 'plus';
+                        monthlyLimit = 20;
+                        await sb.from('user_stats').update({ plan: 'plus', monthly_limit: 20 }).eq('user_id', req.user.id);
+                        console.log(`✅ Self-healed plan for user ${req.user.id} via Stripe cross-check`);
+                    }
+                }
+            } catch (stripeErr) {
+                // Non-fatal — just use Supabase value if Stripe check fails
+                console.warn('Stripe cross-check failed (non-fatal):', stripeErr.message);
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         res.json({
-            plan: data.plan, monthlyUsed: data.monthly_used, monthlyLimit: data.monthly_limit,
+            plan, monthlyUsed: data.monthly_used, monthlyLimit,
             bundlesRemaining: data.bundles_remaining, totalGenerated: data.total_generated,
             nextResetDate: data.next_reset_date,
         });
