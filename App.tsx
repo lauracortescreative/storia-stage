@@ -552,7 +552,7 @@ const DEFAULT_STATS: UserStats = {
 };
 
 const App: React.FC = () => {
-  const [showDisclaimer, setShowDisclaimer] = useState(true);
+  const [showDisclaimer, setShowDisclaimer] = useState(() => !localStorage.getItem('storia_tester_seen'));
   const [view, setView] = useState<'landing' | 'app' | 'seed' | 'refinement' | 'setup' | 'settings' | 'privacy' | 'terms' | 'about' | 'paywall' | 'library' | 'public_library' | 'coloring_book' | 'auth' | 'account' | 'subscribe_success'>(
     window.location.pathname === '/subscribe/success' ? 'subscribe_success' : 'landing'
   );
@@ -1225,7 +1225,7 @@ const App: React.FC = () => {
   };
 
   if (showDisclaimer) {
-    return <TesterDisclaimer translations={t} onProceed={() => setShowDisclaimer(false)} />;
+    return <TesterDisclaimer translations={t} onProceed={() => { localStorage.setItem('storia_tester_seen', '1'); setShowDisclaimer(false); }} />;
   }
 
   return (
