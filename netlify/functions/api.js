@@ -200,7 +200,7 @@ app.post('/api/auth/register', async (req, res) => {
         const verifyToken = crypto.randomUUID();
         await sb.from('user_stats').update({ email_verify_token: verifyToken }).eq('user_id', data.user.id);
 
-        const origin = req.headers.origin || 'https://stage-storia.netlify.app';
+        const origin = req.headers.origin || 'https://storia.land';
         const verifyUrl = `${origin}/verify?token=${verifyToken}`;
 
         // Welcome + Verify email (non-blocking)
@@ -270,7 +270,7 @@ app.post('/api/auth/resend-verification', authenticateToken, async (req, res) =>
         const newToken = crypto.randomUUID();
         await sb.from('user_stats').update({ email_verify_token: newToken }).eq('user_id', req.user.id);
 
-        const origin = req.headers.origin || 'https://stage-storia.netlify.app';
+        const origin = req.headers.origin || 'https://storia.land';
         const verifyUrl = `${origin}/verify?token=${newToken}`;
 
         await sendVerificationEmail(req.user.email, verifyUrl);
