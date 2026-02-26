@@ -142,13 +142,14 @@ const AccountPage: React.FC<AccountPageProps> = ({
           </button>
         </div>
 
-        {/* Toast */}
+        {/* Toast — fixed bottom-right */}
         {message && (
-          <div className={`p-4 rounded-2xl text-center font-bold animate-in zoom-in duration-300 ${messageType === 'error'
-              ? 'bg-red-900/20 border border-red-500/30 text-red-400'
-              : 'bg-green-900/20 border border-green-500/30 text-green-400'
+          <div className={`fixed bottom-6 right-6 z-[500] max-w-sm w-full px-5 py-4 rounded-2xl font-bold shadow-2xl animate-in slide-in-from-bottom-3 duration-300 flex items-start gap-3 ${messageType === 'error'
+              ? 'bg-red-950 border border-red-700/60 text-red-200'
+              : 'bg-zinc-900 border border-green-600/40 text-green-300'
             }`}>
-            {message}
+            <span className="text-lg mt-0.5">{messageType === 'error' ? '⚠️' : '✅'}</span>
+            <span className="text-sm leading-snug">{message}</span>
           </div>
         )}
 

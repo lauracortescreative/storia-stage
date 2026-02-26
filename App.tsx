@@ -1421,8 +1421,9 @@ const App: React.FC = () => {
           />
         )}
         {subscribeError && view === 'paywall' && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-red-950 border border-red-700 text-red-300 text-sm font-bold px-6 py-3 rounded-2xl shadow-2xl">
-            {subscribeError}
+          <div className="fixed bottom-6 right-6 z-[500] max-w-sm w-full px-5 py-4 rounded-2xl font-bold shadow-2xl animate-in slide-in-from-bottom-3 duration-300 flex items-start gap-3 bg-red-950 border border-red-700/60 text-red-200">
+            <span className="text-lg mt-0.5">⚠️</span>
+            <span className="text-sm leading-snug">{subscribeError}</span>
           </div>
         )}
         {subscribeLoading && (
