@@ -26,7 +26,7 @@ async function sendEmail(to, subject, html, replyTo) {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                from: 'Storia <no-reply@storia.land>',
+                from: 'Storia <no-reply@contact.storia.land>',
                 to, subject, html,
                 ...(replyTo ? { reply_to: replyTo } : {}),
             }),
