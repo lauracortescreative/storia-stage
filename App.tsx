@@ -812,7 +812,10 @@ const App: React.FC = () => {
     if (!isLoggedIn || !getToken()) { setView('auth'); return; }
     try {
       await apiCancelSubscription();
-      updateStats({ plan: 'free', monthlyLimit: 5 });
+      // Re-fetch stats so UI immediately shows 'cancelling' + end date
+      const fresh = await apiGetStats();
+      setUserStats(prev => ({ ...prev, ...fresh }));
+      localStorage.setItem('storia_user_stats', JSON.stringify({ ...userStats, ...fresh }));
     } catch (err: any) {
       const msg = (err.message || '').toLowerCase();
       if (msg.includes('token') || msg.includes('expired') || msg.includes('invalid')) {

@@ -271,31 +271,53 @@ app.get('/api/stats', authenticateToken, async (req, res) => {
         let plan = data.plan;
         let monthlyLimit = data.monthly_limit;
 
-        // ── Stripe cross-check ────────────────────────────────────────────────
-        // If Supabase says 'free', verify with Stripe directly.
-        // This self-heals missed/delayed webhooks.
-        if (plan !== 'plus') {
-            try {
-                const stripe = getStripe();
-                const customers = await stripe.customers.list({ email: req.user.email, limit: 1 });
-                if (customers.data.length) {
-                    const subs = await stripe.subscriptions.list({
-                        customer: customers.data[0].id,
-                        status: 'active',
-                        limit: 1,
-                    });
-                    if (subs.data.length) {
-                        // Active subscription found — upgrade locally and return plus
-                        plan = 'plus';
-                        monthlyLimit = 20;
+        // ── Stripe cross-check (bidirectional) ───────────────────────────────
+        let subscriptionStatus = data.subscription_status || null;
+        let subscriptionEndsAt = data.subscription_ends_at || null;
+        try {
+            const stripe = getStripe();
+            const customers = await stripe.customers.list({ email: req.user.email, limit: 1 });
+            if (customers.data.length) {
+                const custId = customers.data[0].id;
+                const activeSubs = await stripe.subscriptions.list({ customer: custId, status: 'active', limit: 1 });
+
+                if (activeSubs.data.length) {
+                    const sub = activeSubs.data[0];
+                    const periodEnd = new Date(sub.current_period_end * 1000).toISOString();
+
+                    if (plan !== 'plus') {
+                        // Missed webhook — upgrade
+                        plan = 'plus'; monthlyLimit = 20;
                         await sb.from('user_stats').update({ plan: 'plus', monthly_limit: 20 }).eq('user_id', req.user.id);
-                        console.log(`✅ Self-healed plan for user ${req.user.id} via Stripe cross-check`);
                     }
+
+                    if (sub.cancel_at_period_end) {
+                        // Scheduled to cancel — mark it
+                        subscriptionStatus = 'cancelling';
+                        subscriptionEndsAt = periodEnd;
+                        await sb.from('user_stats').update({
+                            subscription_status: 'cancelling',
+                            subscription_ends_at: periodEnd,
+                        }).eq('user_id', req.user.id);
+                    } else if (subscriptionStatus === 'cancelling') {
+                        // Was cancelling but user re-subscribed — clear it
+                        subscriptionStatus = null;
+                        subscriptionEndsAt = null;
+                        await sb.from('user_stats').update({ subscription_status: null, subscription_ends_at: null }).eq('user_id', req.user.id);
+                    }
+                } else if (plan === 'plus') {
+                    // Supabase says plus but no active Stripe sub — downgrade
+                    plan = 'free'; monthlyLimit = 5;
+                    subscriptionStatus = null; subscriptionEndsAt = null;
+                    await sb.from('user_stats').update({
+                        plan: 'free', monthly_limit: 5,
+                        subscription_status: null, subscription_ends_at: null,
+                    }).eq('user_id', req.user.id);
+                    console.log(`⬇️ Downgraded user ${req.user.id} — no active Stripe sub found`);
                 }
-            } catch (stripeErr) {
-                // Non-fatal — just use Supabase value if Stripe check fails
-                console.warn('Stripe cross-check failed (non-fatal):', stripeErr.message);
             }
+        } catch (stripeErr) {
+            console.warn('Stripe cross-check failed (non-fatal):', stripeErr.message);
         }
         // ─────────────────────────────────────────────────────────────────────
 
@@ -303,8 +325,7 @@ app.get('/api/stats', authenticateToken, async (req, res) => {
             plan, monthlyUsed: data.monthly_used, monthlyLimit,
             bundlesRemaining: data.bundles_remaining, totalGenerated: data.total_generated,
             nextResetDate: data.next_reset_date,
-            subscriptionStatus: data.subscription_status || null,
-            subscriptionEndsAt: data.subscription_ends_at || null,
+            subscriptionStatus, subscriptionEndsAt,
         });
     } catch (err) {
         res.status(500).json({ error: 'Failed to load stats' });
