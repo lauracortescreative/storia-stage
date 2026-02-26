@@ -245,6 +245,18 @@ export interface UITranslations {
   account_support: string;
   account_logout: string;
   account_logout_desc: string;
+  account_plan_section: string;
+  account_plan_free: string;
+  account_plan_plus: string;
+  account_plan_used: string;
+  account_plan_limit: string;
+  account_subscribe_cta: string;
+  account_upgrade_cta: string;
+  account_cancel_cta: string;
+  account_cancel_confirm: string;
+  account_cancel_desc: string;
+  account_cancel_success: string;
+  account_cancel_keep: string;
 
   // Setup
   setup_title: string;

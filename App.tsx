@@ -26,7 +26,7 @@ import {
   apiRegister, apiLogin, apiDeleteAccount, apiUpdateEmail,
   apiGetStories, apiSaveStory,
   apiGetStats, apiUpdateStats,
-  apiCreateCheckoutSession, apiCreateTopupSession, apiCreatePortalSession,
+  apiCreateCheckoutSession, apiCreateTopupSession, apiCreatePortalSession, apiCancelSubscription,
   apiGetProfile, apiSaveProfile,
   getToken, setToken, clearToken
 } from './services/api';
@@ -233,6 +233,18 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     account_support: "Contact Support",
     account_logout: "Log Out",
     account_logout_desc: "You can log back in any time",
+    account_plan_section: "Your Plan",
+    account_plan_free: "Basic · Free",
+    account_plan_plus: "Storia Plus",
+    account_plan_used: "stories this month",
+    account_plan_limit: "monthly limit",
+    account_subscribe_cta: "Subscribe to Plus — £6.99/month",
+    account_upgrade_cta: "Switch to Yearly & Save — £59.99/year",
+    account_cancel_cta: "Cancel Subscription",
+    account_cancel_confirm: "Are you sure you want to cancel?",
+    account_cancel_desc: "You'll keep Plus access until the end of your billing period.",
+    account_cancel_success: "Subscription cancelled. You're now on the free plan.",
+    account_cancel_keep: "Keep Storia Plus",
     setup_title: "Magical Access",
     setup_desc: "Select a paid API Key to unlock high-quality master artist illustrations.",
     setup_button: "Select API Key",
@@ -772,6 +784,22 @@ const App: React.FC = () => {
       console.error('Topup checkout error:', err);
       setSubscribeError(err.message || 'Could not start checkout. Please try again.');
       setSubscribeLoading(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!isLoggedIn || !getToken()) { setView('auth'); return; }
+    try {
+      await apiCancelSubscription();
+      updateStats({ plan: 'free', monthlyLimit: 5 });
+    } catch (err: any) {
+      const msg = (err.message || '').toLowerCase();
+      if (msg.includes('token') || msg.includes('expired') || msg.includes('invalid')) {
+        clearToken(); localStorage.removeItem('storia_user');
+        setIsLoggedIn(false); setUserEmail(''); setView('auth');
+      } else {
+        throw err;
+      }
     }
   };
 
@@ -1397,7 +1425,7 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
-        {view === 'account' && <AccountPage translations={t} email={userEmail} childProfile={childProfile} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onLogout={handleLogout} onManageBilling={handleManageBilling} onBack={() => setView('app')} />}
+        {view === 'account' && <AccountPage translations={t} email={userEmail} childProfile={childProfile} plan={userStats.plan} monthlyUsed={userStats.monthlyUsed} monthlyLimit={userStats.monthlyLimit} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onLogout={handleLogout} onManageBilling={handleManageBilling} onSubscribe={handleSubscribe} onCancelSubscription={handleCancelSubscription} onBack={() => setView('app')} />}
         {view === 'library' && <LibraryPage translations={t} sessionStories={sessionStories} savedStories={savedStories} isLoggedIn={isLoggedIn} onSelectStory={(s) => { setStory(s); setView('app'); }} onSaveStory={saveToAccount} onBack={() => setView('app')} onAuth={() => setView('auth')} />}
         {view === 'public_library' && <PublicLibraryPage translations={t} onSelectStory={(s) => { setStory(s); setView('app'); }} onGoToColoring={() => setView('coloring_book')} onBack={() => setView('landing')} />}
         {view === 'coloring_book' && <ColoringBookPage translations={t} onBack={() => setView('landing')} />}

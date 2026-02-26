@@ -552,6 +552,38 @@ app.post('/api/subscribe/portal', authenticateToken, async (req, res) => {
     }
 });
 
+// DELETE /api/subscribe/cancel — cancel active Stripe subscription
+app.delete('/api/subscribe/cancel', authenticateToken, async (req, res) => {
+    try {
+        const stripe = getStripe();
+
+        // Find Stripe customer by email
+        const customers = await stripe.customers.list({ email: req.user.email, limit: 1 });
+        if (!customers.data.length) {
+            return res.status(404).json({ error: 'No billing account found.' });
+        }
+        const customerId = customers.data[0].id;
+
+        // Find active subscription
+        const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: 'active', limit: 1 });
+        if (!subscriptions.data.length) {
+            return res.status(404).json({ error: 'No active subscription found.' });
+        }
+
+        // Cancel immediately
+        await stripe.subscriptions.cancel(subscriptions.data[0].id);
+
+        // Downgrade in Supabase
+        const sb = getSupabase();
+        await sb.from('user_stats').update({ plan: 'free', monthly_limit: 5 }).eq('user_id', req.user.id);
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Cancel subscription error:', err.message);
+        res.status(500).json({ error: err.message || 'Failed to cancel subscription' });
+    }
+});
+
 // POST /api/webhooks/stripe — handle Stripe events
 // Must receive raw body for signature verification
 app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), async (req, res) => {

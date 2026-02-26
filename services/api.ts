@@ -136,6 +136,10 @@ export async function apiCreatePortalSession(): Promise<{ url: string }> {
     return apiFetch<{ url: string }>('/subscribe/portal', { method: 'POST' });
 }
 
+export async function apiCancelSubscription(): Promise<void> {
+    await apiFetch('/subscribe/cancel', { method: 'DELETE' });
+}
+
 
 // ─── Public Library ───────────────────────────────────────────────────────────
 

@@ -9,11 +9,16 @@ interface AccountPageProps {
   translations: UITranslations;
   email: string;
   childProfile: ChildProfile;
+  plan: 'free' | 'plus';
+  monthlyUsed: number;
+  monthlyLimit: number;
   onUpdateEmail: (newEmail: string) => void;
   onSaveProfile: (profile: ChildProfile) => Promise<void>;
   onDeleteAccount: () => void;
   onLogout: () => void;
   onManageBilling: () => Promise<void>;
+  onSubscribe: (plan: 'monthly' | 'yearly') => Promise<void>;
+  onCancelSubscription: () => Promise<void>;
   onBack: () => void;
 }
 
@@ -21,11 +26,16 @@ const AccountPage: React.FC<AccountPageProps> = ({
   translations: t,
   email,
   childProfile,
+  plan,
+  monthlyUsed,
+  monthlyLimit,
   onUpdateEmail,
   onSaveProfile,
   onDeleteAccount,
   onLogout,
   onManageBilling,
+  onSubscribe,
+  onCancelSubscription,
   onBack
 }) => {
   const [newEmail, setNewEmail] = useState(email);
@@ -33,7 +43,12 @@ const AccountPage: React.FC<AccountPageProps> = ({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
+
+  // Billing loading states
   const [billingLoading, setBillingLoading] = useState(false);
+  const [subscribeLoading, setSubscribeLoading] = useState<null | 'monthly' | 'yearly'>(null);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   // Child profile state
   const [childName, setChildName] = useState(childProfile.childName || '');
@@ -53,17 +68,6 @@ const AccountPage: React.FC<AccountPageProps> = ({
     setTimeout(() => setMessage(null), 5000);
   };
 
-  const handleManageBillingClick = async () => {
-    setBillingLoading(true);
-    try {
-      await onManageBilling();
-    } catch (err: any) {
-      showError(err.message || 'Could not open billing portal. Please try again.');
-    } finally {
-      setBillingLoading(false);
-    }
-  };
-
   const handleUpdateEmail = (e: React.FormEvent) => {
     e.preventDefault();
     onUpdateEmail(newEmail);
@@ -80,6 +84,43 @@ const AccountPage: React.FC<AccountPageProps> = ({
       setProfileSaving(false);
     }
   };
+
+  const handleManageBillingClick = async () => {
+    setBillingLoading(true);
+    try {
+      await onManageBilling();
+    } catch (err: any) {
+      showError(err.message || 'Could not open billing portal. Please try again.');
+    } finally {
+      setBillingLoading(false);
+    }
+  };
+
+  const handleSubscribeClick = async (p: 'monthly' | 'yearly') => {
+    setSubscribeLoading(p);
+    try {
+      await onSubscribe(p);
+    } catch (err: any) {
+      showError(err.message || 'Could not start checkout. Please try again.');
+    } finally {
+      setSubscribeLoading(null);
+    }
+  };
+
+  const handleCancelClick = async () => {
+    setCancelLoading(true);
+    try {
+      await onCancelSubscription();
+      setShowCancelConfirm(false);
+      showSuccess(t.account_cancel_success || 'Subscription cancelled. You\'re now on the free plan.');
+    } catch (err: any) {
+      showError(err.message || 'Could not cancel. Please try again.');
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  const usagePct = Math.min(100, Math.round((monthlyUsed / (monthlyLimit || 5)) * 100));
 
   return (
     <div className="min-h-screen bg-black py-12 px-4 animate-in fade-in duration-500">
@@ -101,15 +142,149 @@ const AccountPage: React.FC<AccountPageProps> = ({
           </button>
         </div>
 
-        {/* Success Toast */}
+        {/* Toast */}
         {message && (
           <div className={`p-4 rounded-2xl text-center font-bold animate-in zoom-in duration-300 ${messageType === 'error'
-            ? 'bg-red-900/20 border border-red-500/30 text-red-400'
-            : 'bg-green-900/20 border border-green-500/30 text-green-400'
+              ? 'bg-red-900/20 border border-red-500/30 text-red-400'
+              : 'bg-green-900/20 border border-green-500/30 text-green-400'
             }`}>
             {message}
           </div>
         )}
+
+        {/* ── YOUR PLAN SECTION ── */}
+        <section className="bg-zinc-900/50 p-10 rounded-[3rem] border border-zinc-800 space-y-8">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{plan === 'plus' ? '💎' : '⭐'}</span>
+            <div>
+              <h3 className="text-white text-xl font-black tracking-tight">
+                {t.account_plan_section || 'Your Plan'}
+              </h3>
+              <span className={`text-[10px] font-black uppercase tracking-widest ${plan === 'plus' ? 'text-indigo-400' : 'text-zinc-500'}`}>
+                {plan === 'plus' ? (t.account_plan_plus || 'Storia Plus') : (t.account_plan_free || 'Basic · Free')}
+              </span>
+            </div>
+            {plan === 'plus' && (
+              <span className="ml-auto px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-black uppercase tracking-widest border border-indigo-500/30">
+                Active
+              </span>
+            )}
+          </div>
+
+          {/* Usage bar */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-400 text-xs font-bold uppercase tracking-widest">
+                {monthlyUsed} / {monthlyLimit} {t.account_plan_used || 'stories this month'}
+              </span>
+              <span className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">
+                {monthlyLimit} {t.account_plan_limit || 'monthly limit'}
+              </span>
+            </div>
+            <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${usagePct >= 90 ? 'bg-red-500' : usagePct >= 60 ? 'bg-amber-500' : 'bg-indigo-500'}`}
+                style={{ width: `${usagePct}%` }}
+              />
+            </div>
+          </div>
+
+          {/* FREE PLAN — Subscribe CTAs */}
+          {plan === 'free' && (
+            <div className="space-y-3 pt-2">
+              <button
+                onClick={() => handleSubscribeClick('monthly')}
+                disabled={subscribeLoading !== null}
+                className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all shadow-lg text-base flex items-center justify-center gap-3 disabled:opacity-60"
+              >
+                {subscribeLoading === 'monthly' ? (
+                  <><span className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />Redirecting…</>
+                ) : (
+                  <><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>{t.account_subscribe_cta || 'Subscribe to Plus — £6.99/month'}</>
+                )}
+              </button>
+              <button
+                onClick={() => handleSubscribeClick('yearly')}
+                disabled={subscribeLoading !== null}
+                className="w-full py-4 bg-zinc-800 hover:bg-zinc-700 text-white font-black rounded-2xl transition-all text-sm border border-zinc-700 flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {subscribeLoading === 'yearly' ? (
+                  <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />Redirecting…</>
+                ) : (
+                  <>{t.account_upgrade_cta || 'Switch to Yearly & Save — £59.99/year'}</>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* PLUS PLAN — Upgrade to yearly + Manage Billing */}
+          {plan === 'plus' && (
+            <div className="space-y-4">
+              {/* Upgrade to yearly */}
+              <div className="flex items-center justify-between p-5 rounded-2xl bg-zinc-800/50 border border-zinc-700">
+                <div>
+                  <p className="text-white font-black text-sm">Switch to Yearly & Save</p>
+                  <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-0.5">£59.99/year · best value</p>
+                </div>
+                <button
+                  onClick={() => handleSubscribeClick('yearly')}
+                  disabled={subscribeLoading !== null}
+                  className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl transition-all text-xs disabled:opacity-60 flex items-center gap-2"
+                >
+                  {subscribeLoading === 'yearly' ? <span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" /> : null}
+                  Upgrade
+                </button>
+              </div>
+
+              {/* Manage Billing */}
+              <div className="flex items-center justify-between p-5 rounded-2xl bg-zinc-800/50 border border-zinc-700">
+                <div>
+                  <p className="text-white font-black text-sm">{t.account_billing || 'Manage Billing'}</p>
+                  <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-0.5">{t.account_billing_desc || 'Update payment method'}</p>
+                </div>
+                <button
+                  onClick={handleManageBillingClick}
+                  disabled={billingLoading}
+                  className="px-6 py-2.5 bg-zinc-700 hover:bg-zinc-600 text-white font-black rounded-xl transition-all text-xs disabled:opacity-60 flex items-center gap-2 border border-zinc-600"
+                >
+                  {billingLoading ? <span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" /> : <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>}
+                  {billingLoading ? 'Opening…' : 'Open'}
+                </button>
+              </div>
+
+              {/* Cancel — inline confirm */}
+              {!showCancelConfirm ? (
+                <button
+                  onClick={() => setShowCancelConfirm(true)}
+                  className="w-full text-center text-zinc-600 hover:text-red-400 text-[11px] font-black uppercase tracking-widest transition-colors pt-2"
+                >
+                  {t.account_cancel_cta || 'Cancel Subscription'}
+                </button>
+              ) : (
+                <div className="p-6 rounded-2xl bg-red-950/20 border border-red-900/30 space-y-4 animate-in fade-in duration-200">
+                  <p className="text-white font-black text-sm text-center">{t.account_cancel_confirm || 'Are you sure you want to cancel?'}</p>
+                  <p className="text-zinc-400 text-xs text-center">{t.account_cancel_desc || "You'll keep Plus access until the end of your billing period."}</p>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleCancelClick}
+                      disabled={cancelLoading}
+                      className="flex-1 py-3 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-600/30 font-black rounded-2xl transition-all text-xs flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {cancelLoading ? <span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" /> : null}
+                      {t.account_cancel_cta || 'Yes, Cancel'}
+                    </button>
+                    <button
+                      onClick={() => setShowCancelConfirm(false)}
+                      className="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-black rounded-2xl transition-all text-xs border border-zinc-700"
+                    >
+                      {t.account_cancel_keep || 'Keep Storia Plus'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </section>
 
         {/* Email Section */}
         <section className="bg-zinc-900/50 p-10 rounded-[3rem] border border-zinc-800 space-y-8">
@@ -134,7 +309,7 @@ const AccountPage: React.FC<AccountPageProps> = ({
           </form>
         </section>
 
-        {/* ── Your Child Section ─────────────────────────────────────────────── */}
+        {/* ── Your Child Section ── */}
         <section className="bg-zinc-900/50 p-10 rounded-[3rem] border border-zinc-800 space-y-8">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
@@ -149,7 +324,6 @@ const AccountPage: React.FC<AccountPageProps> = ({
           </div>
 
           <form onSubmit={handleSaveProfile} className="space-y-8">
-
             {/* Child Name */}
             <div className="space-y-2">
               <label className="text-zinc-500 text-[10px] font-black uppercase tracking-widest block">
@@ -220,9 +394,7 @@ const AccountPage: React.FC<AccountPageProps> = ({
               <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 animate-in fade-in duration-300">
                 <span className="text-2xl">{childAvatar || '🧒'}</span>
                 <div>
-                  <p className="text-white font-bold text-sm">
-                    {childName || '—'}
-                  </p>
+                  <p className="text-white font-bold text-sm">{childName || '—'}</p>
                   <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">
                     {childAge === 2 ? `2–3 ${t.opt_years || 'Years'}` : childAge === 4 ? `4–5 ${t.opt_years || 'Years'}` : ''}
                   </p>
@@ -248,27 +420,6 @@ const AccountPage: React.FC<AccountPageProps> = ({
               )}
             </button>
           </form>
-        </section>
-
-        {/* Manage Billing */}
-        <section className="p-10 rounded-[3rem] border border-zinc-800 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-white font-black text-lg">{t.account_billing || 'Manage Billing'}</p>
-              <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">{t.account_billing_desc || 'Update payment method, cancel or manage subscription'}</p>
-            </div>
-            <button
-              onClick={handleManageBillingClick}
-              disabled={billingLoading}
-              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all text-sm flex items-center gap-2 shadow-lg disabled:opacity-60"
-            >
-              {billingLoading ? (
-                <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />Opening…</>
-              ) : (
-                <><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>{t.account_billing || 'Manage Billing'}</>
-              )}
-            </button>
-          </div>
         </section>
 
         {/* Contact Support */}
