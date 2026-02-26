@@ -639,6 +639,20 @@ const App: React.FC = () => {
   // Scroll to top on every view change
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }); }, [view]);
 
+  // Re-fetch stats from backend whenever the account or success page is opened
+  // so the plan status is always fresh after a Stripe payment webhook has fired
+  useEffect(() => {
+    if (!isLoggedIn || !getToken()) return;
+    if (view === 'account' || view === 'subscribe_success') {
+      apiGetStats()
+        .then(stats => {
+          setUserStats(stats);
+          localStorage.setItem('storia_user_stats', JSON.stringify(stats));
+        })
+        .catch(() => { }); // silently ignore — cached value stays
+    }
+  }, [view]);
+
   useEffect(() => {
     localStorage.setItem('storia_current_lang', currentLang);
     if (!hasKey || currentLang === 'English') return;
