@@ -1290,6 +1290,16 @@ const App: React.FC = () => {
               >
                 📚 {t.public_library_link || 'Public Library'}
               </button>
+              {/* My Library — logged in only */}
+              {isLoggedIn && (
+                <button
+                  id="nav-my-library"
+                  onClick={() => setView('library')}
+                  className="hidden sm:flex px-4 md:px-5 py-2 rounded-full bg-indigo-500/20 hover:bg-indigo-500/30 transition-all border border-indigo-500/40 text-indigo-300 font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2"
+                >
+                  🌙 {t.library_title || 'My Library'}
+                </button>
+              )}
               {/* Coloring Lab */}
               <button
                 onClick={() => setView('coloring_book')}
@@ -1462,7 +1472,7 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
-        {view === 'account' && <AccountPage translations={t} email={userEmail} emailVerified={emailVerified} childProfile={childProfile} plan={userStats.plan} monthlyUsed={userStats.monthlyUsed} monthlyLimit={userStats.monthlyLimit} subscriptionStatus={userStats.subscriptionStatus} subscriptionEndsAt={userStats.subscriptionEndsAt} onResendVerification={apiResendVerification} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onLogout={handleLogout} onManageBilling={handleManageBilling} onSubscribe={handleSubscribe} onCancelSubscription={handleCancelSubscription} onBack={() => setView('app')} />}
+        {view === 'account' && <AccountPage translations={t} email={userEmail} emailVerified={emailVerified} childProfile={childProfile} plan={userStats.plan} monthlyUsed={userStats.monthlyUsed} monthlyLimit={userStats.monthlyLimit} subscriptionStatus={userStats.subscriptionStatus} subscriptionEndsAt={userStats.subscriptionEndsAt} onResendVerification={apiResendVerification} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onLogout={handleLogout} onManageBilling={handleManageBilling} onSubscribe={handleSubscribe} onCancelSubscription={handleCancelSubscription} onGoToLibrary={() => setView('library')} onBack={() => setView('app')} />}
         {view === 'help' && <HelpPage translations={t} userEmail={userEmail} onBack={() => setView(isLoggedIn ? 'app' : 'landing')} />}
         {view === 'verify' && <VerifyEmailPage token={verifyToken} onContinue={() => { setEmailVerified(true); window.history.replaceState({}, '', '/'); setView(isLoggedIn ? 'account' : 'landing'); }} />}
         {view === 'library' && <LibraryPage translations={t} sessionStories={sessionStories} savedStories={savedStories} isLoggedIn={isLoggedIn} onSelectStory={(s) => { setStory(s); setView('app'); }} onSaveStory={saveToAccount} onRateStory={async (id, rating) => { await apiRateStory(id, rating); setSavedStories(prev => prev.map(s => s.id === id ? { ...s, rating } : s)); }} onBack={() => setView('app')} onAuth={() => setView('auth')} />}

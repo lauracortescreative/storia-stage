@@ -64,6 +64,7 @@ interface AccountPageProps {
   onManageBilling: () => Promise<void>;
   onSubscribe: (plan: 'monthly' | 'yearly') => Promise<void>;
   onCancelSubscription: () => Promise<void>;
+  onGoToLibrary: () => void;
   onBack: () => void;
 }
 
@@ -85,6 +86,7 @@ const AccountPage: React.FC<AccountPageProps> = ({
   onManageBilling,
   onSubscribe,
   onCancelSubscription,
+  onGoToLibrary,
   onBack
 }) => {
   const [newEmail, setNewEmail] = useState(email);
@@ -463,6 +465,23 @@ const AccountPage: React.FC<AccountPageProps> = ({
               )}
             </button>
           </form>
+        </section>
+
+        {/* My Story Library */}
+        <section className="p-10 rounded-[3rem] border border-indigo-500/30 bg-indigo-500/5 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-white font-black text-lg">🌙 {t.library_title || 'My Story Library'}</p>
+              <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">{t.library_saved || 'Your saved stories'}</p>
+            </div>
+            <button
+              onClick={onGoToLibrary}
+              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all text-sm flex items-center gap-2 shadow-lg shadow-indigo-900/30"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+              Open Library
+            </button>
+          </div>
         </section>
 
         {/* Contact Support */}
