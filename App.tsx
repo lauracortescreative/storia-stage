@@ -21,6 +21,7 @@ import TermsPage from './components/TermsPage';
 import HelpPage from './components/HelpPage';
 import VerifyEmailPage from './components/VerifyEmailPage';
 import { useToast } from './components/ToastContext';
+import StoryLoaderOverlay from './components/StoryLoaderOverlay';
 import { StoryService } from './services/gemini';
 import { decodeAudio } from './services/audio';
 import { checkSafety } from './services/moderation';
@@ -1247,16 +1248,24 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-black flex flex-col">
       {/* GLOBAL LOADING OVERLAY */}
-      {loading && (
-        <div className="fixed inset-0 z-[500] bg-black flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 via-black to-purple-950 opacity-100"></div>
-          <div className="relative text-white text-center flex flex-col items-center max-sm px-6 z-10">
-            <p className="text-3xl font-black tracking-tight mb-4 animate-pulse">{loadingStatus}</p>
-            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em] mb-8 animate-pulse opacity-60">{t.loader_subtext}</p>
-            <button onClick={() => { generationIdRef.current++; setLoading(false); }} className="px-8 py-3 bg-white/5 rounded-full text-zinc-500 text-xs font-black uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all border border-white/5">{t.cancel}</button>
-          </div>
-        </div>
-      )}
+      {loading && (() => {
+        const FACTS = [
+          { emoji: '🧠', fact: 'Stories activate 7 regions of the brain simultaneously — including those that process emotions, movement, and smell.' },
+          { emoji: '😴', fact: 'Children who hear a story before bed fall asleep up to 20 minutes faster than those who don\'t.' },
+          { emoji: '💛', fact: 'Hearing a character feel nervous helps children name and regulate their own anxiety — a skill called "bibliotherapy."' },
+          { emoji: '🔁', fact: 'Repetition is magic: hearing the same story 3–5 times builds neural pathways that help children predict — and feel safe.' },
+          { emoji: '🌍', fact: 'Stories from a child\'s own cultural world strengthen identity and a sense of belonging — both tied to emotional security.' },
+          { emoji: '🎙️', fact: 'A calm narrator\'s voice entrains a child\'s nervous system through co-regulation — even over audio.' },
+          { emoji: '✨', fact: 'Children who are read to daily have vocabularies 3x larger by age 5, giving them more words for their feelings.' },
+          { emoji: '🌙', fact: 'Predictable bedtime rituals lower cortisol levels — making story time one of the most powerful tools for calm.' },
+          { emoji: '❤️', fact: 'Stories with a clear resolution teach children that problems can be solved — building emotional resilience.' },
+          { emoji: '🐻', fact: 'When a child identifies with a character overcoming fear, their own amygdala response to that fear is reduced.' },
+        ];
+        return (
+          <StoryLoaderOverlay facts={FACTS} loadingStatus={loadingStatus} onCancel={() => { generationIdRef.current++; setLoading(false); }} cancelLabel={t.cancel} />
+        );
+      })()}
+
 
       <div className="flex-1">
 
