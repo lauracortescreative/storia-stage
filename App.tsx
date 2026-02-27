@@ -206,7 +206,7 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     library_account_required: "Account required to save stories permanently.",
     library_read_script: "Read Script",
     script_title: "Story Transcript",
-    button_create_account: "Create Account",
+    button_create_account: "Create Account / Sign In",
     button_download_pdf: "Download Coloring Book",
     public_library_title: "Community Gems",
     public_library_subtitle: "Explore stories shared by families worldwide",
@@ -1321,7 +1321,7 @@ const App: React.FC = () => {
                   onClick={() => setView('auth')}
                   className="px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs"
                 >
-                  {t.button_create_account || 'Create Account'}
+                  {t.button_create_account || 'Create Account / Sign In'}
                 </button>
               )}
               {/* Help button */}
