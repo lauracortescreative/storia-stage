@@ -1293,94 +1293,129 @@ const App: React.FC = () => {
 
       <div className="flex-1">
 
-        {/* ── Global Nav — hidden only when the story player is actively showing ── */}
-        {(!story || view !== 'app') && (
-          <nav className={`fixed top-0 left-0 w-full z-[100] flex flex-col items-center animate-in fade-in duration-300 ${view === 'landing' ? 'bg-gradient-to-b from-black/70 via-black/30 to-transparent backdrop-blur-[2px] border-b-0' : 'bg-black/80 backdrop-blur-md border-b border-white/5'}`}>
+        {/* ── Global Nav — hidden only when the story player is actively playing ── */}
+        {(!story || view !== 'app') && (<>
+
+          {/* ── DESKTOP (lg+): top centred two-row nav ── */}
+          <nav className={`hidden lg:flex fixed top-0 left-0 w-full z-[100] flex-col items-center animate-in fade-in duration-300 ${view === 'landing' ? 'bg-gradient-to-b from-black/70 via-black/30 to-transparent backdrop-blur-[2px] border-b-0' : 'bg-black/80 backdrop-blur-md border-b border-white/5'}`}>
             {/* Row 1 — Logo centred */}
             <div className="w-full flex justify-center pt-5 pb-5">
-              <button
-                onClick={() => setView('landing')}
-                className="text-2xl font-black text-white tracking-tighter font-borel hover:text-indigo-300 transition-colors"
-              >
+              <button onClick={() => setView('landing')} className="text-2xl font-black text-white tracking-tighter font-borel hover:text-indigo-300 transition-colors">
                 Storia<sup className="text-[0.5em] ml-0.5">©</sup>
               </button>
             </div>
-
             {/* Row 2 — Nav items centred */}
             <div className="w-full flex justify-center items-center gap-2 flex-wrap px-4 pb-3">
-              {/* Create a Story — hidden on form pages */}
               {!['seed', 'refinement'].includes(view) && !(view === 'app' && !story) && (
-                <button
-                  id="nav-create-story"
-                  onClick={() => { setStory(null); setView('app'); }}
-                  className="px-4 md:px-6 py-2 rounded-full bg-white text-black hover:bg-zinc-200 transition-all text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg"
-                >
+                <button id="nav-create-story" onClick={() => { setStory(null); setView('app'); }} className="px-4 md:px-6 py-2 rounded-full bg-white text-black hover:bg-zinc-200 transition-all text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg">
                   ✨ {t.landing_button || 'Create a Story'}
                 </button>
               )}
-              {/* Public Library */}
-              <button
-                onClick={() => setView('public_library')}
-                className="hidden sm:flex px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2"
-              >
+              <button onClick={() => setView('public_library')} className="flex px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2">
                 📚 {t.public_library_link || 'Public Library'}
               </button>
-              {/* My Library — logged in only */}
               {isLoggedIn && (
-                <button
-                  id="nav-my-library"
-                  onClick={() => setView('library')}
-                  className="hidden sm:flex px-4 md:px-5 py-2 rounded-full bg-indigo-500/20 hover:bg-indigo-500/30 transition-all border border-indigo-500/40 text-indigo-300 font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2"
-                >
+                <button id="nav-my-library" onClick={() => setView('library')} className="flex px-4 md:px-5 py-2 rounded-full bg-indigo-500/20 hover:bg-indigo-500/30 transition-all border border-indigo-500/40 text-indigo-300 font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2">
                   🌙 {t.library_title || 'My Library'}
                 </button>
               )}
-              {/* Coloring Lab */}
-              <button
-                onClick={() => setView('coloring_book')}
-                className="hidden lg:flex px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2"
-              >
+              <button onClick={() => setView('coloring_book')} className="flex px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2">
                 🖍️ Coloring Lab
               </button>
-              {/* Account / Auth — hidden entirely when already on account page */}
               {view !== 'account' && (isLoggedIn ? (
-                <button
-                  onClick={() => setView('account')}
-                  className="flex items-center gap-2 px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs"
-                >
+                <button onClick={() => setView('account')} className="flex items-center gap-2 px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                  <span className="hidden sm:inline">{t.account_title || 'My Account'}</span>
+                  {t.account_title || 'My Account'}
                 </button>
               ) : (
-                <button
-                  onClick={() => setView('auth')}
-                  className="px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs"
-                >
+                <button onClick={() => setView('auth')} className="px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs">
                   {t.button_create_account || 'Create Account / Sign In'}
                 </button>
               ))}
-              {/* Help button */}
-              <button
-                onClick={() => setView('help')}
-                className="flex items-center gap-2 px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs"
-              >
+              <button onClick={() => setView('help')} className="flex items-center gap-2 px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <span className="hidden sm:inline">Help</span>
+                Help
               </button>
-              {/* Membership gem */}
-              <button
-                onClick={() => { setPaywallScreen('plus'); setView('paywall'); }}
-                className="group px-3 md:px-4 py-2 rounded-full bg-indigo-600/20 hover:bg-indigo-600 transition-all border border-indigo-500/40 text-indigo-400 hover:text-white font-black text-xs flex items-center gap-1.5"
-              >
+              <button onClick={() => { setPaywallScreen('plus'); setView('paywall'); }} className="group px-3 md:px-4 py-2 rounded-full bg-indigo-600/20 hover:bg-indigo-600 transition-all border border-indigo-500/40 text-indigo-400 hover:text-white font-black text-xs flex items-center gap-1.5">
                 <span className="text-base">💎</span>
-                <span className="hidden md:inline uppercase tracking-widest text-[10px]">{t.button_membership || 'Plus'}</span>
+                <span className="uppercase tracking-widest text-[10px]">{t.button_membership || 'Plus'}</span>
               </button>
             </div>
           </nav>
+
+          {/* ── MOBILE / TABLET (< lg): fixed bottom icon tab bar ── */}
+          <nav className={`lg:hidden fixed bottom-0 left-0 w-full z-[100] flex justify-around items-center px-2 py-2 bg-black/90 backdrop-blur-md border-t border-white/10`}
+            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}>
+
+            {/* Storia logo — centre tap goes home */}
+            <button onClick={() => setView('landing')} className="flex flex-col items-center gap-0.5 text-white/80 hover:text-white transition-colors" title="Home">
+              <span className="text-lg font-black font-borel leading-none">S</span>
+              <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Home</span>
+            </button>
+
+            {/* Create Story */}
+            {!['seed', 'refinement'].includes(view) && !(view === 'app' && !story) && (
+              <button onClick={() => { setStory(null); setView('app'); }} className={`flex flex-col items-center gap-0.5 transition-colors ${view === 'app' ? 'text-white' : 'text-white/60 hover:text-white'}`} title="Create Story">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+                <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Create</span>
+              </button>
+            )}
+
+            {/* Public Library */}
+            <button onClick={() => setView('public_library')} className={`flex flex-col items-center gap-0.5 transition-colors ${view === 'public_library' ? 'text-white' : 'text-white/60 hover:text-white'}`} title="Public Library">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+              <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Library</span>
+            </button>
+
+            {/* My Library (logged in) */}
+            {isLoggedIn && (
+              <button onClick={() => setView('library')} className={`flex flex-col items-center gap-0.5 transition-colors ${view === 'library' ? 'text-indigo-400' : 'text-white/60 hover:text-indigo-300'}`} title="My Library">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Mine</span>
+              </button>
+            )}
+
+            {/* Coloring Lab */}
+            <button onClick={() => setView('coloring_book')} className={`flex flex-col items-center gap-0.5 transition-colors ${view === 'coloring_book' ? 'text-white' : 'text-white/60 hover:text-white'}`} title="Coloring Lab">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+              <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Color</span>
+            </button>
+
+            {/* Account / Auth */}
+            {view !== 'account' && (isLoggedIn ? (
+              <button onClick={() => setView('account')} className={`flex flex-col items-center gap-0.5 transition-colors ${view === 'account' ? 'text-white' : 'text-white/60 hover:text-white'}`} title="My Account">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Account</span>
+              </button>
+            ) : (
+              <button onClick={() => setView('auth')} className="flex flex-col items-center gap-0.5 text-indigo-400 hover:text-indigo-300 transition-colors" title="Sign In">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Sign In</span>
+              </button>
+            ))}
+
+            {/* Plus */}
+            <button onClick={() => { setPaywallScreen('plus'); setView('paywall'); }} className="flex flex-col items-center gap-0.5 text-indigo-400 hover:text-indigo-300 transition-colors" title="Plus">
+              <span className="text-lg leading-none">💎</span>
+              <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Plus</span>
+            </button>
+
+            {/* Help */}
+            <button onClick={() => setView('help')} className={`flex flex-col items-center gap-0.5 transition-colors ${view === 'help' ? 'text-white' : 'text-white/60 hover:text-white'}`} title="Help">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Help</span>
+            </button>
+          </nav>
+        </>)}
+
+        {/* Offset for fixed nav */}
+        {(!story || view !== 'app') && view !== 'landing' && (
+          <>
+            <div className="hidden lg:block h-24" /> {/* desktop top nav spacer */}
+            <div className="lg:hidden h-4" />           {/* mobile: content doesn't need top spacer */}
+          </>
         )}
 
-        {/* Offset for fixed nav: all pages except landing and story player */}
-        {(!story || view !== 'app') && view !== 'landing' && <div className="h-24" />}
 
         {view === 'landing' && <LandingPage onStart={() => hasKey ? setView('app') : setView('setup')} onJoinMembership={() => { setPaywallScreen('plus'); setView('paywall'); }} onExplorePublic={() => setView('public_library')} onGoToColoring={() => setView('coloring_book')} translations={t} currentLang={currentLang} />}
         {view === 'setup' && (
