@@ -40,11 +40,58 @@ async function sendEmail(to, subject, html, replyTo) {
 }
 
 async function sendVerificationEmail(to, verifyUrl) {
+    const confirmLink = `<a href="${verifyUrl}" style="color:#4f46e5;text-decoration:underline;">${verifyUrl}</a>`;
     const { error } = await getResend().emails.send({
         from: FROM,
         to,
-        template_alias: 'email-confirmation',
-        variables: { confirmation_link: verifyUrl, email: to },
+        subject: 'Confirm your email — Storia ✨',
+        html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" lang="en">
+  <head>
+    <meta content="width=device-width" name="viewport" />
+    <link rel="preload" as="image" href="https://resend-attachments.s3.amazonaws.com/69a4bd4a-85b6-46a5-aff7-1e068f2950ab" />
+    <link rel="preload" as="image" href="https://resend-attachments.s3.amazonaws.com/e4d6bbfb-36c1-41f3-8f22-5c6bb3f50567" />
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <meta name="x-apple-disable-message-reformatting" />
+  </head>
+  <body>
+    <div style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0">Confirm your email to start your family's calm-first ritual with Storia©</div>
+    <table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" align="center">
+      <tbody><tr><td>
+        <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
+          style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto','Oxygen','Ubuntu','Cantarell','Fira Sans','Droid Sans','Helvetica Neue',sans-serif;font-size:1.0769em;min-height:100%;line-height:155%">
+          <tbody><tr><td>
+            <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
+              style="max-width:600px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif">
+              <tbody><tr><td>
+                <img alt='"It\'s Storiø time" logo' src="https://resend-attachments.s3.amazonaws.com/69a4bd4a-85b6-46a5-aff7-1e068f2950ab"
+                  style="display:block;outline:none;border:none;text-decoration:none;max-width:100%;border-radius:8px" width="100%" />
+                <p style="margin:0;padding:0.5em 0">Hi ${to},</p>
+                <p style="margin:0;padding:0.5em 0">We are so happy you're here.</p>
+                <p style="margin:0;padding:0.5em 0">At <strong>Storia©</strong>, we believe that while content might entertain, it is the <strong>ritual</strong> that truly regulates. We know how much heart you put into your family's "settling-down" moments—whether it's the pre-sleep wind down, decompressing after school, or finding calm during a long car ride.</p>
+                <p style="margin:0;padding:0.5em 0">Our goal is to help your family regulate emotions through structured, repeatable storytelling. To start creating your first daily ritual, please confirm your email address by clicking the link below:</p>
+                <p style="margin:0;padding:0.5em 0">${confirmLink}</p>
+                <p style="margin:0;padding:0.5em 0">By joining us, you're choosing a "calm-first" approach to technology. We've built Storia to be a safe, low-stimulation environment—focused on predictable routines that reduce anxiety and help your little ones feel secure.</p>
+                <p style="margin:0;padding:0.5em 0">It's <strong>Storia</strong> time. We can't wait to be a part of your family's daily rhythm.</p>
+                <p style="margin:0;padding:0.5em 0">Warmly ✨,</p>
+                <p style="margin:0;padding:0.5em 0"><strong>Laura Cortes</strong>, Founder, Storia</p>
+                <img alt="Laura Cortes, Founder of Storia" src="https://resend-attachments.s3.amazonaws.com/e4d6bbfb-36c1-41f3-8f22-5c6bb3f50567"
+                  style="display:block;outline:none;border:none;text-decoration:none;max-width:100%;border-radius:8px" width="300" />
+                <hr style="width:100%;border:none;border-top:2px solid #eaeaea;margin:1em 0" />
+                <p style="margin:0;padding:0.5em 0"><strong>Why Storia?</strong></p>
+                <ul style="padding-left:1.1em;padding-bottom:1em">
+                  <li style="margin:0.3em 0 0.3em 1em"><strong>Predictable Routines</strong>: Reducing anxiety through structured repetition.</li>
+                  <li style="margin:0.3em 0 0.3em 1em"><strong>Audio-First</strong>: Aligning with pediatric best practices for sleep and regulation.</li>
+                  <li style="margin:0.3em 0 0.3em 1em"><strong>Parent-Governed</strong>: You stay in control with parent-governed safety and restraint.</li>
+                </ul>
+              </td></tr></tbody>
+            </table>
+          </td></tr></tbody>
+        </table>
+      </td></tr></tbody>
+    </table>
+  </body>
+</html>`,
     });
     if (error) {
         console.error('❌ Resend verification error:', error.message);
