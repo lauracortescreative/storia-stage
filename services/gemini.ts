@@ -8,10 +8,15 @@ import { StoryConfig, StoryResult, VoiceStyle, Region, VoiceProfile, StoryPace }
 
 const BASE = import.meta.env.DEV ? 'http://localhost:3001/api/gemini' : '/api/gemini';
 
+import { getToken } from './api';
+
 async function post<T>(path: string, body: unknown): Promise<T> {
+  const token = getToken();
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
   const res = await fetch(`${BASE}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(body),
   });
   if (!res.ok) {

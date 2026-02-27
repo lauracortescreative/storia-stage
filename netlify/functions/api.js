@@ -548,6 +548,58 @@ app.post('/api/gemini/story', async (req, res) => {
         const meditationInstruction = config.meditationEnabled
             ? "ADDITIONAL REQUIREMENT: Add a final episode titled 'Sleepy Wind-down Meditation'. ~40 words, very slow and soothing."
             : '';
+
+        // ── Optional: personalise prompt from user's rated stories ────────────
+        let personalizationHint = '';
+        try {
+            const token = (req.headers['authorization'] || '').split(' ')[1];
+            if (token) {
+                const { data: authData } = await getSupabase().auth.getUser(token);
+                if (authData?.user?.id) {
+                    const userId = authData.user.id;
+                    // Fetch top-rated stories (4-5 stars), most recent 10
+                    const { data: rated } = await getSupabase()
+                        .from('stories')
+                        .select('data, rating')
+                        .eq('user_id', userId)
+                        .gte('rating', 4)
+                        .order('rating', { ascending: false })
+                        .limit(10);
+
+                    if (rated && rated.length > 0) {
+                        // Extract keyword frequencies from loved stories
+                        const kwCount = {};
+                        const modeCount = {};
+                        for (const row of rated) {
+                            const d = row.data;
+                            if (Array.isArray(d?.keywords_used)) {
+                                for (const kw of d.keywords_used) {
+                                    const k = kw.toLowerCase().trim();
+                                    kwCount[k] = (kwCount[k] || 0) + (row.rating >= 5 ? 2 : 1);
+                                }
+                            }
+                            if (d?.story_mode) {
+                                modeCount[d.story_mode] = (modeCount[d.story_mode] || 0) + 1;
+                            }
+                        }
+                        // Top 5 keywords
+                        const topKeywords = Object.entries(kwCount)
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, 5)
+                            .map(([k]) => k);
+
+                        if (topKeywords.length > 0) {
+                            personalizationHint = `\n      PERSONALIZATION: This child has loved stories featuring: ${topKeywords.join(', ')}. Where naturally fitting, weave in similar themes, characters, or emotions — but always respect the user's chosen KEYWORDS above.`;
+                        }
+                        console.log(`✨ Personalizing story for user ${userId} — taste profile: ${topKeywords.join(', ')}`);
+                    }
+                }
+            }
+        } catch (pErr) {
+            console.warn('Personalization fetch failed (non-fatal):', pErr.message);
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         const promptText = `
       Author a magical story for Region: ${targetRegion}, Theme: ${config.theme}.
       ${config.storyMode === 'toddler' ? 'STRICT TODDLER MODE (2-3): Short clear sentences, sensory focus.' : 'STRICT PRESCHOOL MODE (4-6): Narrative arc, clear resolution.'}
@@ -561,6 +613,7 @@ app.post('/api/gemini/story', async (req, res) => {
       KEYWORDS: ${config.keywords || 'Magical.'}
       TARGET WORD COUNT: ~${config.storyLength * 125} words per main episode.
       Define the character visually in 'main_character_description'. Return JSON.
+      ${personalizationHint}
     `;
         const result = await withRetry(async () => {
             const response = await ai.models.generateContent({
@@ -599,6 +652,7 @@ app.post('/api/gemini/story', async (req, res) => {
         res.status(500).json({ error: err.message || 'Story generation failed' });
     }
 });
+
 
 app.post('/api/gemini/tts', async (req, res) => {
     try {
