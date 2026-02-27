@@ -1295,17 +1295,19 @@ const App: React.FC = () => {
 
         {/* ── Global Nav — hidden only when the story player is actively showing ── */}
         {(!story || view !== 'app') && (
-          <nav className={`fixed top-0 left-0 w-full z-[100] px-4 md:px-8 py-4 flex justify-between items-center animate-in fade-in duration-300 ${view === 'landing' ? 'bg-gradient-to-b from-black/70 via-black/30 to-transparent backdrop-blur-[2px] border-b-0' : 'bg-black/80 backdrop-blur-md border-b border-white/5'}`}>
-            {/* Logo */}
-            <button
-              onClick={() => setView('landing')}
-              className="text-xl font-black text-white tracking-tighter font-borel hover:text-indigo-300 transition-colors"
-            >
-              Storia<sup className="text-[0.5em] ml-0.5">©</sup>
-            </button>
+          <nav className={`fixed top-0 left-0 w-full z-[100] flex flex-col items-center animate-in fade-in duration-300 ${view === 'landing' ? 'bg-gradient-to-b from-black/70 via-black/30 to-transparent backdrop-blur-[2px] border-b-0' : 'bg-black/80 backdrop-blur-md border-b border-white/5'}`}>
+            {/* Row 1 — Logo centred */}
+            <div className="w-full flex justify-center pt-3 pb-1">
+              <button
+                onClick={() => setView('landing')}
+                className="text-2xl font-black text-white tracking-tighter font-borel hover:text-indigo-300 transition-colors"
+              >
+                Storia<sup className="text-[0.5em] ml-0.5">©</sup>
+              </button>
+            </div>
 
-            {/* Right actions */}
-            <div className="flex items-center gap-2 md:gap-3">
+            {/* Row 2 — Nav items centred */}
+            <div className="w-full flex justify-center items-center gap-2 flex-wrap px-4 pb-3">
               {/* Create a Story — hidden on form pages */}
               {!['seed', 'refinement'].includes(view) && !(view === 'app' && !story) && (
                 <button
@@ -1378,7 +1380,7 @@ const App: React.FC = () => {
         )}
 
         {/* Offset for fixed nav: all pages except landing and story player */}
-        {(!story || view !== 'app') && view !== 'landing' && <div className="h-16" />}
+        {(!story || view !== 'app') && view !== 'landing' && <div className="h-24" />}
 
         {view === 'landing' && <LandingPage onStart={() => hasKey ? setView('app') : setView('setup')} onJoinMembership={() => { setPaywallScreen('plus'); setView('paywall'); }} onExplorePublic={() => setView('public_library')} onGoToColoring={() => setView('coloring_book')} translations={t} currentLang={currentLang} />}
         {view === 'setup' && (
