@@ -47,7 +47,7 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     error_safety_title: "Oops! Let's keep it magical",
     error_safety_desc: "Storia is a safe space for children. Some of the words used don't quite fit our kindness guidelines. Could you try using different, friendlier keywords?",
     error_safety_button: "Got it, I'll fix it",
-    landing_subtitle: "Storia is a calm, modern technology-powered storytelling app designed to help children 2-5 wind down, self-regulate, and explore stories from around the world.",
+    landing_subtitle: "Storia is made for parents of children aged 2–5. Calm, personalized bedtime stories with soothing voices and cultural warmth — designed to help little ones wind down, self-regulate, and drift off to sleep.",
     landing_slogan: "It's Storia time.",
     landing_button: "Begin the Magic",
     landing_carousel_title: "Library of Dreams",
@@ -1503,8 +1503,8 @@ const App: React.FC = () => {
                   onClick={() => signInWithApple()}
                   className="w-full flex items-center justify-center gap-3 py-3.5 bg-zinc-800 text-white font-bold rounded-2xl hover:bg-zinc-700 transition-all border border-zinc-700 text-sm"
                 >
-                  <svg width="17" height="20" viewBox="0 0 814 1000" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-                    <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 while 26.7 0 35.8 0 100 0 155.7 37.1 203.5 79 237.6c30.7 23.8 70.3 39.5 112.4 39.5 0 0 69.9.5-3.1 0z" />
+                  <svg width="17" height="20" viewBox="0 0 170 209" xmlns="http://www.w3.org/2000/svg" fill="white">
+                    <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.197-2.12-9.973-3.17-14.34-3.17-4.58 0-9.492 1.05-14.746 3.17-5.262 2.13-9.501 3.24-12.742 3.35-4.929.21-9.842-1.96-14.746-6.52-3.13-2.73-7.045-7.41-11.735-14.04-5.032-7.08-9.169-15.29-12.41-24.65-3.471-10.11-5.211-19.9-5.211-29.378 0-10.857 2.346-20.221 7.045-28.068 3.693-6.303 8.606-11.275 14.755-14.925s12.793-5.51 19.948-5.629c3.915 0 9.049 1.211 15.429 3.591 6.362 2.388 10.447 3.599 12.238 3.599 1.339 0 5.877-1.416 13.57-4.239 7.275-2.618 13.415-3.702 18.445-3.275 13.63 1.1 23.87 6.473 30.68 16.153-12.19 7.386-18.22 17.731-18.1 31.002.11 10.337 3.86 18.939 11.23 25.769 3.34 3.17 7.07 5.62 11.22 7.36-.9 2.61-1.85 5.11-2.86 7.51zM119.11 7.24c0 8.102-2.96 15.667-8.86 22.669-7.12 8.324-15.732 13.134-25.071 12.375a25.222 25.222 0 0 1-.188-3.07c0-7.778 3.386-16.102 9.399-22.908 3.002-3.446 6.82-6.311 11.45-8.597 4.62-2.252 8.99-3.497 13.1-3.71.12 1.017.17 2.033.17 3.041z" />
                   </svg>
                   Continue with Apple
                 </button>
