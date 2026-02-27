@@ -617,7 +617,10 @@ const App: React.FC = () => {
       setUserEmail(userData.email);
       // Load stats and saved stories from backend
       apiGetStats()
-        .then(stats => setUserStats(stats))
+        .then(stats => {
+          setUserStats(stats);
+          if ((stats as any).emailVerified !== undefined) setEmailVerified((stats as any).emailVerified);
+        })
         .catch(() => {
           const storedStats = localStorage.getItem('storia_user_stats');
           if (storedStats) setUserStats(JSON.parse(storedStats));
@@ -656,9 +659,10 @@ const App: React.FC = () => {
       apiGetStats()
         .then(stats => {
           setUserStats(stats);
+          if ((stats as any).emailVerified !== undefined) setEmailVerified((stats as any).emailVerified);
           localStorage.setItem('storia_user_stats', JSON.stringify(stats));
         })
-        .catch(() => { }); // silently ignore — cached value stays
+        .catch(() => { });
     }
   }, [view]);
 

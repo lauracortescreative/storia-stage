@@ -455,6 +455,7 @@ app.get('/api/stats', authenticateToken, async (req, res) => {
             bundlesRemaining: data.bundles_remaining, totalGenerated: data.total_generated,
             nextResetDate: data.next_reset_date,
             subscriptionStatus, subscriptionEndsAt,
+            emailVerified: data.email_verified ?? false,
         });
     } catch (err) {
         res.status(500).json({ error: 'Failed to load stats' });
