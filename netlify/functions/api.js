@@ -360,17 +360,21 @@ app.delete('/api/auth/account', authenticateToken, async (req, res) => {
         const { error } = await sb.auth.admin.deleteUser(req.user.id);
         if (error) throw error;
 
-        // Send goodbye email (non-blocking — account is already deleted)
-        sendBrandedEmail(
-            userEmail,
-            'Your Storia account has been deleted',
-            'We\'re sad to see you go — your account has been removed.',
-            'We\'re sorry to see you go.',
-            `<p style="margin:0;padding:0.5em 0">Your Storia account and all associated stories have been permanently deleted as requested. You won't receive any further emails from us.</p>
-             <p style="margin:0;padding:0.5em 0">If this was a mistake, or if you change your mind in the future, you're always welcome back. Simply create a new account at <a href="https://storia.land" style="color:#4f46e5">storia.land</a> whenever you're ready.</p>
-             <p style="margin:0;padding:0.5em 0">Thank you for being part of the Storia family. We hope we helped create some peaceful moments for your little ones. 💙</p>`,
-            null, null
-        ).catch(e => console.warn('Account deletion email failed (non-fatal):', e.message));
+        // Await email BEFORE responding — serverless functions terminate on res.json()
+        try {
+            await sendBrandedEmail(
+                userEmail,
+                'Your Storia account has been deleted',
+                'We\'re sad to see you go — your account has been removed.',
+                'We\'re sorry to see you go.',
+                `<p style="margin:0;padding:0.5em 0">Your Storia account and all associated stories have been permanently deleted as requested. You won't receive any further emails from us.</p>
+                 <p style="margin:0;padding:0.5em 0">If this was a mistake, or if you change your mind in the future, you're always welcome back. Simply create a new account at <a href="https://storia.land" style="color:#4f46e5">storia.land</a> whenever you're ready.</p>
+                 <p style="margin:0;padding:0.5em 0">Thank you for being part of the Storia family. We hope we helped create some peaceful moments for your little ones. 💙</p>`,
+                null, null
+            );
+        } catch (emailErr) {
+            console.warn('Account deletion email failed (non-fatal):', emailErr.message);
+        }
 
         res.json({ success: true });
     } catch (err) {
