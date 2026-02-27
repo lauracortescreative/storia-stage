@@ -24,59 +24,44 @@ function getResend() {
 }
 
 const FROM = 'Storia <no-reply@contact.storia.land>';
+const LOGO = 'https://resend-attachments.s3.amazonaws.com/69a4bd4a-85b6-46a5-aff7-1e068f2950ab';
+const AVATAR = 'https://resend-attachments.s3.amazonaws.com/e4d6bbfb-36c1-41f3-8f22-5c6bb3f50567';
 
-async function sendEmail(to, subject, html, replyTo) {
-    try {
-        const { error } = await getResend().emails.send({
-            from: FROM, to, subject, html,
-            ...(replyTo ? { reply_to: replyTo } : {}),
-        });
-        if (error) throw new Error(error.message);
-        console.log('✅ Email sent to', to);
-    } catch (err) {
-        console.error('Email send error:', err.message);
-        throw err;
-    }
-}
-
-async function sendVerificationEmail(to, verifyUrl) {
-    const confirmLink = `<a href="${verifyUrl}" style="color:#4f46e5;text-decoration:underline;">${verifyUrl}</a>`;
-    const { error } = await getResend().emails.send({
-        from: FROM,
-        to,
-        subject: 'Confirm your email — Storia ✨',
-        html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+/**
+ * Shared branded email using Laura's template layout.
+ * @param {string} preview  - Pre-header preview text
+ * @param {string} greeting - Text after "Hi <email>,"
+ * @param {string} body     - Main body HTML (paragraphs, etc.)
+ * @param {string|null} ctaUrl   - CTA button URL (or null to omit)
+ * @param {string|null} ctaLabel - CTA button label
+ */
+function brandedHtml(to, preview, greeting, body, ctaUrl = null, ctaLabel = null) {
+    const cta = ctaUrl ? `<a href="${ctaUrl}" style="display:inline-block;margin-top:20px;padding:14px 28px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">${ctaLabel} →</a>` : '';
+    return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html dir="ltr" lang="en">
   <head>
     <meta content="width=device-width" name="viewport" />
-    <link rel="preload" as="image" href="https://resend-attachments.s3.amazonaws.com/69a4bd4a-85b6-46a5-aff7-1e068f2950ab" />
-    <link rel="preload" as="image" href="https://resend-attachments.s3.amazonaws.com/e4d6bbfb-36c1-41f3-8f22-5c6bb3f50567" />
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
     <meta name="x-apple-disable-message-reformatting" />
   </head>
   <body>
-    <div style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0">Confirm your email to start your family's calm-first ritual with Storia©</div>
+    <div style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0">${preview}</div>
     <table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" align="center">
       <tbody><tr><td>
         <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
-          style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto','Oxygen','Ubuntu','Cantarell','Fira Sans','Droid Sans','Helvetica Neue',sans-serif;font-size:1.0769em;min-height:100%;line-height:155%">
+          style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif;font-size:1.0769em;min-height:100%;line-height:155%">
           <tbody><tr><td>
             <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
               style="max-width:600px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif">
               <tbody><tr><td>
-                <img alt='"It\'s Storiø time" logo' src="https://resend-attachments.s3.amazonaws.com/69a4bd4a-85b6-46a5-aff7-1e068f2950ab"
-                  style="display:block;outline:none;border:none;text-decoration:none;max-width:100%;border-radius:8px" width="100%" />
+                <img alt="It's Storia time logo" src="${LOGO}" style="display:block;outline:none;border:none;text-decoration:none;max-width:100%;border-radius:8px" width="100%" />
                 <p style="margin:0;padding:0.5em 0">Hi ${to},</p>
-                <p style="margin:0;padding:0.5em 0">We are so happy you're here.</p>
-                <p style="margin:0;padding:0.5em 0">At <strong>Storia©</strong>, we believe that while content might entertain, it is the <strong>ritual</strong> that truly regulates. We know how much heart you put into your family's "settling-down" moments—whether it's the pre-sleep wind down, decompressing after school, or finding calm during a long car ride.</p>
-                <p style="margin:0;padding:0.5em 0">Our goal is to help your family regulate emotions through structured, repeatable storytelling. To start creating your first daily ritual, please confirm your email address by clicking the link below:</p>
-                <p style="margin:0;padding:0.5em 0">${confirmLink}</p>
-                <p style="margin:0;padding:0.5em 0">By joining us, you're choosing a "calm-first" approach to technology. We've built Storia to be a safe, low-stimulation environment—focused on predictable routines that reduce anxiety and help your little ones feel secure.</p>
-                <p style="margin:0;padding:0.5em 0">It's <strong>Storia</strong> time. We can't wait to be a part of your family's daily rhythm.</p>
-                <p style="margin:0;padding:0.5em 0">Warmly ✨,</p>
+                <p style="margin:0;padding:0.5em 0">${greeting}</p>
+                ${body}
+                ${cta}
+                <p style="margin:0;padding:1em 0 0.5em 0">Warmly ✨,</p>
                 <p style="margin:0;padding:0.5em 0"><strong>Laura Cortes</strong>, Founder, Storia</p>
-                <img alt="Laura Cortes, Founder of Storia" src="https://resend-attachments.s3.amazonaws.com/e4d6bbfb-36c1-41f3-8f22-5c6bb3f50567"
-                  style="display:block;outline:none;border:none;text-decoration:none;max-width:100%;border-radius:8px" width="300" />
+                <img alt="Laura Cortes, Founder of Storia" src="${AVATAR}" style="display:block;outline:none;border:none;text-decoration:none;max-width:100%;border-radius:8px;margin-top:8px" width="300" />
                 <hr style="width:100%;border:none;border-top:2px solid #eaeaea;margin:1em 0" />
                 <p style="margin:0;padding:0.5em 0"><strong>Why Storia?</strong></p>
                 <ul style="padding-left:1.1em;padding-bottom:1em">
@@ -91,13 +76,41 @@ async function sendVerificationEmail(to, verifyUrl) {
       </td></tr></tbody>
     </table>
   </body>
-</html>`,
+</html>`;
+}
+
+async function sendBrandedEmail(to, subject, preview, greeting, body, ctaUrl = null, ctaLabel = null) {
+    const { error } = await getResend().emails.send({
+        from: FROM, to, subject,
+        html: brandedHtml(to, preview, greeting, body, ctaUrl, ctaLabel),
     });
-    if (error) {
-        console.error('❌ Resend verification error:', error.message);
-        throw new Error(error.message);
-    }
-    console.log('✅ Verification email sent to', to);
+    if (error) { console.error('❌ Email error:', error.message); throw new Error(error.message); }
+    console.log('✅ Email sent to', to, '—', subject);
+}
+
+// Legacy passthrough (used by a few existing callers)
+async function sendEmail(to, subject, html, replyTo) {
+    const { error } = await getResend().emails.send({
+        from: FROM, to, subject, html,
+        ...(replyTo ? { reply_to: replyTo } : {}),
+    });
+    if (error) { console.error('Email send error:', error.message); throw new Error(error.message); }
+    console.log('✅ Email sent to', to);
+}
+
+async function sendVerificationEmail(to, verifyUrl) {
+    await sendBrandedEmail(
+        to,
+        'Confirm your email — Storia ✨',
+        "Confirm your email to start your family's calm-first ritual with Storia©",
+        'We are so happy you\'re here.',
+        `<p style="margin:0;padding:0.5em 0">At <strong>Storia©</strong>, we believe that while content might entertain, it is the <strong>ritual</strong> that truly regulates. We know how much heart you put into your family's "settling-down" moments—whether it's the pre-sleep wind down, decompressing after school, or finding calm during a long car ride.</p>
+         <p style="margin:0;padding:0.5em 0">Our goal is to help your family regulate emotions through structured, repeatable storytelling. To start creating your first daily ritual, please confirm your email address by clicking the link below:</p>
+         <p style="margin:0;padding:0.5em 0"><a href="${verifyUrl}" style="color:#4f46e5;text-decoration:underline;">${verifyUrl}</a></p>
+         <p style="margin:0;padding:0.5em 0">By joining us, you're choosing a "calm-first" approach to technology. We've built Storia to be a safe, low-stimulation environment—focused on predictable routines that reduce anxiety and help your little ones feel secure.</p>
+         <p style="margin:0;padding:0.5em 0">It's <strong>Storia</strong> time. We can't wait to be a part of your family's daily rhythm.</p>`,
+        null, null
+    );
 }
 
 
@@ -340,10 +353,25 @@ app.put('/api/auth/email', authenticateToken, async (req, res) => {
 app.delete('/api/auth/account', authenticateToken, async (req, res) => {
     try {
         const sb = getSupabase();
+        const userEmail = req.user.email;
+
         await sb.from('stories').delete().eq('user_id', req.user.id);
         await sb.from('user_stats').delete().eq('user_id', req.user.id);
         const { error } = await sb.auth.admin.deleteUser(req.user.id);
         if (error) throw error;
+
+        // Send goodbye email (non-blocking — account is already deleted)
+        sendBrandedEmail(
+            userEmail,
+            'Your Storia account has been deleted',
+            'We\'re sad to see you go — your account has been removed.',
+            'We\'re sorry to see you go.',
+            `<p style="margin:0;padding:0.5em 0">Your Storia account and all associated stories have been permanently deleted as requested. You won't receive any further emails from us.</p>
+             <p style="margin:0;padding:0.5em 0">If this was a mistake, or if you change your mind in the future, you're always welcome back. Simply create a new account at <a href="https://storia.land" style="color:#4f46e5">storia.land</a> whenever you're ready.</p>
+             <p style="margin:0;padding:0.5em 0">Thank you for being part of the Storia family. We hope we helped create some peaceful moments for your little ones. 💙</p>`,
+            null, null
+        ).catch(e => console.warn('Account deletion email failed (non-fatal):', e.message));
+
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: 'Failed to delete account' });
@@ -822,7 +850,7 @@ app.post('/api/contact', async (req, res) => {
           <h1 style="font-size:24px;font-weight:900;margin-bottom:8px">We've received your message 💬</h1>
           <p style="color:#a1a1aa;font-size:15px;line-height:1.6">Thanks for reaching out, <strong style="color:#fff">${name}</strong>! We usually reply within a few hours.</p>
           <p style="color:#52525b;font-size:12px;margin-top:24px;font-style:italic">Your message: "${message.slice(0, 200)}${message.length > 200 ? '…' : ''}"</p>
-          <a href="https://stage-storia.netlify.app" style="display:inline-block;margin-top:24px;padding:12px 24px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Back to Storia →</a>
+          <a href="https://storia.land" style="display:inline-block;margin-top:24px;padding:12px 24px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Back to Storia →</a>
         </div>`
     );
 
@@ -930,25 +958,24 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
                     if (error) throw error;
                     console.log(`✅ User ${userId} upgraded to Plus via Stripe webhook`);
 
-                    // Fire subscription confirmation email (non-blocking)
+                    // ── Branded subscription upgrade email ──
                     const customerEmail = session.customer_email || session.customer_details?.email;
                     if (customerEmail) {
-                        sendEmail(
+                        sendBrandedEmail(
                             customerEmail,
                             "You're on Storia Plus 💎",
-                            `<div style="font-family:sans-serif;max-width:600px;margin:auto;background:#0a0a0a;color:#fff;padding:40px;border-radius:24px">
-                              <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">You're on Storia Plus 💎</h1>
-                              <p style="color:#a1a1aa;font-size:15px;line-height:1.6">Thank you for subscribing! You now have access to <strong style="color:#fff">20 new stories every month</strong>, all voices, and every cultural region.</p>
-                              <ul style="color:#a1a1aa;font-size:14px;line-height:2;padding-left:20px">
-                                <li>20 stories per month</li>
-                                <li>Unlimited replays</li>
-                                <li>All voices &amp; soundscapes</li>
-                                <li>Cultural localization for every region</li>
-                              </ul>
-                              <a href="https://stage-storia.netlify.app" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#4f46e5;color:#fff;font-weight:900;text-decoration:none;border-radius:14px;font-size:14px">Create Your First Plus Story →</a>
-                              <p style="color:#52525b;font-size:12px;margin-top:32px">Manage your subscription anytime from your Account page.</p>
-                            </div>`
-                        ).catch(e => console.warn('Subscription email failed (non-fatal):', e.message));
+                            "Welcome to Storia Plus — your family's story time just got even better.",
+                            "You're officially a Storia Plus family! 🎉",
+                            `<p style="margin:0;padding:0.5em 0">You now have access to <strong>20 new stories every month</strong>, every voice, every soundscape, and every cultural region. Your children's bedtime ritual just got richer.</p>
+                             <ul style="padding-left:1.1em;padding-bottom:0.5em">
+                               <li style="margin:0.3em 0 0.3em 1em"><strong>20 stories per month</strong></li>
+                               <li style="margin:0.3em 0 0.3em 1em">Unlimited replays</li>
+                               <li style="margin:0.3em 0 0.3em 1em">All voices &amp; soundscapes</li>
+                               <li style="margin:0.3em 0 0.3em 1em">Cultural localization for every region</li>
+                             </ul>
+                             <p style="margin:0;padding:0.5em 0">You can manage your subscription at any time from your Account page.</p>`,
+                            'https://storia.land', 'Create Your First Plus Story'
+                        ).catch(e => console.warn('Upgrade email failed (non-fatal):', e.message));
                     }
                 }
             } catch (err) {
@@ -958,8 +985,79 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
         }
     }
 
+    // ── Subscription renewal (invoice paid) ────────────────────────────────────
+    if (event.type === 'invoice.payment_succeeded') {
+        const invoice = event.data.object;
+        if (invoice.billing_reason === 'subscription_cycle') {
+            const customerEmail = invoice.customer_email;
+            const periodEnd = invoice.lines?.data?.[0]?.period?.end;
+            const nextDate = periodEnd ? new Date(periodEnd * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'next month';
+            if (customerEmail) {
+                sendBrandedEmail(
+                    customerEmail,
+                    'Your Storia Plus subscription has renewed 💎',
+                    'Your subscription renewed — 20 more stories are waiting.',
+                    'Your subscription has been renewed.',
+                    `<p style="margin:0;padding:0.5em 0">Your <strong>Storia Plus</strong> subscription has been successfully renewed. Your story allowance has been refreshed — 20 new stories are ready to create calm, meaningful moments for your family.</p>
+                     <p style="margin:0;padding:0.5em 0">Your next renewal date is <strong>${nextDate}</strong>.</p>
+                     <p style="margin:0;padding:0.5em 0">You can manage or cancel your subscription at any time from your Account page.</p>`,
+                    'https://storia.land', 'Create a Story'
+                ).catch(e => console.warn('Renewal email failed (non-fatal):', e.message));
+            }
+        }
+    }
+
+    // ── Subscription ending soon (user requested cancellation) ─────────────────
+    if (event.type === 'customer.subscription.updated') {
+        const sub = event.data.object;
+        if (sub.cancel_at_period_end === true) {
+            try {
+                const stripe = getStripe();
+                const customer = await stripe.customers.retrieve(sub.customer);
+                const customerEmail = typeof customer === 'object' && !customer.deleted ? customer.email : null;
+                const endDate = sub.current_period_end
+                    ? new Date(sub.current_period_end * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+                    : 'the end of your billing period';
+                if (customerEmail) {
+                    sendBrandedEmail(
+                        customerEmail,
+                        'Your Storia Plus subscription is ending 💙',
+                        'Your subscription will not renew — access continues until the end of your billing period.',
+                        'We received your cancellation request.',
+                        `<p style="margin:0;padding:0.5em 0">Your <strong>Storia Plus</strong> subscription is scheduled to end on <strong>${endDate}</strong>. Until then, you'll still have full access to all Plus features.</p>
+                         <p style="margin:0;padding:0.5em 0">If you change your mind, you can re-subscribe at any time from your Account page — your stories will always be waiting. 💙</p>
+                         <p style="margin:0;padding:0.5em 0">Thank you for being part of the Storia family.</p>`,
+                        'https://storia.land/account', 'Manage Subscription'
+                    ).catch(e => console.warn('Cancellation email failed (non-fatal):', e.message));
+                }
+            } catch (e) { console.warn('Subscription.updated email error (non-fatal):', e.message); }
+        }
+    }
+
+    // ── Discount / promo code expiry ──────────────────────────────────────────
+    if (event.type === 'customer.discount.deleted') {
+        try {
+            const discount = event.data.object;
+            const stripe = getStripe();
+            const customer = await stripe.customers.retrieve(discount.customer);
+            const customerEmail = typeof customer === 'object' && !customer.deleted ? customer.email : null;
+            const couponName = discount.coupon?.name || discount.coupon?.id || 'your discount';
+            if (customerEmail) {
+                sendBrandedEmail(
+                    customerEmail,
+                    'Your Storia discount has expired',
+                    'Your promotional discount has come to an end.',
+                    `We wanted to let you know that <strong>${couponName}</strong> has expired.`,
+                    `<p style="margin:0;padding:0.5em 0">Your subscription will now renew at the standard rate. Thank you for being an early supporter of Storia — your story time means the world to us.</p>
+                     <p style="margin:0;padding:0.5em 0">If you have any questions about your billing, please reach out to us at <a href="mailto:info@storia.land" style="color:#4f46e5">info@storia.land</a> — we're happy to help.</p>`,
+                    'https://storia.land', 'Continue Storytelling'
+                ).catch(e => console.warn('Discount expiry email failed (non-fatal):', e.message));
+            }
+        } catch (e) { console.warn('Discount deleted email error (non-fatal):', e.message); }
+    }
+
+    // ── Subscription fully deleted (downgrade) ─────────────────────────────────
     if (event.type === 'customer.subscription.deleted') {
-        // Downgrade back to free if they cancel
         const subscription = event.data.object;
         const customerId = subscription.customer;
 
@@ -967,10 +1065,23 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
             const stripe = getStripe();
             const customer = await stripe.customers.retrieve(customerId);
             const userId = customer.metadata?.user_id;
+            const customerEmail = typeof customer === 'object' && !customer.deleted ? customer.email : null;
             if (userId) {
                 const sb = getSupabase();
                 await sb.from('user_stats').update({ plan: 'free', monthly_limit: 5 }).eq('user_id', userId);
                 console.log(`User ${userId} downgraded to free (subscription cancelled)`);
+
+                if (customerEmail) {
+                    sendBrandedEmail(
+                        customerEmail,
+                        'Your Storia Plus subscription has ended',
+                        'Your subscription has ended — your free stories are still here.',
+                        'Your Storia Plus subscription has come to an end.',
+                        `<p style="margin:0;padding:0.5em 0">You now have access to <strong>5 stories per month</strong> on the free plan. All your saved stories are still in your library.</p>
+                         <p style="margin:0;padding:0.5em 0">We'd love to have you back whenever you're ready. Simply visit your Account page to re-subscribe.</p>`,
+                        'https://storia.land', 'Re-subscribe'
+                    ).catch(e => console.warn('Subscription ended email failed (non-fatal):', e.message));
+                }
             }
         } catch (err) {
             console.error('Downgrade error:', err.message);
@@ -979,6 +1090,9 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
 
     res.json({ received: true });
 });
+
+
+
 
 // ─── Error handler ────────────────────────────────────────────────────────────
 
