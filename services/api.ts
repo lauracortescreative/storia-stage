@@ -101,6 +101,17 @@ export async function apiLogin(email: string, password: string): Promise<AuthRes
     return result;
 }
 
+export async function apiOAuthInit(token: string): Promise<{ user: { id: string; email: string; emailVerified: boolean }; plan: string }> {
+    const res = await fetch(`${BASE_URL}/auth/oauth-init`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error('OAuth init failed');
+    const result = await res.json();
+    setToken(token);
+    return result;
+}
+
 export async function apiUpdateEmail(email: string): Promise<void> {
     await apiFetch('/auth/email', {
         method: 'PUT',

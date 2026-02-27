@@ -299,6 +299,52 @@ app.post('/api/auth/refresh', async (req, res) => {
     }
 });
 
+// POST /api/auth/oauth-init — called after OAuth redirect to bootstrap user_stats
+app.post('/api/auth/oauth-init', async (req, res) => {
+    const token = (req.headers['authorization'] || '').split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Token required' });
+    try {
+        const sb = getSupabase();
+        const { data, error } = await sb.auth.getUser(token);
+        if (error || !data?.user) return res.status(403).json({ error: 'Invalid token' });
+
+        const userId = data.user.id;
+        const email = data.user.email;
+
+        // Check if user_stats already exists
+        const { data: existing } = await sb.from('user_stats').select('user_id, plan').eq('user_id', userId).single();
+
+        if (!existing) {
+            // New OAuth user — bootstrap their account
+            await sb.from('user_stats').insert({
+                user_id: userId, plan: 'free', monthly_used: 0, monthly_limit: 5,
+                bundles_remaining: 0, total_generated: 0, email_verified: true,
+                next_reset_date: new Date(new Date().setMonth(new Date().getMonth() + 1)).toLocaleDateString()
+            });
+            // Send a welcome email (non-blocking)
+            sendBrandedEmail(
+                email,
+                'Welcome to Storia ✨',
+                'Your Storia account is ready.',
+                'Welcome to the family 🌙',
+                `<p style="margin:0;padding:0.5em 0">We're so happy you joined Storia! Your account is all set — start generating a magical bedtime story for your little one right now.</p>
+                 <p style="margin:0;padding:0.5em 0">Every story is crafted just for your child — personalised with their name, your language, and the themes they love most.</p>`,
+                'Start Creating Stories ✨', 'https://storia.land'
+            ).catch(e => console.warn('OAuth welcome email failed (non-fatal):', e.message));
+            console.log(`🎉 New OAuth user bootstrapped: ${email}`);
+        }
+
+        res.json({
+            user: { id: userId, email, emailVerified: true },
+            plan: existing?.plan ?? 'free'
+        });
+    } catch (err) {
+        console.error('oauth-init error:', err.message);
+        res.status(500).json({ error: 'OAuth init failed' });
+    }
+});
+
+
 // GET /api/auth/verify-email?token= — one-click email verification
 app.get('/api/auth/verify-email', async (req, res) => {
     const { token } = req.query;
