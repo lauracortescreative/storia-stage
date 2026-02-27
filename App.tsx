@@ -1297,7 +1297,7 @@ const App: React.FC = () => {
         {(!story || view !== 'app') && (
           <nav className={`fixed top-0 left-0 w-full z-[100] flex flex-col items-center animate-in fade-in duration-300 ${view === 'landing' ? 'bg-gradient-to-b from-black/70 via-black/30 to-transparent backdrop-blur-[2px] border-b-0' : 'bg-black/80 backdrop-blur-md border-b border-white/5'}`}>
             {/* Row 1 — Logo centred */}
-            <div className="w-full flex justify-center pt-3 pb-1">
+            <div className="w-full flex justify-center pt-5 pb-5">
               <button
                 onClick={() => setView('landing')}
                 className="text-2xl font-black text-white tracking-tighter font-borel hover:text-indigo-300 transition-colors"
