@@ -1342,8 +1342,8 @@ const App: React.FC = () => {
               >
                 🖍️ Coloring Lab
               </button>
-              {/* Account / Auth — hidden when already on account page */}
-              {isLoggedIn && view !== 'account' ? (
+              {/* Account / Auth — hidden entirely when already on account page */}
+              {view !== 'account' && (isLoggedIn ? (
                 <button
                   onClick={() => setView('account')}
                   className="flex items-center gap-2 px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs"
@@ -1358,7 +1358,7 @@ const App: React.FC = () => {
                 >
                   {t.button_create_account || 'Create Account / Sign In'}
                 </button>
-              )}
+              ))}
               {/* Help button */}
               <button
                 onClick={() => setView('help')}
