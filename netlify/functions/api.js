@@ -356,10 +356,10 @@ app.delete('/api/auth/account', authenticateToken, async (req, res) => {
 app.get('/api/stories', authenticateToken, async (req, res) => {
     try {
         const { data, error } = await getSupabase().from('stories')
-            .select('id, data, is_public, created_at').eq('user_id', req.user.id)
+            .select('id, data, rating, is_public, created_at').eq('user_id', req.user.id)
             .order('created_at', { ascending: false });
         if (error) throw error;
-        res.json(data.map(s => ({ ...s.data, id: s.id, isSaved: true })));
+        res.json(data.map(s => ({ ...s.data, id: s.id, isSaved: true, rating: s.rating ?? undefined })));
     } catch (err) {
         res.status(500).json({ error: 'Failed to load stories' });
     }
@@ -386,6 +386,22 @@ app.delete('/api/stories/:id', authenticateToken, async (req, res) => {
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: 'Failed to delete story' });
+    }
+});
+
+// PUT /api/stories/:id/rating — save a 0-5 star rating
+app.put('/api/stories/:id/rating', authenticateToken, async (req, res) => {
+    const { rating } = req.body;
+    if (rating === undefined || rating < 0 || rating > 5) return res.status(400).json({ error: 'Rating must be 0-5' });
+    try {
+        const { error } = await getSupabase().from('stories')
+            .update({ rating })
+            .eq('id', req.params.id)
+            .eq('user_id', req.user.id);
+        if (error) throw error;
+        res.json({ success: true, rating });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to save rating' });
     }
 });
 

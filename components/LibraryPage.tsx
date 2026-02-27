@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { StoryResult, UITranslations } from '../types';
+import StarRating from './StarRating';
 
 interface LibraryPageProps {
   translations: UITranslations;
@@ -9,6 +10,7 @@ interface LibraryPageProps {
   isLoggedIn: boolean;
   onSelectStory: (s: StoryResult) => void;
   onSaveStory: (s: StoryResult) => void;
+  onRateStory?: (id: string, rating: number) => Promise<void>;
   onBack: () => void;
   onAuth: () => void;
 }
@@ -20,6 +22,7 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
   isLoggedIn,
   onSelectStory,
   onSaveStory,
+  onRateStory,
   onBack,
   onAuth
 }) => {
@@ -261,6 +264,7 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
                       onPlay={() => onSelectStory(story)}
                       onReadScript={() => setScriptStory(story)}
                       onDownloadPDF={() => handleDownloadPDF(story)}
+                      onRate={onRateStory ? (r) => onRateStory(story.id, r) : undefined}
                       isLoggedIn={isLoggedIn}
                       saved
                     />
@@ -343,12 +347,14 @@ const StoryCard: React.FC<{
   t: UITranslations,
   onPlay: () => void,
   onSave?: () => void,
+  onRate?: (rating: number) => Promise<void> | void,
   onReadScript: () => void,
   onDownloadPDF: () => void,
   isLoggedIn: boolean,
   saved?: boolean
-}> = ({ story, t, onPlay, onSave, onReadScript, onDownloadPDF, isLoggedIn, saved }) => {
+}> = ({ story, t, onPlay, onSave, onRate, onReadScript, onDownloadPDF, isLoggedIn, saved }) => {
   const firstThumbnail = story.episodes[0]?.visual_plan?.[0]?.imageUrl;
+  const [localRating, setLocalRating] = useState<number | undefined>(story.rating);
 
   return (
     <div className="bg-zinc-900/50 rounded-[2.5rem] border border-zinc-800 overflow-hidden group hover:border-indigo-500/30 transition-all flex flex-col">
@@ -370,6 +376,18 @@ const StoryCard: React.FC<{
           <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1">
             {story.story_mode === 'toddler' ? '2-3' : '4-5'} {t.opt_years} • {story.language}
           </p>
+          {saved && (
+            <div className="mt-2" onClick={e => e.stopPropagation()}>
+              <StarRating
+                value={localRating}
+                size="sm"
+                onChange={async (r) => {
+                  setLocalRating(r);
+                  try { await onRate?.(r); } catch { }
+                }}
+              />
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-2">

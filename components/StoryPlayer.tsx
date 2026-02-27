@@ -1,17 +1,19 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { StoryResult, Episode, VisualScene, UITranslations, Soundscape } from '../types';
+import StarRating from './StarRating';
 
 interface StoryPlayerProps {
   story: StoryResult;
   onClose: () => void;
   onSave: () => void;
   onAuth: () => void;
+  onRate?: (rating: number) => Promise<void>;
   isLoggedIn: boolean;
   translations: UITranslations;
 }
 
-const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onAuth, isLoggedIn, translations: t }) => {
+const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRate, onAuth, isLoggedIn, translations: t }) => {
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,6 +23,7 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onAut
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [showCloseCTA, setShowCloseCTA] = useState(false);
   const [showSaveToast, setShowSaveToast] = useState(false);
+  const [localRating, setLocalRating] = useState<number | undefined>(story.rating);
 
   // --- Fullscreen state ---
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -390,6 +393,28 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onAut
                     {t.auth_already_have}
                   </button>
                 </div>
+              </div>
+            )}
+
+            {/* ── Star rating (for saved stories) ── */}
+            {isLoggedIn && story.isSaved && (
+              <div className="space-y-3">
+                <p className="text-zinc-400 text-sm font-bold tracking-wide">How did you like this story?</p>
+                <div className="flex justify-center">
+                  <StarRating
+                    value={localRating}
+                    size="lg"
+                    onChange={async (r) => {
+                      setLocalRating(r);
+                      try { await onRate?.(r); } catch { }
+                    }}
+                  />
+                </div>
+                {localRating !== undefined && localRating > 0 && (
+                  <p className="text-yellow-400 text-xs font-bold animate-in fade-in">
+                    {localRating === 5 ? '⭐ Absolute favourite!' : localRating >= 4 ? '✨ So glad you loved it!' : localRating >= 3 ? '👍 Good to know!' : '💛 Thank you for sharing!'}
+                  </p>
+                )}
               </div>
             )}
 

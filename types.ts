@@ -498,6 +498,7 @@ export interface StoryResult {
   timestamp: number;
   isSaved: boolean;
   soundscapeBlobUrl?: string;
+  rating?: number; // 0-5 stars
 }
 
 /**

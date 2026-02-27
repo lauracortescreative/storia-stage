@@ -27,7 +27,7 @@ import { checkSafety } from './services/moderation';
 import { THEME_TRANSLATIONS } from './src/themes';
 import {
   apiRegister, apiLogin, apiDeleteAccount, apiUpdateEmail,
-  apiGetStories, apiSaveStory,
+  apiGetStories, apiSaveStory, apiRateStory,
   apiGetStats, apiUpdateStats,
   apiCreateCheckoutSession, apiCreateTopupSession, apiCreatePortalSession, apiCancelSubscription, apiResendVerification,
   apiGetProfile, apiSaveProfile,
@@ -1465,7 +1465,7 @@ const App: React.FC = () => {
         {view === 'account' && <AccountPage translations={t} email={userEmail} emailVerified={emailVerified} childProfile={childProfile} plan={userStats.plan} monthlyUsed={userStats.monthlyUsed} monthlyLimit={userStats.monthlyLimit} subscriptionStatus={userStats.subscriptionStatus} subscriptionEndsAt={userStats.subscriptionEndsAt} onResendVerification={apiResendVerification} onUpdateEmail={handleUpdateEmail} onSaveProfile={handleSaveProfile} onDeleteAccount={handleDeleteAccount} onLogout={handleLogout} onManageBilling={handleManageBilling} onSubscribe={handleSubscribe} onCancelSubscription={handleCancelSubscription} onBack={() => setView('app')} />}
         {view === 'help' && <HelpPage translations={t} userEmail={userEmail} onBack={() => setView(isLoggedIn ? 'app' : 'landing')} />}
         {view === 'verify' && <VerifyEmailPage token={verifyToken} onContinue={() => { setEmailVerified(true); window.history.replaceState({}, '', '/'); setView(isLoggedIn ? 'account' : 'landing'); }} />}
-        {view === 'library' && <LibraryPage translations={t} sessionStories={sessionStories} savedStories={savedStories} isLoggedIn={isLoggedIn} onSelectStory={(s) => { setStory(s); setView('app'); }} onSaveStory={saveToAccount} onBack={() => setView('app')} onAuth={() => setView('auth')} />}
+        {view === 'library' && <LibraryPage translations={t} sessionStories={sessionStories} savedStories={savedStories} isLoggedIn={isLoggedIn} onSelectStory={(s) => { setStory(s); setView('app'); }} onSaveStory={saveToAccount} onRateStory={async (id, rating) => { await apiRateStory(id, rating); setSavedStories(prev => prev.map(s => s.id === id ? { ...s, rating } : s)); }} onBack={() => setView('app')} onAuth={() => setView('auth')} />}
         {view === 'public_library' && <PublicLibraryPage translations={t} onSelectStory={(s) => { setStory(s); setView('app'); }} onGoToColoring={() => setView('coloring_book')} onBack={() => setView('landing')} />}
         {view === 'coloring_book' && <ColoringBookPage translations={t} onBack={() => setView('landing')} />}
         {view === 'subscribe_success' && (
@@ -1492,7 +1492,7 @@ const App: React.FC = () => {
                 </div>
               </header>
               {error && <div className="text-center text-red-500 mb-8 p-4 bg-red-950/20 rounded-2xl border border-red-900">{error}</div>}
-              {story && <StoryPlayer translations={t} story={story} isLoggedIn={isLoggedIn} onAuth={() => setView('auth')} onClose={() => { generationIdRef.current++; setStory(null); setView('app'); }} onSave={() => saveToAccount(story)} />}
+              {story && <StoryPlayer translations={t} story={story} isLoggedIn={isLoggedIn} onAuth={() => setView('auth')} onClose={() => { generationIdRef.current++; setStory(null); setView('app'); }} onSave={() => saveToAccount(story)} onRate={story.isSaved ? async (rating) => { await apiRateStory(story.id, rating); setSavedStories(prev => prev.map(s => s.id === story.id ? { ...s, rating } : s)); } : undefined} />}
             </div>
           </div>
         )}

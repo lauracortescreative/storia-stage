@@ -132,6 +132,13 @@ export async function apiDeleteStory(id: string): Promise<void> {
     await apiFetch(`/stories/${id}`, { method: 'DELETE' });
 }
 
+export async function apiRateStory(id: string, rating: number): Promise<void> {
+    await apiFetch(`/stories/${id}/rating`, {
+        method: 'PUT',
+        body: JSON.stringify({ rating }),
+    });
+}
+
 // ─── Stats ────────────────────────────────────────────────────────────────────
 
 import type { UserStats } from '../types';
