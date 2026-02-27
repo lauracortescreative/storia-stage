@@ -1311,17 +1311,17 @@ const App: React.FC = () => {
                   ✨ {t.landing_button || 'Create a Story'}
                 </button>
               )}
-              <button onClick={() => setView('public_library')} className="flex px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2">
+              {view !== 'public_library' && <button onClick={() => setView('public_library')} className="flex px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2">
                 📚 {t.public_library_link || 'Public Library'}
-              </button>
+              </button>}
               {isLoggedIn && (
                 <button id="nav-my-library" onClick={() => setView('library')} className="flex px-4 md:px-5 py-2 rounded-full bg-indigo-500/20 hover:bg-indigo-500/30 transition-all border border-indigo-500/40 text-indigo-300 font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2">
                   🌙 {t.library_title || 'My Library'}
                 </button>
               )}
-              <button onClick={() => setView('coloring_book')} className="flex px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2">
+              {view !== 'coloring_book' && <button onClick={() => setView('coloring_book')} className="flex px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2">
                 🖍️ Coloring Lab
-              </button>
+              </button>}
               {view !== 'account' && (isLoggedIn ? (
                 <button onClick={() => setView('account')} className="flex items-center gap-2 px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
@@ -1362,10 +1362,12 @@ const App: React.FC = () => {
             )}
 
             {/* Public Library */}
-            <button onClick={() => setView('public_library')} className={`flex flex-col items-center gap-0.5 transition-colors ${view === 'public_library' ? 'text-white' : 'text-white/60 hover:text-white'}`} title="Public Library">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-              <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Library</span>
-            </button>
+            {view !== 'public_library' && (
+              <button onClick={() => setView('public_library')} className={`flex flex-col items-center gap-0.5 transition-colors text-white/60 hover:text-white`} title="Public Library">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Library</span>
+              </button>
+            )}
 
             {/* My Library (logged in) */}
             {isLoggedIn && (
@@ -1376,10 +1378,12 @@ const App: React.FC = () => {
             )}
 
             {/* Coloring Lab */}
-            <button onClick={() => setView('coloring_book')} className={`flex flex-col items-center gap-0.5 transition-colors ${view === 'coloring_book' ? 'text-white' : 'text-white/60 hover:text-white'}`} title="Coloring Lab">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-              <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Color</span>
-            </button>
+            {view !== 'coloring_book' && (
+              <button onClick={() => setView('coloring_book')} className={`flex flex-col items-center gap-0.5 transition-colors text-white/60 hover:text-white`} title="Coloring Lab">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Color</span>
+              </button>
+            )}
 
             {/* Account / Auth */}
             {view !== 'account' && (isLoggedIn ? (
