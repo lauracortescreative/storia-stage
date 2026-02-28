@@ -9,13 +9,13 @@ router.get('/', authenticateToken, async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('stories')
-            .select('id, data, is_public, created_at')
+            .select('id, data, rating, is_public, created_at')
             .eq('user_id', req.user.id)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
-        // Return the data field (the full StoryResult JSON) for each story
-        res.json(data.map(s => ({ ...s.data, id: s.id, isSaved: true })));
+        // Return the data field (the full StoryResult JSON) for each story, plus the rating column
+        res.json(data.map(s => ({ ...s.data, id: s.id, isSaved: true, rating: s.rating ?? undefined })));
     } catch (err) {
         console.error('Get stories error:', err);
         res.status(500).json({ error: 'Failed to load stories' });
@@ -45,6 +45,29 @@ router.post('/', authenticateToken, async (req, res) => {
     } catch (err) {
         console.error('Save story error:', err);
         res.status(500).json({ error: 'Failed to save story' });
+    }
+});
+
+// PUT /api/stories/:id/rating — update the star rating for a story
+router.put('/:id/rating', authenticateToken, async (req, res) => {
+    const { rating } = req.body;
+
+    if (rating === undefined || typeof rating !== 'number' || rating < 0 || rating > 5) {
+        return res.status(400).json({ error: 'Rating must be a number between 0 and 5' });
+    }
+
+    try {
+        const { error: updateError } = await supabase
+            .from('stories')
+            .update({ rating })
+            .eq('id', req.params.id)
+            .eq('user_id', req.user.id);
+
+        if (updateError) throw updateError;
+        res.json({ success: true, rating });
+    } catch (err) {
+        console.error('Rate story error:', err);
+        res.status(500).json({ error: 'Failed to update rating' });
     }
 });
 
