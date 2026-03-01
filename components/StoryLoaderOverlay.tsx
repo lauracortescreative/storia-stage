@@ -14,7 +14,7 @@ const StoryLoaderOverlay: React.FC<Props> = ({ facts, loadingStatus, onCancel, c
     const [visible, setVisible] = useState(true);
     const [dots, setDots] = useState('');
 
-    // Cycle facts every 3.5s with a fade transition
+    // Cycle facts every 6s with a fade transition
     useEffect(() => {
         const interval = setInterval(() => {
             setVisible(false);
@@ -22,7 +22,7 @@ const StoryLoaderOverlay: React.FC<Props> = ({ facts, loadingStatus, onCancel, c
                 setIndex(i => (i + 1) % facts.length);
                 setVisible(true);
             }, 400);
-        }, 3500);
+        }, 6000);
         return () => clearInterval(interval);
     }, [facts.length]);
 
