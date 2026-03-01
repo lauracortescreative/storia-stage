@@ -285,6 +285,19 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     sound_ocean: "Calm Ocean",
     sound_wind: "Gentle Wind",
     cancel: "Cancel Magic",
+    loader_crafted: "Your story is being crafted",
+    loader_did_you_know: "Did you know?",
+    loader_fact_1: "Stories activate 7 regions of the brain simultaneously — including those that process emotions, movement, and smell.",
+    loader_fact_2: "Children who hear a story before bed fall asleep up to 20 minutes faster than those who don't.",
+    loader_fact_3: "Hearing a character feel nervous helps children name and regulate their own anxiety — a skill called \"bibliotherapy.\"",
+    loader_fact_4: "Repetition is magic: hearing the same story 3–5 times builds neural pathways that help children predict — and feel safe.",
+    loader_fact_5: "Stories from a child's own cultural world strengthen identity and a sense of belonging — both tied to emotional security.",
+    loader_fact_6: "A calm narrator's voice entrains a child's nervous system through co-regulation — even over audio.",
+    loader_fact_7: "Children who are read to daily have vocabularies 3x larger by age 5, giving them more words for their feelings.",
+    loader_fact_8: "Predictable bedtime rituals lower cortisol levels — making story time one of the most powerful tools for calm.",
+    loader_fact_9: "Stories with a clear resolution teach children that problems can be solved — building emotional resilience.",
+    loader_fact_10: "When a child identifies with a character overcoming fear, their own amygdala response to that fear is reduced.",
+
     close: "Close",
     detected_label: "Detected",
     footer_region: "App Language",
@@ -1274,21 +1287,30 @@ const App: React.FC = () => {
       {/* GLOBAL LOADING OVERLAY */}
       {loading && (() => {
         const FACTS = [
-          { emoji: '🧠', fact: 'Stories activate 7 regions of the brain simultaneously — including those that process emotions, movement, and smell.' },
-          { emoji: '😴', fact: 'Children who hear a story before bed fall asleep up to 20 minutes faster than those who don\'t.' },
-          { emoji: '💛', fact: 'Hearing a character feel nervous helps children name and regulate their own anxiety — a skill called "bibliotherapy."' },
-          { emoji: '🔁', fact: 'Repetition is magic: hearing the same story 3–5 times builds neural pathways that help children predict — and feel safe.' },
-          { emoji: '🌍', fact: 'Stories from a child\'s own cultural world strengthen identity and a sense of belonging — both tied to emotional security.' },
-          { emoji: '🎙️', fact: 'A calm narrator\'s voice entrains a child\'s nervous system through co-regulation — even over audio.' },
-          { emoji: '✨', fact: 'Children who are read to daily have vocabularies 3x larger by age 5, giving them more words for their feelings.' },
-          { emoji: '🌙', fact: 'Predictable bedtime rituals lower cortisol levels — making story time one of the most powerful tools for calm.' },
-          { emoji: '❤️', fact: 'Stories with a clear resolution teach children that problems can be solved — building emotional resilience.' },
-          { emoji: '🐻', fact: 'When a child identifies with a character overcoming fear, their own amygdala response to that fear is reduced.' },
+          { emoji: '🧠', fact: t.loader_fact_1 },
+          { emoji: '😴', fact: t.loader_fact_2 },
+          { emoji: '💛', fact: t.loader_fact_3 },
+          { emoji: '🔁', fact: t.loader_fact_4 },
+          { emoji: '🌍', fact: t.loader_fact_5 },
+          { emoji: '🎙️', fact: t.loader_fact_6 },
+          { emoji: '✨', fact: t.loader_fact_7 },
+          { emoji: '🌙', fact: t.loader_fact_8 },
+          { emoji: '❤️', fact: t.loader_fact_9 },
+          { emoji: '🐻', fact: t.loader_fact_10 },
         ];
+
         return (
-          <StoryLoaderOverlay facts={FACTS} loadingStatus={loadingStatus} onCancel={() => { generationIdRef.current++; setLoading(false); }} cancelLabel={t.cancel} />
+          <StoryLoaderOverlay
+            facts={FACTS}
+            loadingStatus={loadingStatus}
+            onCancel={() => { generationIdRef.current++; setLoading(false); }}
+            cancelLabel={t.cancel}
+            craftedLabel={t.loader_crafted}
+            didYouKnow={t.loader_did_you_know}
+          />
         );
       })()}
+
 
 
       <div className="flex-1">

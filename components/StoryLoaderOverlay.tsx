@@ -7,9 +7,11 @@ interface Props {
     loadingStatus: string;
     onCancel: () => void;
     cancelLabel?: string;
+    craftedLabel?: string;
+    didYouKnow?: string;
 }
 
-const StoryLoaderOverlay: React.FC<Props> = ({ facts, loadingStatus, onCancel, cancelLabel = 'Cancel' }) => {
+const StoryLoaderOverlay: React.FC<Props> = ({ facts, loadingStatus, onCancel, cancelLabel = 'Cancel', craftedLabel = 'Your story is being crafted', didYouKnow = 'Did you know?' }) => {
     const [index, setIndex] = useState(0);
     const [visible, setVisible] = useState(true);
     const [dots, setDots] = useState('');
@@ -75,7 +77,7 @@ const StoryLoaderOverlay: React.FC<Props> = ({ facts, loadingStatus, onCancel, c
                     {loadingStatus}{dots}
                 </p>
                 <p className="text-indigo-400 text-[10px] font-black uppercase tracking-[0.4em] mb-10 opacity-70">
-                    Your story is being crafted
+                    {craftedLabel}
                 </p>
 
                 {/* Progress shimmer bar */}
@@ -92,7 +94,7 @@ const StoryLoaderOverlay: React.FC<Props> = ({ facts, loadingStatus, onCancel, c
                     style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(8px)', transition: 'opacity 0.4s ease, transform 0.4s ease' }}
                 >
                     <div className="text-3xl mb-3">{current.emoji}</div>
-                    <p className="text-[11px] font-black uppercase tracking-widest text-indigo-300 mb-2">Did you know?</p>
+                    <p className="text-[11px] font-black uppercase tracking-widest text-indigo-300 mb-2">{didYouKnow}</p>
                     <p className="text-white/80 text-sm leading-relaxed font-medium">{current.fact}</p>
                 </div>
 
