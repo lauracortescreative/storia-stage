@@ -13,10 +13,10 @@ async function withRetry(fn, maxRetries = 3, initialDelay = 2000) {
         } catch (err) {
             lastError = err;
             const msg = err.message || String(err);
-            const shouldRetry = msg.includes('500') || msg.includes('503') ||
-                msg.includes('429') || msg.toLowerCase().includes('quota') ||
-                msg.toLowerCase().includes('rate');
-            if (shouldRetry && i < maxRetries - 1) {
+            // Retry on all transient errors — Gemini can fail with any message
+            const isPermError = msg.includes('API_KEY') || msg.includes('not configured') ||
+                msg.includes('PERMISSION_DENIED') || msg.includes('invalid_argument');
+            if (!isPermError && i < maxRetries - 1) {
                 const delay = initialDelay * Math.pow(2, i);
                 console.warn(`Gemini retry ${i + 1}/${maxRetries} in ${delay}ms: ${msg}`);
                 await new Promise(r => setTimeout(r, delay));
@@ -335,7 +335,7 @@ router.post('/soundscape', async (req, res) => {
     try {
         const { soundscape } = req.body;
         const ai = getAI();
-        const prompt = `Create a continuous ambient background loop of ${soundscape}. Environmental sounds only.`;
+        const prompt = `Create a 30-second continuous ambient soundscape of: ${soundscape}. Only environmental/nature sounds, no voice narration, no music melody.`;
 
         const result = await withRetry(async () => {
             const response = await ai.models.generateContent({
@@ -343,11 +343,14 @@ router.post('/soundscape', async (req, res) => {
                 contents: [{ parts: [{ text: prompt }] }],
                 config: {
                     responseModalities: [Modality.AUDIO],
-                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } } },
                 },
             });
-            return response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || '';
-        });
+            const audioData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+            if (!audioData) {
+                throw new Error('No audio data returned by soundscape model — will retry');
+            }
+            return audioData;
+        }, 5, 1500);
 
         res.json({ audio: result });
     } catch (err) {
@@ -355,6 +358,7 @@ router.post('/soundscape', async (req, res) => {
         res.status(500).json({ error: err.message || 'Soundscape generation failed' });
     }
 });
+
 
 // ─── POST /api/gemini/voice ───────────────────────────────────────────────────
 router.post('/voice', async (req, res) => {

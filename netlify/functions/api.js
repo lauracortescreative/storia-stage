@@ -135,9 +135,10 @@ async function withRetry(fn, maxRetries = 3, initialDelay = 2000) {
         try { return await fn(); } catch (err) {
             lastError = err;
             const msg = err.message || String(err);
-            const retry = msg.includes('500') || msg.includes('503') || msg.includes('429') ||
-                msg.toLowerCase().includes('quota') || msg.toLowerCase().includes('rate');
-            if (retry && i < maxRetries - 1) {
+            // Retry on all transient errors — Gemini can fail with any message
+            const isPermError = msg.includes('API_KEY') || msg.includes('not configured') ||
+                msg.includes('PERMISSION_DENIED') || msg.includes('invalid_argument');
+            if (!isPermError && i < maxRetries - 1) {
                 await new Promise(r => setTimeout(r, initialDelay * Math.pow(2, i)));
                 continue;
             }
@@ -830,11 +831,15 @@ app.post('/api/gemini/soundscape', async (req, res) => {
         const result = await withRetry(async () => {
             const r = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-preview-tts',
-                contents: [{ parts: [{ text: `Create a continuous ambient background loop of ${soundscape}. Environmental sounds only.` }] }],
-                config: { responseModalities: [Modality.AUDIO], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } } } },
+                contents: [{ parts: [{ text: `Create a 30-second continuous ambient soundscape of: ${soundscape}. Only environmental/nature sounds, no voice narration, no music melody.` }] }],
+                config: { responseModalities: [Modality.AUDIO] },
             });
-            return r.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || '';
-        });
+            const audioData = r.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+            if (!audioData) {
+                throw new Error('No audio data returned by soundscape model — will retry');
+            }
+            return audioData;
+        }, 5, 1500);
         res.json({ audio: result });
     } catch (err) {
         res.status(500).json({ error: err.message || 'Soundscape generation failed' });
