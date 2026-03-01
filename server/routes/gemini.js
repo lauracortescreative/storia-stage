@@ -316,8 +316,11 @@ router.post('/image', async (req, res) => {
                 config: { imageConfig: { aspectRatio: '16:9' } },
             });
             const imagePart = response.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
-            return imagePart ? `data:image/png;base64,${imagePart.inlineData.data}` : '';
-        });
+            if (!imagePart?.inlineData?.data) {
+                throw new Error('No image data returned by model — will retry');
+            }
+            return `data:image/png;base64,${imagePart.inlineData.data}`;
+        }, 5, 1000); // up to 5 retries, starting at 1s delay
 
         res.json({ imageUrl: result });
     } catch (err) {
@@ -325,6 +328,7 @@ router.post('/image', async (req, res) => {
         res.status(500).json({ error: err.message || 'Image generation failed' });
     }
 });
+
 
 // ─── POST /api/gemini/soundscape ──────────────────────────────────────────────
 router.post('/soundscape', async (req, res) => {

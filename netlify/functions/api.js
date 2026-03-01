@@ -811,13 +811,17 @@ app.post('/api/gemini/image', async (req, res) => {
                 config: { imageConfig: { aspectRatio: '16:9' } },
             });
             const p = r.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
-            return p ? `data:image/png;base64,${p.inlineData.data}` : '';
-        });
+            if (!p?.inlineData?.data) {
+                throw new Error('No image data returned by model — will retry');
+            }
+            return `data:image/png;base64,${p.inlineData.data}`;
+        }, 5, 1000); // up to 5 retries, starting at 1s delay
         res.json({ imageUrl: result });
     } catch (err) {
         res.status(500).json({ error: err.message || 'Image generation failed' });
     }
 });
+
 
 app.post('/api/gemini/soundscape', async (req, res) => {
     try {
