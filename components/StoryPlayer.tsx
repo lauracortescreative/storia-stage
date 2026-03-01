@@ -24,6 +24,7 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
   const [showCloseCTA, setShowCloseCTA] = useState(false);
   const [showSaveToast, setShowSaveToast] = useState(false);
   const [localRating, setLocalRating] = useState<number | undefined>(story.rating);
+  const [localIsSaved, setLocalIsSaved] = useState(story.isSaved);
 
   // --- Fullscreen state ---
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -171,6 +172,8 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
     } else {
       setIsPlaying(false);
       setProgress(1.0);
+      // Auto-show end-of-story overlay when the last episode finishes
+      setShowCloseCTA(true);
     }
   };
 
@@ -193,8 +196,9 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
   };
 
   const handleSave = () => {
-    if (story.isSaved) return;
+    if (story.isSaved || localIsSaved) return;
     onSave();
+    setLocalIsSaved(true);
     setShowSaveToast(true);
     setTimeout(() => setShowSaveToast(false), 3000);
   };
@@ -372,7 +376,7 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
             <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 animate-gradient-x"></div>
 
             {/* ── Auth prompt for logged-out users ── */}
-            {!isLoggedIn && !story.isSaved && (
+            {!isLoggedIn && !localIsSaved && (
               <div className="bg-indigo-950/60 border border-indigo-500/30 rounded-3xl p-6 space-y-4">
                 <div className="text-3xl">✨</div>
                 <div className="space-y-1">
@@ -396,8 +400,25 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
               </div>
             )}
 
+            {/* ── Save to Library (logged-in, not yet saved) ── */}
+            {isLoggedIn && !localIsSaved && (
+              <div className="bg-indigo-950/60 border border-indigo-500/30 rounded-3xl p-6 space-y-4">
+                <div className="text-3xl">📚</div>
+                <div className="space-y-1">
+                  <p className="text-white font-black text-lg tracking-tight">Keep this story forever</p>
+                  <p className="text-indigo-200/60 text-sm">Save it to your library and replay it any time.</p>
+                </div>
+                <button
+                  onClick={() => { handleSave(); }}
+                  className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-base rounded-2xl transition-all shadow-xl active:scale-95"
+                >
+                  {t.player_save_to_library || 'Save to Library'} ✨
+                </button>
+              </div>
+            )}
+
             {/* ── Star rating (for saved stories) ── */}
-            {isLoggedIn && story.isSaved && (
+            {isLoggedIn && localIsSaved && (
               <div className="space-y-3">
                 <p className="text-zinc-400 text-sm font-bold tracking-wide">How did you like this story?</p>
                 <div className="flex justify-center">
@@ -490,14 +511,14 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
             <div className="flex items-center gap-2 md:gap-3">
               <button
                 onClick={handleSave}
-                disabled={story.isSaved}
-                className={`p-3 rounded-2xl transition-all backdrop-blur-md border border-white/10 flex items-center gap-2 font-bold text-sm ${story.isSaved ? 'bg-green-900/50 text-green-400 cursor-default' : 'bg-black/40 text-white hover:bg-indigo-600/80'}`}
+                disabled={localIsSaved}
+                className={`p-3 rounded-2xl transition-all backdrop-blur-md border border-white/10 flex items-center gap-2 font-bold text-sm ${localIsSaved ? 'bg-green-900/50 text-green-400 cursor-default' : 'bg-black/40 text-white hover:bg-indigo-600/80'}`}
               >
-                {story.isSaved
+                {localIsSaved
                   ? <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                   : <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                 }
-                <span className="hidden md:inline">{story.isSaved ? t.player_saved : t.player_save_to_library}</span>
+                <span className="hidden md:inline">{localIsSaved ? t.player_saved : t.player_save_to_library}</span>
               </button>
 
               <button onClick={() => setIsScriptOpen(true)} className="p-3 rounded-2xl bg-black/40 text-white hover:bg-black/70 transition-all backdrop-blur-md border border-white/10">
@@ -564,14 +585,14 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
           <div className="absolute top-6 right-6 flex flex-wrap justify-end gap-3 z-50">
             <button
               onClick={handleSave}
-              disabled={story.isSaved}
-              className={`p-4 rounded-3xl transition-all shadow-2xl backdrop-blur-md flex items-center gap-2 font-bold ${story.isSaved ? 'bg-green-900/40 text-green-400 cursor-default scale-100' : 'bg-indigo-600/80 text-white hover:bg-indigo-500 hover:scale-105 active:scale-95'}`}
+              disabled={localIsSaved}
+              className={`p-4 rounded-3xl transition-all shadow-2xl backdrop-blur-md flex items-center gap-2 font-bold ${localIsSaved ? 'bg-green-900/40 text-green-400 cursor-default scale-100' : 'bg-indigo-600/80 text-white hover:bg-indigo-500 hover:scale-105 active:scale-95'}`}
             >
-              {story.isSaved
+              {localIsSaved
                 ? <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 animate-in zoom-in duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                 : <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
               }
-              <span className="hidden md:inline">{story.isSaved ? t.player_saved : t.player_save_to_library}</span>
+              <span className="hidden md:inline">{localIsSaved ? t.player_saved : t.player_save_to_library}</span>
             </button>
 
             <button
