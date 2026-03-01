@@ -13,9 +13,11 @@ async function withRetry(fn, maxRetries = 3, initialDelay = 2000) {
         } catch (err) {
             lastError = err;
             const msg = err.message || String(err);
-            // Retry on all transient errors — Gemini can fail with any message
-            const isPermError = msg.includes('API_KEY') || msg.includes('not configured') ||
-                msg.includes('PERMISSION_DENIED') || msg.includes('invalid_argument');
+            // Never retry permanent errors or client-side parse failures
+            const isPermError =
+                msg.includes('API_KEY') || msg.includes('not configured') ||
+                msg.includes('PERMISSION_DENIED') || msg.includes('invalid_argument') ||
+                err instanceof SyntaxError || msg.includes('JSON');
             if (!isPermError && i < maxRetries - 1) {
                 const delay = initialDelay * Math.pow(2, i);
                 console.warn(`Gemini retry ${i + 1}/${maxRetries} in ${delay}ms: ${msg}`);
