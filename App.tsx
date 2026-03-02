@@ -83,8 +83,8 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     feat2_desc: "Switch between immersive storybook illustrations or a gentle dark mode for sleeping.",
     feat3_title: "Remixed Repeats",
     feat3_desc: "Turn on repeats to hear the same story or a magical variation for longer sessions.",
-    landing_science_title: "The Science of Bedtime Stories",
-    landing_science_subtitle: "10 research-backed reasons why story time changes everything",
+    landing_science_title: "Stories That Teach Self-Regulation",
+    landing_science_subtitle: "10 research-backed reasons why story time rewires your child's emotional brain",
     landing_how_title: "How your stories are created",
 
     landing_how_step1_title: "Seeds of Imagination",
@@ -601,7 +601,7 @@ const App: React.FC = () => {
 
   const [dynamicT, setDynamicT] = useState<Record<string, Partial<UITranslations>>>(() => {
     const initialLang = localStorage.getItem('storia_current_lang') || 'English';
-    const cached = localStorage.getItem(`storia_trans_${initialLang}`);
+    const cached = localStorage.getItem(`storia_trans_v2_${initialLang}`);
     return cached ? { [initialLang]: JSON.parse(cached) } : {};
   });
 
@@ -712,7 +712,7 @@ const App: React.FC = () => {
     localStorage.setItem('storia_current_lang', currentLang);
     if (!hasKey || currentLang === 'English') return;
 
-    const cached = localStorage.getItem(`storia_trans_${currentLang}`);
+    const cached = localStorage.getItem(`storia_trans_v2_${currentLang}`);
     if (cached) {
       const parsed = JSON.parse(cached);
       // Use cache if it has ≥180 keys (main-UI batch from Gemini returns ~210-230)
@@ -721,7 +721,7 @@ const App: React.FC = () => {
         return;
       }
       // Stale/partial cache — remove and re-fetch
-      localStorage.removeItem(`storia_trans_${currentLang}`);
+      localStorage.removeItem(`storia_trans_v2_${currentLang}`);
     }
 
     const translateMainUI = async () => {
@@ -747,7 +747,7 @@ const App: React.FC = () => {
         if (tid !== translationIdRef.current) return;
 
         if (Object.keys(result).length > 5) {
-          localStorage.setItem(`storia_trans_${currentLang}`, JSON.stringify(result));
+          localStorage.setItem(`storia_trans_v2_${currentLang}`, JSON.stringify(result));
           setDynamicT(prev => ({ ...prev, [currentLang]: result }));
         }
       } catch (e) {
@@ -786,7 +786,7 @@ const App: React.FC = () => {
         if (Object.keys(result).length > 5) {
           setDynamicT(prev => {
             const merged = { ...(prev[currentLang] || {}), ...result };
-            localStorage.setItem(`storia_trans_${currentLang}`, JSON.stringify(merged));
+            localStorage.setItem(`storia_trans_v2_${currentLang}`, JSON.stringify(merged));
             return { ...prev, [currentLang]: merged };
           });
         }
