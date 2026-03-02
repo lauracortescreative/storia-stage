@@ -485,14 +485,15 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     paywall_yearly_price: "£59.99",
     paywall_yearly_discount: "Best value",
     paywall_button: "Start Storia Plus",
-    tester_badge: "Tester Preview",
-    tester_title: "Welcome to Storia",
-    tester_desc: "This is an early tester link for the Storia platform. We are hard at work bringing full magic to every household.",
+    tester_badge: "Beta Version",
+    tester_title: "Welcome to Storia Beta",
+    tester_desc: "early beta version of the Storia platform. Features may evolve and some bugs may appear — your feedback helps us build the magic.",
     tester_follow_title: "Follow the Journey ✨",
     tester_follow_desc: "Follow us on Instagram for updates, news, and behind-the-scenes magic.",
     tester_instagram_cta: "Follow us @storia.land",
     tester_feedback_cta: "Please fill our Feedback Form",
     tester_cta: "Enter the Magic ✨",
+
     // Auth
     auth_welcome_back: "Welcome back",
     auth_sign_in_desc: "Sign in to access your saved stories.",
