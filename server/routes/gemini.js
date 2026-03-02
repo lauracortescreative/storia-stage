@@ -13,11 +13,11 @@ async function withRetry(fn, maxRetries = 3, initialDelay = 2000) {
         } catch (err) {
             lastError = err;
             const msg = err.message || String(err);
-            // Never retry permanent errors or client-side parse failures
+            // Never retry permanent errors or JSON parse failures
             const isPermError =
                 msg.includes('API_KEY') || msg.includes('not configured') ||
                 msg.includes('PERMISSION_DENIED') || msg.includes('invalid_argument') ||
-                err instanceof SyntaxError || msg.includes('JSON');
+                err instanceof SyntaxError || msg.includes('Unexpected token');
             if (!isPermError && i < maxRetries - 1) {
                 const delay = initialDelay * Math.pow(2, i);
                 console.warn(`Gemini retry ${i + 1}/${maxRetries} in ${delay}ms: ${msg}`);
@@ -243,7 +243,18 @@ router.post('/story', async (req, res) => {
                     },
                 },
             });
-            return JSON.parse(response.text.trim());
+            const rawText = response.text
+                ?? response.candidates?.[0]?.content?.parts?.[0]?.text
+                ?? null;
+            if (!rawText) {
+                const finishReason = response.candidates?.[0]?.finishReason;
+                throw new Error(`Gemini returned empty story response (finishReason: ${finishReason || 'unknown'}) — will retry`);
+            }
+            const parsed = JSON.parse(rawText.trim());
+            if (!parsed.episodes || !Array.isArray(parsed.episodes) || parsed.episodes.length === 0) {
+                throw new Error('Gemini returned story with no episodes — will retry');
+            }
+            return parsed;
         });
 
         res.json(result);

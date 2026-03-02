@@ -139,7 +139,7 @@ async function withRetry(fn, maxRetries = 3, initialDelay = 2000) {
             const isPermError =
                 msg.includes('API_KEY') || msg.includes('not configured') ||
                 msg.includes('PERMISSION_DENIED') || msg.includes('invalid_argument') ||
-                err instanceof SyntaxError || msg.includes('JSON');
+                err instanceof SyntaxError || msg.includes('Unexpected token');
             if (!isPermError && i < maxRetries - 1) {
                 await new Promise(r => setTimeout(r, initialDelay * Math.pow(2, i)));
                 continue;
@@ -756,7 +756,18 @@ app.post('/api/gemini/story', async (req, res) => {
                     },
                 },
             });
-            return JSON.parse(response.text.trim());
+            const rawText = response.text
+                ?? response.candidates?.[0]?.content?.parts?.[0]?.text
+                ?? null;
+            if (!rawText) {
+                const finishReason = response.candidates?.[0]?.finishReason;
+                throw new Error(`Gemini returned empty story response (finishReason: ${finishReason || 'unknown'}) — will retry`);
+            }
+            const parsed = JSON.parse(rawText.trim());
+            if (!parsed.episodes || !Array.isArray(parsed.episodes) || parsed.episodes.length === 0) {
+                throw new Error('Gemini returned story with no episodes — will retry');
+            }
+            return parsed;
         });
         res.json(result);
     } catch (err) {
