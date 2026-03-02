@@ -494,7 +494,130 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onJoinMembership, on
           </div>
         </section>
 
+        {/* Science of Bedtime Stories Section */}
+        <section className="w-full bg-gradient-to-b from-indigo-950/30 to-transparent py-32 px-6">
+          <div className="max-w-7xl mx-auto space-y-16">
+            <div className="text-center space-y-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-black uppercase tracking-widest mb-2">
+                🔬 Peer-reviewed research
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter">{t.landing_science_title}</h2>
+              <p className="text-indigo-200/60 font-bold text-base md:text-lg max-w-2xl mx-auto">{t.landing_science_subtitle}</p>
+              <div className="w-24 h-1.5 bg-indigo-500 mx-auto rounded-full"></div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {[
+                {
+                  emoji: "🧠",
+                  fact: t.loader_fact_1,
+                  source: "Berns et al., Emory University",
+                  journal: "Brain Connectivity, 2013",
+                  url: "https://doi.org/10.1089/brain.2013.0166"
+                },
+                {
+                  emoji: "😴",
+                  fact: t.loader_fact_2,
+                  source: "American Academy of Pediatrics",
+                  journal: "Literacy Promotion in Primary Care, 2014",
+                  url: "https://publications.aap.org/pediatrics/article/134/2/404/31921"
+                },
+                {
+                  emoji: "💛",
+                  fact: t.loader_fact_3,
+                  source: "Forgan, J.W.",
+                  journal: "Journal of Reading Education, 2002",
+                  url: "https://www.semanticscholar.org/paper/Using-Bibliotherapy-to-Teach-Problem-Solving-Forgan/df3b5bd5a50d2e0b0dba3a8e8b9a4f9b3d55b2d4"
+                },
+                {
+                  emoji: "🔁",
+                  fact: t.loader_fact_4,
+                  source: "Harvard Center on the Developing Child",
+                  journal: "Serve & Return — Neural Connections, 2018",
+                  url: "https://developingchild.harvard.edu/science/key-concepts/serve-and-return/"
+                },
+                {
+                  emoji: "🌍",
+                  fact: t.loader_fact_5,
+                  source: "NAEYC — Culturally Responsive Practice",
+                  journal: "Young Children Journal, 2016",
+                  url: "https://www.naeyc.org/resources/pubs/yc/may2016/culturally-responsive-practice"
+                },
+                {
+                  emoji: "🎙️",
+                  fact: t.loader_fact_6,
+                  source: "Siegel, D. & Bryson, T.P.",
+                  journal: "The Whole-Brain Child, Norton, 2011",
+                  url: "https://www.drdansiegel.com/book/the-whole-brain-child/"
+                },
+                {
+                  emoji: "✨",
+                  fact: t.loader_fact_7,
+                  source: "Hart & Risley",
+                  journal: "Meaningful Differences in Everyday Experience, 1995",
+                  url: "https://brookespublishing.com/product/meaningful-differences/"
+                },
+                {
+                  emoji: "🌙",
+                  fact: t.loader_fact_8,
+                  source: "Walker, M.",
+                  journal: "Why We Sleep, Scribner, 2017",
+                  url: "https://www.simonandschuster.com/books/Why-We-Sleep/Matthew-Walker/9781501144325"
+                },
+                {
+                  emoji: "❤️",
+                  fact: t.loader_fact_9,
+                  source: "APA — Resilience Science; Bettelheim, B.",
+                  journal: "The Uses of Enchantment, Knopf, 1976",
+                  url: "https://www.apa.org/topics/resilience"
+                },
+                {
+                  emoji: "🐻",
+                  fact: t.loader_fact_10,
+                  source: "Mar, R.A. & Oatley, K.",
+                  journal: "Perspectives on Psychological Science, 2008",
+                  url: "https://doi.org/10.1111/j.1745-6924.2008.00073.x"
+                },
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="group relative flex flex-col gap-4 p-6 rounded-[2.5rem] bg-white/3 backdrop-blur-sm border border-white/8 hover:border-indigo-500/30 hover:bg-white/6 transition-all duration-500 hover:-translate-y-1"
+                >
+                  {/* Fact number */}
+                  <span className="absolute top-5 right-5 text-[10px] font-black text-white/15 tabular-nums">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+
+                  <div className="text-3xl">{item.emoji}</div>
+
+                  <p className="text-white/90 text-sm font-semibold leading-relaxed flex-1">
+                    {item.fact}
+                  </p>
+
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col gap-0.5 mt-auto pt-4 border-t border-white/8 group-hover:border-indigo-500/20 transition-colors"
+                  >
+                    <span className="text-indigo-400 text-[10px] font-black uppercase tracking-wider group-hover:text-indigo-300 transition-colors leading-tight">
+                      {item.source}
+                    </span>
+                    <span className="text-white/30 text-[9px] font-medium leading-tight flex items-center gap-1">
+                      {item.journal}
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </span>
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* How it Works Section */}
+
         <section className="w-full max-w-6xl px-6 py-32 space-y-24">
           <div className="text-center space-y-6">
             <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter">{t.landing_how_title}</h2>

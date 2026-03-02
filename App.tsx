@@ -83,7 +83,10 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     feat2_desc: "Switch between immersive storybook illustrations or a gentle dark mode for sleeping.",
     feat3_title: "Remixed Repeats",
     feat3_desc: "Turn on repeats to hear the same story or a magical variation for longer sessions.",
+    landing_science_title: "The Science of Bedtime Stories",
+    landing_science_subtitle: "10 research-backed reasons why story time changes everything",
     landing_how_title: "How your stories are created",
+
     landing_how_step1_title: "Seeds of Imagination",
     landing_how_step1_desc: "You provide a few keywords and select a cultural region. This forms the heartbeat of the tale.",
     landing_how_step2_title: "Modern Technology Alchemy",
