@@ -555,7 +555,7 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     // Landing/form banners
     landing_early_access: "Early access: 5 free stories/month until August 1st — then 2. Enjoy while it lasts!",
     form_early_access: "Early access offer: 5 free stories/month until August 1st — after that, 2 free stories/month.",
-    landing_reveal_button: "Reveal AI Visuals",
+    landing_reveal_button: "Reveal the Visuals",
     landing_painting_magic: "Painting Magic...",
     nav_coloring_lab: "Coloring Lab",
     nav_help: "Help",
