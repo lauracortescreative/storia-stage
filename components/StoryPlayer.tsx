@@ -159,10 +159,10 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
       if (story.sleep_fade && isLastEpisode && timeLeft < fadeThreshold && timeLeft > 0) {
         const fadeFactor = Math.max(0, timeLeft / fadeThreshold);
         audio.volume = fadeFactor;
-        setSoundscapeVolume(fadeFactor * 0.35);
+        setSoundscapeVolume(fadeFactor * 0.07);
       } else {
         if (audio.volume !== 1) audio.volume = 1;
-        setSoundscapeVolume(0.35);
+        setSoundscapeVolume(0.07);
       }
     }
   };
@@ -190,7 +190,7 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
         setIsPlaying(true);
         if (story.soundscape !== 'none') {
           if (!soundscapeStopRef.current) {
-            soundscapeStopRef.current = startSoundscape(story.soundscape as SoundscapeType, 0.35);
+            soundscapeStopRef.current = startSoundscape(story.soundscape as SoundscapeType, 0.07);
           }
         }
       }).catch(() => setIsPlaying(false));
@@ -320,7 +320,7 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
       return;
     }
     if (isPlaying && !soundscapeStopRef.current) {
-      soundscapeStopRef.current = startSoundscape(story.soundscape as SoundscapeType, 0.35);
+      soundscapeStopRef.current = startSoundscape(story.soundscape as SoundscapeType, 0.07);
     } else if (!isPlaying && soundscapeStopRef.current) {
       // Keep running — we only stop on unmount or soundscape change
     }
@@ -782,7 +782,7 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
                                 setIsPlaying(true);
                                 audioRef.current.play().catch(() => { });
                                 if (story.soundscape !== 'none' && !soundscapeStopRef.current) {
-                                  soundscapeStopRef.current = startSoundscape(story.soundscape as SoundscapeType, 0.35);
+                                  soundscapeStopRef.current = startSoundscape(story.soundscape as SoundscapeType, 0.07);
                                 }
                               } else { setTimeout(tryJump, 100); }
                             };
