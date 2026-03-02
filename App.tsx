@@ -1228,14 +1228,7 @@ const App: React.FC = () => {
         bundlesRemaining: (userStats.bundlesRemaining > 0 && userStats.monthlyUsed >= userStats.monthlyLimit) ? userStats.bundlesRemaining - 1 : userStats.bundlesRemaining
       });
 
-      if (config.soundscape !== 'none') {
-        service.generateSoundscape(config.soundscape)
-          .then(audio => currentGenId === generationIdRef.current ? decodeAudio(audio) : null)
-          .then(url => {
-            if (!url || currentGenId !== generationIdRef.current) return;
-            setStory(prev => prev?.id === initialStory.id ? { ...prev, soundscapeBlobUrl: url } : prev);
-          });
-      }
+
 
       storyData.episodes.forEach((episode, epIdx) => {
         const isMeditation = config.meditationEnabled && epIdx === storyData.episodes.length - 1 && episode.episode_title.toLowerCase().includes('wind-down');

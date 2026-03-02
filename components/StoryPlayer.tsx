@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { StoryResult, Episode, VisualScene, UITranslations, Soundscape } from '../types';
 import StarRating from './StarRating';
+import { startSoundscape, stopSoundscape, setSoundscapeVolume, SoundscapeType } from '../services/soundscape';
 
 interface StoryPlayerProps {
   story: StoryResult;
@@ -33,7 +34,7 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
   const hideControlsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const audioRef = useRef<HTMLAudioElement>(null);
-  const ambientRef = useRef<HTMLAudioElement>(null);
+  const soundscapeStopRef = useRef<(() => void) | null>(null);
 
   const currentEpisode = story.episodes[currentEpisodeIndex];
 
@@ -158,10 +159,10 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
       if (story.sleep_fade && isLastEpisode && timeLeft < fadeThreshold && timeLeft > 0) {
         const fadeFactor = Math.max(0, timeLeft / fadeThreshold);
         audio.volume = fadeFactor;
-        if (ambientRef.current) ambientRef.current.volume = fadeFactor * 0.5;
+        setSoundscapeVolume(fadeFactor * 0.35);
       } else {
         if (audio.volume !== 1) audio.volume = 1;
-        if (ambientRef.current && ambientRef.current.volume !== 0.5) ambientRef.current.volume = 0.5;
+        setSoundscapeVolume(0.35);
       }
     }
   };
@@ -182,14 +183,15 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
     if (!currentEpisode.audioBlobUrl || !audioRef.current) return;
     if (isPlaying) {
       audioRef.current.pause();
-      if (ambientRef.current) ambientRef.current.pause();
+      // Don't stop soundscape on pause — keep ambience running while paused
       setIsPlaying(false);
     } else {
       audioRef.current.play().then(() => {
         setIsPlaying(true);
-        if (ambientRef.current && story.soundscape !== 'none' && (ambientRef.current.src || story.soundscapeBlobUrl)) {
-          if (!ambientRef.current.src && story.soundscapeBlobUrl) ambientRef.current.src = story.soundscapeBlobUrl;
-          ambientRef.current.play().catch(e => { if (e.name !== 'AbortError') console.error("Ambient playback interrupted", e); });
+        if (story.soundscape !== 'none') {
+          if (!soundscapeStopRef.current) {
+            soundscapeStopRef.current = startSoundscape(story.soundscape as SoundscapeType, 0.35);
+          }
         }
       }).catch(() => setIsPlaying(false));
     }
@@ -291,7 +293,6 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
     if (hasVisuals) {
       if (isPlaying) {
         audioRef.current?.pause();
-        ambientRef.current?.pause();
         setIsPlaying(false);
       }
       setShowCloseCTA(true);
@@ -311,24 +312,27 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
     }
   }, [currentEpisode.audioBlobUrl, currentEpisodeIndex]);
 
+  // Start/stop synthesized soundscape based on play state
   useEffect(() => {
-    const ambient = ambientRef.current;
-    if (ambient) {
-      if (story.soundscape !== 'none' && story.soundscapeBlobUrl) {
-        if (ambient.src !== story.soundscapeBlobUrl) {
-          ambient.src = story.soundscapeBlobUrl;
-          ambient.load();
-        }
-        ambient.loop = true;
-        ambient.volume = 0.5;
-        if (isPlaying) ambient.play().catch(() => { });
-      } else {
-        ambient.pause();
-        ambient.removeAttribute('src');
-        ambient.load();
-      }
+    if (story.soundscape === 'none') {
+      stopSoundscape();
+      soundscapeStopRef.current = null;
+      return;
     }
-  }, [story.soundscape, story.soundscapeBlobUrl, isPlaying]);
+    if (isPlaying && !soundscapeStopRef.current) {
+      soundscapeStopRef.current = startSoundscape(story.soundscape as SoundscapeType, 0.35);
+    } else if (!isPlaying && soundscapeStopRef.current) {
+      // Keep running — we only stop on unmount or soundscape change
+    }
+  }, [story.soundscape, isPlaying]);
+
+  // Stop synthesized soundscape when player unmounts
+  useEffect(() => {
+    return () => {
+      stopSoundscape();
+      soundscapeStopRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     setProgress(0);
@@ -354,7 +358,6 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
     >
       {/* Audio elements — always rendered here so refs are always valid */}
       <audio ref={audioRef} onTimeUpdate={handleTimeUpdate} onEnded={handleEnded} crossOrigin="anonymous" preload="auto" className="hidden" />
-      <audio ref={ambientRef} crossOrigin="anonymous" preload="auto" className="hidden" />
       {isGeneratingPdf && (
         <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex flex-col items-center justify-center space-y-4">
           <div className="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
@@ -778,7 +781,9 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ story, onClose, onSave, onRat
                                 setIsMenuOpen(false);
                                 setIsPlaying(true);
                                 audioRef.current.play().catch(() => { });
-                                if (ambientRef.current && story.soundscape !== 'none') ambientRef.current.play().catch(() => { });
+                                if (story.soundscape !== 'none' && !soundscapeStopRef.current) {
+                                  soundscapeStopRef.current = startSoundscape(story.soundscape as SoundscapeType, 0.35);
+                                }
                               } else { setTimeout(tryJump, 100); }
                             };
                             tryJump();
