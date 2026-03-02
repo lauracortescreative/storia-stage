@@ -542,8 +542,16 @@ const ALL_TRANSLATIONS: Record<string, Partial<UITranslations>> = {
     // Landing/form banners
     landing_early_access: "Early access: 5 free stories/month until August 1st — then 2. Enjoy while it lasts!",
     form_early_access: "Early access offer: 5 free stories/month until August 1st — after that, 2 free stories/month.",
-    landing_reveal_button: "Reveal Modern Technology Visuals",
+    landing_reveal_button: "Reveal AI Visuals",
     landing_painting_magic: "Painting Magic...",
+    nav_coloring_lab: "Coloring Lab",
+    nav_help: "Help",
+    nav_color_short: "Color",
+    nav_account_short: "Account",
+    nav_sign_in_short: "Sign In",
+    nav_mine_short: "Mine",
+    nav_plus_short: "Plus",
+
     landing_promo_price: "New users: £3.99/month for the first 3 months",
     landing_promo_instagram: "Follow @storia.land · DM for access code",
   }
@@ -1339,7 +1347,7 @@ const App: React.FC = () => {
                 </button>
               )}
               {view !== 'coloring_book' && <button onClick={() => setView('coloring_book')} className="flex px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs items-center gap-2">
-                🖍️ Coloring Lab
+                🖍️ {t.nav_coloring_lab}
               </button>}
               {view !== 'account' && (isLoggedIn ? (
                 <button onClick={() => setView('account')} className="flex items-center gap-2 px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs">
@@ -1353,7 +1361,7 @@ const App: React.FC = () => {
               ))}
               <button onClick={() => setView('help')} className="flex items-center gap-2 px-4 md:px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] md:text-xs">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                Help
+                {t.nav_help}
               </button>
               <button onClick={() => { setPaywallScreen('plus'); setView('paywall'); }} className="group px-3 md:px-4 py-2 rounded-full bg-indigo-600/20 hover:bg-indigo-600 transition-all border border-indigo-500/40 text-indigo-400 hover:text-white font-black text-xs flex items-center gap-1.5">
                 <span className="text-base">💎</span>
@@ -1392,7 +1400,7 @@ const App: React.FC = () => {
             {isLoggedIn && (
               <button onClick={() => setView('library')} className={`flex flex-col items-center gap-0.5 transition-colors ${view === 'library' ? 'text-indigo-400' : 'text-white/60 hover:text-indigo-300'}`} title="My Library">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-                <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Mine</span>
+                <span className="text-[9px] font-black uppercase tracking-wider opacity-60">{t.nav_mine_short}</span>
               </button>
             )}
 
@@ -1400,7 +1408,7 @@ const App: React.FC = () => {
             {view !== 'coloring_book' && (
               <button onClick={() => setView('coloring_book')} className={`flex flex-col items-center gap-0.5 transition-colors text-white/60 hover:text-white`} title="Coloring Lab">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Color</span>
+                <span className="text-[9px] font-black uppercase tracking-wider opacity-60">{t.nav_color_short}</span>
               </button>
             )}
 
@@ -1408,25 +1416,25 @@ const App: React.FC = () => {
             {view !== 'account' && (isLoggedIn ? (
               <button onClick={() => setView('account')} className={`flex flex-col items-center gap-0.5 transition-colors ${view === 'account' ? 'text-white' : 'text-white/60 hover:text-white'}`} title="My Account">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Account</span>
+                <span className="text-[9px] font-black uppercase tracking-wider opacity-60">{t.nav_account_short}</span>
               </button>
             ) : (
               <button onClick={() => setView('auth')} className="flex flex-col items-center gap-0.5 text-indigo-400 hover:text-indigo-300 transition-colors" title="Sign In">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Sign In</span>
+                <span className="text-[9px] font-black uppercase tracking-wider opacity-60">{t.nav_sign_in_short}</span>
               </button>
             ))}
 
             {/* Plus */}
             <button onClick={() => { setPaywallScreen('plus'); setView('paywall'); }} className="flex flex-col items-center gap-0.5 text-indigo-400 hover:text-indigo-300 transition-colors" title="Plus">
               <span className="text-lg leading-none">💎</span>
-              <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Plus</span>
+              <span className="text-[9px] font-black uppercase tracking-wider opacity-60">{t.nav_plus_short}</span>
             </button>
 
             {/* Help */}
             <button onClick={() => setView('help')} className={`flex flex-col items-center gap-0.5 transition-colors ${view === 'help' ? 'text-white' : 'text-white/60 hover:text-white'}`} title="Help">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <span className="text-[9px] font-black uppercase tracking-wider opacity-60">Help</span>
+              <span className="text-[9px] font-black uppercase tracking-wider opacity-60">{t.nav_help}</span>
             </button>
           </nav>
         </>)}
