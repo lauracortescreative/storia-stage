@@ -202,15 +202,15 @@ const AccountPage: React.FC<AccountPageProps> = ({
               subscriptionStatus === 'cancelling' && subscriptionEndsAt ? (
                 <div className="ml-auto text-right">
                   <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-widest border border-amber-500/30 block">
-                    Cancelling
+                    {t.account_cancelling}
                   </span>
                   <span className="text-zinc-500 text-[10px] font-bold mt-1 block">
-                    Ends {new Date(subscriptionEndsAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                    {t.account_ends} {new Date(subscriptionEndsAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
                   </span>
                 </div>
               ) : (
                 <span className="ml-auto px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-black uppercase tracking-widest border border-indigo-500/30">
-                  Active
+                  {t.account_status_active}
                 </span>
               )
             )}
@@ -243,7 +243,7 @@ const AccountPage: React.FC<AccountPageProps> = ({
                 className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all shadow-lg text-base flex items-center justify-center gap-3 disabled:opacity-60"
               >
                 {subscribeLoading === 'monthly' ? (
-                  <><span className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />Redirecting…</>
+                  <><span className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />{t.account_redirecting}</>
                 ) : (
                   <><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>{t.account_subscribe_cta || 'Subscribe to Plus — £6.99/month'}</>
                 )}
@@ -268,8 +268,8 @@ const AccountPage: React.FC<AccountPageProps> = ({
               {/* Upgrade to yearly */}
               <div className="flex items-center justify-between p-5 rounded-2xl bg-zinc-800/50 border border-zinc-700">
                 <div>
-                  <p className="text-white font-black text-sm">Switch to Yearly & Save</p>
-                  <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-0.5">£59.99/year · best value</p>
+                  <p className="text-white font-black text-sm">{t.account_upgrade_label}</p>
+                  <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-0.5">{t.account_yearly_price}</p>
                 </div>
                 <button
                   onClick={() => handleSubscribeClick('yearly')}
@@ -277,7 +277,7 @@ const AccountPage: React.FC<AccountPageProps> = ({
                   className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl transition-all text-xs disabled:opacity-60 flex items-center gap-2"
                 >
                   {subscribeLoading === 'yearly' ? <span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" /> : null}
-                  Upgrade
+                  {t.account_upgrade_btn}
                 </button>
               </div>
 
@@ -293,7 +293,7 @@ const AccountPage: React.FC<AccountPageProps> = ({
                   className="px-6 py-2.5 bg-zinc-700 hover:bg-zinc-600 text-white font-black rounded-xl transition-all text-xs disabled:opacity-60 flex items-center gap-2 border border-zinc-600"
                 >
                   {billingLoading ? <span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" /> : <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>}
-                  {billingLoading ? 'Opening…' : 'Open'}
+                  {billingLoading ? t.account_billing_opening : t.account_billing_open_btn}
                 </button>
               </div>
 
@@ -445,7 +445,7 @@ const AccountPage: React.FC<AccountPageProps> = ({
                   </p>
                 </div>
                 <span className="ml-auto text-[10px] font-black text-indigo-400 uppercase tracking-widest">
-                  ✨ Prefills form
+                  {t.account_prefills_form}
                 </span>
               </div>
             )}
@@ -458,7 +458,8 @@ const AccountPage: React.FC<AccountPageProps> = ({
               {profileSaving ? (
                 <>
                   <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                  Saving…
+                  {t.account_saving}
+
                 </>
               ) : (
                 t.button_save_changes
@@ -479,7 +480,7 @@ const AccountPage: React.FC<AccountPageProps> = ({
               className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all text-sm flex items-center gap-2 shadow-lg shadow-indigo-900/30"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-              Open Library
+              {t.account_open_library}
             </button>
           </div>
         </section>
